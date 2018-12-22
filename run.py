@@ -113,7 +113,7 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 			channel = await utils.get_channel(client.get_all_channels(), channelid)
 
 		log_instance = channel.history(limit=amount)
-		starttime = time.clock()
+		#starttime = time.clock()
 		exportfilename = "exports/export.%s.%s.%s.json" % (str(int(time.time())), str(channelid), str(amount))
 		log_file = open(exportfilename, "a", encoding="utf8")	
 		collection = []
@@ -134,12 +134,12 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 			#collection.update(template)
 			collection.append(template)
 		log_file.write(json.dumps(collection, indent=4, sort_keys=True))
-		timeittook = time.clock() - starttime
+		#timeittook = time.clock() - starttime
 		exportembed=discord.Embed(color=0xadff2f)
 		exportembed.set_author(name="Exporting finished", url='https://github.com/Kyuunex/Momiji', icon_url='https://cdn.discordapp.com/emojis/499963996141518872.png')
 		exportembed.add_field(name="Exported to:", value=exportfilename, inline=False)
 		exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
-		exportembed.add_field(name="Time taken while exporting:", value=str(int(timeittook))+" seconds", inline=False)
+		#exportembed.add_field(name="Time taken while exporting:", value=str(int(timeittook))+" seconds", inline=False)
 		await ctx.send(embed=exportembed)
 	else :
 		await ctx.send(embed=await permissions.error())
@@ -150,17 +150,17 @@ async def importmessages(ctx):
 		try:
 			channel = ctx.message.channel
 			log_instance = channel.history(limit=999999999)
-			starttime = time.clock()
+			#starttime = time.clock()
 			logcounter = 0
 			async for message in log_instance:
 				if await utils.msgfilter(message, True) != None:
 					logcounter += 1
 					await dbhandler.insert('channellogs', (message.channel.id, message.id, message.author.id, message.content.encode('utf-8')))
-			timeittook = time.clock() - starttime
+			#timeittook = time.clock() - starttime
 			exportembed=discord.Embed(color=0xadff2f, description="Imported the channel into database.")
 			exportembed.set_author(name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url='https://cdn.discordapp.com/emojis/499963996141518872.png')
 			exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
-			exportembed.add_field(name="Time taken while importing:", value=str(int(timeittook))+" seconds", inline=False)
+			#exportembed.add_field(name="Time taken while importing:", value=str(int(timeittook))+" seconds", inline=False)
 			await ctx.send(embed=exportembed)
 		except Exception as e:
 			print(e)
