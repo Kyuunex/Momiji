@@ -48,7 +48,7 @@ async def logmessage(message):
 		# contents, so we can send them when required.
 		#
 		# Please use responsibly
-		await dbhandler.insert('channellogs', (message.channel.id, message.id, message.author.id, message.content.encode('utf-8')))
+		await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8')))
 
 async def main(client, message):
 	if not message.author.bot:

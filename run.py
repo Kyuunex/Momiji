@@ -30,7 +30,7 @@ async def on_ready():
 	print('------')
 	if not os.path.exists('db.db'):
 		appinfo = await client.application_info()
-		await dbhandler.query("CREATE TABLE channellogs (channelid, messageid, userid, contents)")
+		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, messageid, contents)")
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
 		await dbhandler.query("CREATE TABLE config (setting, value)")
 		await dbhandler.query("CREATE TABLE temp (setting, value)")
@@ -88,17 +88,21 @@ async def help(ctx, admin: str = None):
 	helpembed.set_author(name="Momiji", icon_url="https://cdn.discordapp.com/emojis/499324376009932810.png")
 	helpembed.set_thumbnail(url="https://cdn.discordapp.com/emojis/499324376009932810.png")
 	
-	helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
-	helpembed.add_field(name="img", value="Google image search", inline=True)
-	helpembed.add_field(name="neko", value="Nekos are life", inline=True)
+	#helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
+	#helpembed.add_field(name="img", value="Google image search", inline=True)
+	#helpembed.add_field(name="neko", value="Nekos are life", inline=True)
 
 	if admin == "admin":
 		helpembed.add_field(name="gitpull", value="Update the bot", inline=True)
 		helpembed.add_field(name="restart", value="Restart the bot", inline=True)
-		helpembed.add_field(name="export", value="Exports the chat to json format.", inline=True)
-		helpembed.add_field(name="echo", value="Echo out a string. Be careful tho.", inline=True)
-		helpembed.add_field(name="talk", value="Grab a message from a different channel.", inline=True)
+		helpembed.add_field(name="export", value="Exports the chat to json format", inline=True)
+		helpembed.add_field(name="import", value="Import the chat into database", inline=True)
+		helpembed.add_field(name="echo", value="Echo out a string", inline=True)
+		#helpembed.add_field(name="talk", value="Grab a message from a different channel.", inline=True)
 		helpembed.add_field(name="bridge", value="Bridge the channel", inline=True)
+		helpembed.add_field(name="adminlist", value="List bot admins", inline=True)
+		helpembed.add_field(name="makeadmin", value="Make user a bot admin", inline=True)
+		helpembed.add_field(name="sql", value="Execute an SQL query", inline=True)
 
 	helpembed.set_footer(text = "Momiji by Kyuunex", icon_url='https://avatars0.githubusercontent.com/u/5400432')
 	await ctx.send(embed=helpembed)
@@ -155,7 +159,7 @@ async def importmessages(ctx):
 			async for message in log_instance:
 				if await utils.msgfilter(message, True) != None:
 					logcounter += 1
-					await dbhandler.insert('channellogs', (message.channel.id, message.id, message.author.id, message.content.encode('utf-8')))
+					await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8')))
 			#timeittook = time.clock() - starttime
 			exportembed=discord.Embed(color=0xadff2f, description="Imported the channel into database.")
 			exportembed.set_author(name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url='https://cdn.discordapp.com/emojis/499963996141518872.png')
