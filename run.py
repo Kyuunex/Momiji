@@ -8,6 +8,7 @@ import urllib.request
 import json
 from io import BytesIO
 from collections import Counter
+import operator
 
 from cogs import permissions
 from cogs import dbhandler
@@ -196,19 +197,22 @@ async def serverstats(ctx):
 	if await permissions.check(ctx.message.author.id) :
 		guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', ctx.message.guild.id],])
 		results = dict(Counter(guilddata))
+		sorted_x = reversed(sorted(results.items(), key=operator.itemgetter(1)))
 		counter = 0
 		statsembed=discord.Embed(description="Here are 10 most active people in this server:", color=0xffffff)
 		statsembed.set_author(name="Top members", icon_url=defaultembedicon)
 		statsembed.set_thumbnail(url=defaultembedthumbnail) # TODO: add proper image to reflect stats
-		for onemember in results:
+		for onemember in sorted_x:
 			counter += 1
-			memberobject = ctx.guild.get_member(onemember[0])
+			memberobject = ctx.guild.get_member(onemember[0][0])
+			#messageamount = str(results[onemember])
+			messageamount = str(onemember[1])+" messages"
 			if not memberobject:
-				statsembed.add_field(name="[%s] : %s (%s)" % (counter, onemember[0], "User not found"), value=str(results[onemember]), inline=False)
+				statsembed.add_field(name="[%s] : %s (%s)" % (counter, onemember[0][0], "User not found"), value=messageamount, inline=False)
 			elif memberobject.nick:
-				statsembed.add_field(name="[%s] : %s (%s)" % (counter, memberobject.nick, memberobject.name), value=str(results[onemember]), inline=False)
+				statsembed.add_field(name="[%s] : %s (%s)" % (counter, memberobject.nick, memberobject.name), value=messageamount, inline=False)
 			else:
-				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=str(results[onemember]), inline=False)
+				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=messageamount, inline=False)
 			if counter == 10:
 				break
 		statsembed.set_footer(text = "Momiji is best wolf.", icon_url=defaultembedfootericon)
