@@ -7,6 +7,7 @@ import time
 import urllib.request
 import json
 from io import BytesIO
+from collections import Counter
 
 from cogs import permissions
 from cogs import dbhandler
@@ -21,6 +22,9 @@ if not os.path.exists('config'):
 if not os.path.exists('exports'):
 	os.makedirs('exports')
 client.remove_command('help')
+defaultembedthumbnail = "https://cdn.discordapp.com/emojis/526133207079583746.png"
+defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
+defaultembedfootericon = "https://avatars0.githubusercontent.com/u/5400432"
 
 @client.event
 async def on_ready():
@@ -85,8 +89,8 @@ async def echo(ctx, *, string):
 async def help(ctx, admin: str = None):
 	helpembed=discord.Embed(title="Momiji is best wolf.", description="Here are just some available commands:", color=0xe95e62)
 
-	helpembed.set_author(name="Momiji", icon_url="https://cdn.discordapp.com/emojis/499324376009932810.png")
-	helpembed.set_thumbnail(url="https://cdn.discordapp.com/emojis/499324376009932810.png")
+	helpembed.set_author(name="Momiji", icon_url=defaultembedicon)
+	helpembed.set_thumbnail(url=defaultembedthumbnail)
 	
 	#helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
 	#helpembed.add_field(name="img", value="Google image search", inline=True)
@@ -104,7 +108,7 @@ async def help(ctx, admin: str = None):
 		helpembed.add_field(name="makeadmin", value="Make user a bot admin", inline=True)
 		helpembed.add_field(name="sql", value="Execute an SQL query", inline=True)
 
-	helpembed.set_footer(text = "Momiji by Kyuunex", icon_url='https://avatars0.githubusercontent.com/u/5400432')
+	helpembed.set_footer(text = "Momiji by Kyuunex", icon_url=defaultembedfootericon)
 	await ctx.send(embed=helpembed)
 
 @client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
@@ -140,7 +144,7 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 		log_file.write(json.dumps(collection, indent=4, sort_keys=True))
 		#timeittook = time.clock() - starttime
 		exportembed=discord.Embed(color=0xadff2f)
-		exportembed.set_author(name="Exporting finished", url='https://github.com/Kyuunex/Momiji', icon_url='https://cdn.discordapp.com/emojis/499963996141518872.png')
+		exportembed.set_author(name="Exporting finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
 		exportembed.add_field(name="Exported to:", value=exportfilename, inline=False)
 		exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
 		#exportembed.add_field(name="Time taken while exporting:", value=str(int(timeittook))+" seconds", inline=False)
@@ -162,7 +166,7 @@ async def importmessages(ctx):
 					await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8')))
 			#timeittook = time.clock() - starttime
 			exportembed=discord.Embed(color=0xadff2f, description="Imported the channel into database.")
-			exportembed.set_author(name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url='https://cdn.discordapp.com/emojis/499963996141518872.png')
+			exportembed.set_author(name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
 			exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
 			#exportembed.add_field(name="Time taken while importing:", value=str(int(timeittook))+" seconds", inline=False)
 			await ctx.send(embed=exportembed)
@@ -184,6 +188,31 @@ async def bridge(ctx, bridgetype: str, value: str):
 				await ctx.send("`The bridge was created`")
 			else :
 				await ctx.send("`This channel is already bridged`")
+	else :
+		await ctx.send(embed=await permissions.error())
+
+@client.command(name="serverstats", brief="Show server stats", description="too lazy to write description", pass_context=True)
+async def serverstats(ctx):
+	if await permissions.check(ctx.message.author.id) :
+		guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', ctx.message.guild.id],])
+		results = dict(Counter(guilddata))
+		counter = 0
+		statsembed=discord.Embed(description="Here are 10 most active people in this server:", color=0xffffff)
+		statsembed.set_author(name="Top members", icon_url=defaultembedicon)
+		statsembed.set_thumbnail(url=defaultembedthumbnail) # TODO: add proper image to reflect stats
+		for onemember in results:
+			counter += 1
+			memberobject = ctx.guild.get_member(onemember[0])
+			if not memberobject:
+				statsembed.add_field(name="[%s] : %s (%s)" % (counter, onemember[0], "User not found"), value=str(results[onemember]), inline=False)
+			elif memberobject.nick:
+				statsembed.add_field(name="[%s] : %s (%s)" % (counter, memberobject.nick, memberobject.name), value=str(results[onemember]), inline=False)
+			else:
+				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=str(results[onemember]), inline=False)
+			if counter == 10:
+				break
+		statsembed.set_footer(text = "Momiji is best wolf.", icon_url=defaultembedfootericon)
+		await ctx.send(embed=statsembed)
 	else :
 		await ctx.send(embed=await permissions.error())
 
