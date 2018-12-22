@@ -66,7 +66,6 @@ async def insert(tn, values):
 	conn = sqlite3.connect(dbfile)
 	c = conn.cursor()
 	formatstring = ("?," * len(values)).rstrip(",")
-	print("INSERT INTO "+tn+" VALUES ("+formatstring+")", values)
 	result = list(c.execute("INSERT INTO "+tn+" VALUES ("+formatstring+")", values))
 	conn.commit()
 	conn.close()
