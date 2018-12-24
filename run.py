@@ -268,14 +268,14 @@ async def img(ctx, *, searchquery):
 		if ctx.channel.is_nsfw():
 			if await utils.cooldowncheck('lastimgtime'):
 				if len(searchquery) > 0:
-					googleapikey = (await dbhandler.select('config', 'value', [['setting', 'googleapikey'],]))[0][0]
-					googlesearchengineid = (await dbhandler.select('config', 'value', [['setting', 'googlesearchengineid'],]))[0][0]
+					googleapikey = (await dbhandler.select('config', 'value', [['setting', 'googleapikey'],]))
+					googlesearchengineid = (await dbhandler.select('config', 'value', [['setting', 'googlesearchengineid'],]))
 					if googleapikey:
 						query = {
 							'q': searchquery,
-							'key': googleapikey,
+							'key': googleapikey[0][0],
 							'searchType': 'image',
-							'cx': googlesearchengineid,
+							'cx': googlesearchengineid[0][0],
 							'start': str(random.randint(1,21))
 						}
 						uri = "https://www.googleapis.com/customsearch/v1?"+urllib.parse.urlencode(query)
