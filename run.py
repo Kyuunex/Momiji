@@ -5,10 +5,12 @@ import sys
 import os
 import time
 import urllib.request
+from urllib.parse import urlparse
 import json
 from io import BytesIO
 from collections import Counter
 import operator
+import random
 
 from cogs import permissions
 from cogs import dbhandler
@@ -23,9 +25,11 @@ if not os.path.exists('config'):
 if not os.path.exists('exports'):
 	os.makedirs('exports')
 client.remove_command('help')
+
 defaultembedthumbnail = "https://cdn.discordapp.com/emojis/526133207079583746.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
 defaultembedfootericon = "https://avatars0.githubusercontent.com/u/5400432"
+uaheaders = {'User-Agent': ' Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'}
 
 @client.event
 async def on_ready():
@@ -37,7 +41,7 @@ async def on_ready():
 		appinfo = await client.application_info()
 		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, messageid, contents)")
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
-		await dbhandler.query("CREATE TABLE config (setting, value)")
+		await dbhandler.query("CREATE TABLE config (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE temp (setting, value)")
 		await dbhandler.query("CREATE TABLE blacklist (value)")
 		await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
@@ -93,9 +97,9 @@ async def help(ctx, admin: str = None):
 	helpembed.set_author(name="Momiji", icon_url=defaultembedicon)
 	helpembed.set_thumbnail(url=defaultembedthumbnail)
 	
-	#helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
-	#helpembed.add_field(name="img", value="Google image search", inline=True)
-	#helpembed.add_field(name="neko", value="Nekos are life", inline=True)
+	helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
+	helpembed.add_field(name="img", value="Google image search", inline=True)
+	helpembed.add_field(name="neko", value="Nekos are life", inline=True)
 
 	if admin == "admin":
 		helpembed.add_field(name="gitpull", value="Update the bot", inline=True)
@@ -103,7 +107,6 @@ async def help(ctx, admin: str = None):
 		helpembed.add_field(name="export", value="Exports the chat to json format", inline=True)
 		helpembed.add_field(name="import", value="Import the chat into database", inline=True)
 		helpembed.add_field(name="echo", value="Echo out a string", inline=True)
-		#helpembed.add_field(name="talk", value="Grab a message from a different channel.", inline=True)
 		helpembed.add_field(name="bridge", value="Bridge the channel", inline=True)
 		helpembed.add_field(name="adminlist", value="List bot admins", inline=True)
 		helpembed.add_field(name="makeadmin", value="Make user a bot admin", inline=True)
@@ -172,6 +175,8 @@ async def importmessages(ctx):
 			#exportembed.add_field(name="Time taken while importing:", value=str(int(timeittook))+" seconds", inline=False)
 			await ctx.send(embed=exportembed)
 		except Exception as e:
+			print(time.strftime('%X %x %Z'))
+			print("in importmessages")
 			print(e)
 	else :
 		await ctx.send(embed=await permissions.error())
@@ -201,7 +206,7 @@ async def serverstats(ctx):
 		counter = 0
 		statsembed=discord.Embed(description="Here are 10 most active people in this server:", color=0xffffff)
 		statsembed.set_author(name="Top members", icon_url=defaultembedicon)
-		statsembed.set_thumbnail(url=defaultembedthumbnail) # TODO: add proper image to reflect stats
+		statsembed.set_thumbnail(url=defaultembedthumbnail)
 		for onemember in sorted_x:
 			counter += 1
 			memberobject = ctx.guild.get_member(onemember[0][0])
@@ -229,6 +234,72 @@ async def sql(ctx, *, query):
 	else :
 		await ctx.send(embed=await permissions.ownererror())
 
+@client.command(name="neko", brief="When you want some neko in your life", description="Why are these not real? I am sad.", pass_context=True)
+async def neko(ctx):
+	if await utils.cooldowncheck('lastnekotime'):
+		with urllib.request.urlopen(urllib.request.Request('https://www.nekos.life/api/v2/img/neko', headers=uaheaders)) as jsonresponse:
+			if "Content-Type: application/json" in jsonresponse.info().as_string():
+				imageurl = json.loads(jsonresponse.read())['url']
+				with urllib.request.urlopen(urllib.request.Request(imageurl, headers=uaheaders)) as imageresponse:
+					buffer = BytesIO(imageresponse.read())
+					a = urlparse(imageurl)
+					await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
+					buffer.close()
+	else:
+		await ctx.send('slow down bruh')
+
+@client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
+async def inspire(ctx):
+	if await utils.cooldowncheck('lastinspiretime'):
+		with urllib.request.urlopen(urllib.request.Request('http://inspirobot.me/api?generate=true', headers=uaheaders)) as textresponse:
+			if "text/html" in textresponse.info().as_string():
+				imageurl = textresponse.read().decode('utf-8')
+				with urllib.request.urlopen(urllib.request.Request(imageurl, headers=uaheaders)) as imageresponse:
+					buffer = BytesIO(imageresponse.read())
+					a = urlparse(imageurl)
+					await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
+					buffer.close()
+	else:
+		await ctx.send('slow down bruh')
+
+@client.command(name="img", brief="Google image search", description="Search for stuff on Google images", pass_context=True)
+async def img(ctx, *, searchquery):
+	try:
+		if ctx.channel.is_nsfw():
+			if await utils.cooldowncheck('lastimgtime'):
+				if len(searchquery) > 0:
+					googleapikey = (await dbhandler.select('config', 'value', [['setting', 'googleapikey'],]))[0][0]
+					googlesearchengineid = (await dbhandler.select('config', 'value', [['setting', 'googlesearchengineid'],]))[0][0]
+					if googleapikey:
+						query = {
+							'q': searchquery,
+							'key': googleapikey,
+							'searchType': 'image',
+							'cx': googlesearchengineid,
+							'start': str(random.randint(1,21))
+						}
+						uri = "https://www.googleapis.com/customsearch/v1?"+urllib.parse.urlencode(query)
+
+						with urllib.request.urlopen(urllib.request.Request(uri, headers=uaheaders)) as jsonresponse:
+							if "Content-Type: application/json" in jsonresponse.info().as_string():
+								imageurl = json.loads(jsonresponse.read())['items'][(random.randint(0,9))]['link']
+								if len(imageurl) > 1:
+									with urllib.request.urlopen(urllib.request.Request(imageurl, headers=uaheaders)) as imageresponse:
+										buffer = BytesIO(imageresponse.read())
+										a = urlparse(imageurl)
+										await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
+										buffer.close()
+					else:
+						await ctx.send("This command is not enabled")
+			else:
+				await ctx.send('slow down bruh')
+		else :
+			await ctx.send("This command works in NSFW channels only.")
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in img")
+		print(e)
+
 #####################################################################################################
 
 @client.event
@@ -238,6 +309,8 @@ async def on_message(message):
 			# TODO: Dynamically load a module depending on the channel used
 			await momiji.main(client, message)
 	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in on_message")
 		print(e)
 	await client.process_commands(message)
 
