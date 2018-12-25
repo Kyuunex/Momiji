@@ -23,6 +23,7 @@ if not os.path.exists('data'):
 	print("Please configure this bot according to readme file.")
 	sys.exit("data folder and it's contents are missing")
 client.remove_command('help')
+appversion = "b20181225"
 
 defaultembedthumbnail = "https://cdn.discordapp.com/emojis/526133207079583746.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -92,7 +93,7 @@ async def echo(ctx, *, string):
 async def help(ctx, admin: str = None):
 	helpembed=discord.Embed(title="Momiji is best wolf.", description="Here are just some available commands:", color=0xe95e62)
 
-	helpembed.set_author(name="Momiji", icon_url=defaultembedicon)
+	helpembed.set_author(name="Momiji %s" % (appversion), icon_url=defaultembedicon)
 	helpembed.set_thumbnail(url=defaultembedthumbnail)
 	
 	helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
@@ -110,7 +111,7 @@ async def help(ctx, admin: str = None):
 		helpembed.add_field(name="makeadmin", value="Make user a bot admin", inline=True)
 		helpembed.add_field(name="sql", value="Execute an SQL query", inline=True)
 
-	helpembed.set_footer(text = "Momiji by Kyuunex", icon_url=defaultembedfootericon)
+	helpembed.set_footer(text = "Made by Kyuunex", icon_url=defaultembedfootericon)
 	await ctx.send(embed=helpembed)
 
 @client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
