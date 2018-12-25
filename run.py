@@ -19,11 +19,9 @@ from cogs import utils
 from modules import momiji
 
 client = commands.Bot(command_prefix=';', description='Momiji is best wolf')
-if not os.path.exists('config'):
+if not os.path.exists('data'):
 	print("Please configure this bot according to readme file.")
-	sys.exit("config folder and it's contents are missing")
-if not os.path.exists('exports'):
-	os.makedirs('exports')
+	sys.exit("data folder and it's contents are missing")
 client.remove_command('help')
 
 defaultembedthumbnail = "https://cdn.discordapp.com/emojis/526133207079583746.png"
@@ -126,7 +124,7 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 
 		log_instance = channel.history(limit=amount)
 		#starttime = time.clock()
-		exportfilename = "exports/export.%s.%s.%s.json" % (str(int(time.time())), str(channelid), str(amount))
+		exportfilename = "data/export.%s.%s.%s.json" % (str(int(time.time())), str(channelid), str(amount))
 		log_file = open(exportfilename, "a", encoding="utf8")	
 		collection = []
 		logcounter = 0

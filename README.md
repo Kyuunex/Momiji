@@ -10,9 +10,9 @@ This bot is built using discord.py rewrite library and uses sqlite3 database.
 ## Installation Instructions
 
 1. Clone this git (strongly recommended rather than downloading zip because it uses `git pull` for updates)
-2. Install `python 3.6.7` or older if you don't have it
-3. Install `discord.py` using this command `python -m pip install -U git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]`
-4. Before using, you need to create a folder called `config` and create `token.txt` in it. Then put your bot token in. 
+2. Install `python 3.6.7` or newer if you don't have it
+3. Install `discord.py rewrite library` using this command `python -m pip install -U git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]`
+4. Before using, you need to create a folder called `data` and create `token.txt` in it. Then put your bot token in the file. 
 5. Run `run.py` with command line, like `python momiji.py` on windows or `python3 momiji.py` on linux or use the batch file or however you want. It's recommended to run it in a loop so it restarts when it exists. Built-in updater requires this.
 
 ## Stuff

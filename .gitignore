@@ -1,5 +1,3 @@
 __pycache__
-config
-exports
+data
 .vscode
-db.db
