@@ -312,4 +312,4 @@ async def on_message(message):
 		print(e)
 	await client.process_commands(message)
 
-client.run(open("config/token.txt", "r+").read(), bot=True)
+client.run(open("data/token.txt", "r+").read(), bot=True)
