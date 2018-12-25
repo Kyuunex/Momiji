@@ -93,7 +93,7 @@ async def echo(ctx, *, string):
 async def help(ctx, admin: str = None):
 	helpembed=discord.Embed(title="Momiji is best wolf.", description="Here are just some available commands:", color=0xe95e62)
 
-	helpembed.set_author(name="Momiji %s" % (appversion), icon_url=defaultembedicon)
+	helpembed.set_author(name="Momiji %s" % (appversion), icon_url=defaultembedicon, url='https://github.com/Kyuunex/Momiji')
 	helpembed.set_thumbnail(url=defaultembedthumbnail)
 	
 	helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
