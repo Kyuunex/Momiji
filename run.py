@@ -36,7 +36,7 @@ async def on_ready():
 	print(client.user.name)
 	print(client.user.id)
 	print('------')
-	if not os.path.exists('db.db'):
+	if not os.path.exists('data/maindb.sqlite3'):
 		appinfo = await client.application_info()
 		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, messageid, contents)")
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
