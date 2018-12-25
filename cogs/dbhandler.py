@@ -1,7 +1,7 @@
 import asyncio
 import sqlite3
 
-dbfile = 'maindb.sqlite3'
+dbfile = 'data/maindb.sqlite3'
 
 async def query(query):
 	try:
