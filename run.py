@@ -5,6 +5,8 @@ import sys
 import os
 import time
 import urllib.request
+import aiohttp
+import imghdr
 from urllib.parse import urlparse
 import json
 from io import BytesIO
@@ -235,31 +237,44 @@ async def sql(ctx, *, query):
 
 @client.command(name="neko", brief="When you want some neko in your life", description="Why are these not real? I am sad.", pass_context=True)
 async def neko(ctx):
-	if await utils.cooldowncheck('lastnekotime'):
-		with urllib.request.urlopen(urllib.request.Request('https://www.nekos.life/api/v2/img/neko', headers=uaheaders)) as jsonresponse:
-			if "Content-Type: application/json" in jsonresponse.info().as_string():
-				imageurl = json.loads(jsonresponse.read())['url']
-				with urllib.request.urlopen(urllib.request.Request(imageurl, headers=uaheaders)) as imageresponse:
-					buffer = BytesIO(imageresponse.read())
-					a = urlparse(imageurl)
-					await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
-					buffer.close()
-	else:
-		await ctx.send('slow down bruh')
+	try:
+		if await utils.cooldowncheck('lastnekotime'):
+			url = 'https://www.nekos.life/api/v2/img/neko'
+			async with aiohttp.ClientSession() as session:
+				async with session.get(url) as jsonresponse:
+					imageurl = (await jsonresponse.json())['url']
+					async with aiohttp.ClientSession() as session:
+						async with session.get(imageurl) as imageresponse:
+							buffer = (await imageresponse.read())
+							a = urlparse(imageurl)
+							await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
+		else:
+			await ctx.send('slow down bruh')
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in neko")
+		print(e)
 
 @client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
 async def inspire(ctx):
-	if await utils.cooldowncheck('lastinspiretime'):
-		with urllib.request.urlopen(urllib.request.Request('http://inspirobot.me/api?generate=true', headers=uaheaders)) as textresponse:
-			if "text/html" in textresponse.info().as_string():
-				imageurl = textresponse.read().decode('utf-8')
-				with urllib.request.urlopen(urllib.request.Request(imageurl, headers=uaheaders)) as imageresponse:
-					buffer = BytesIO(imageresponse.read())
-					a = urlparse(imageurl)
-					await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
-					buffer.close()
-	else:
-		await ctx.send('slow down bruh')
+	try:
+		if await utils.cooldowncheck('lastinspiretime'):
+			url = 'http://inspirobot.me/api?generate=true'
+			async with aiohttp.ClientSession() as session:
+				async with session.get(url) as textresponse:
+					if "https://generated.inspirobot.me/a/" in (await textresponse.text()):
+						imageurl = await textresponse.text()#.decode('utf-8')
+						async with aiohttp.ClientSession() as session:
+							async with session.get(imageurl) as imageresponse:
+								buffer = (await imageresponse.read())
+								a = urlparse(imageurl)
+								await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
+		else:
+			await ctx.send('slow down bruh')
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in inspire")
+		print(e)
 
 @client.command(name="img", brief="Google image search", description="Search for stuff on Google images", pass_context=True)
 async def img(ctx, *, searchquery):
@@ -277,17 +292,18 @@ async def img(ctx, *, searchquery):
 							'cx': googlesearchengineid[0][0],
 							'start': str(random.randint(1,21))
 						}
-						uri = "https://www.googleapis.com/customsearch/v1?"+urllib.parse.urlencode(query)
+						url = "https://www.googleapis.com/customsearch/v1?"+urllib.parse.urlencode(query)
 
-						with urllib.request.urlopen(urllib.request.Request(uri, headers=uaheaders)) as jsonresponse:
-							if "Content-Type: application/json" in jsonresponse.info().as_string():
-								imageurl = json.loads(jsonresponse.read())['items'][(random.randint(0,9))]['link']
+						async with aiohttp.ClientSession() as session:
+							async with session.get(url) as jsonresponse:
+								imageurl = (await jsonresponse.json())['items'][(random.randint(0,9))]['link']
 								if len(imageurl) > 1:
-									with urllib.request.urlopen(urllib.request.Request(imageurl, headers=uaheaders)) as imageresponse:
-										buffer = BytesIO(imageresponse.read())
-										a = urlparse(imageurl)
-										await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
-										buffer.close()
+									async with aiohttp.ClientSession() as session:
+										async with session.get(imageurl) as imageresponse:
+											buffer = (await imageresponse.read())
+											ext = imghdr.what("", h=buffer)
+											#if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
+											await ctx.send(file=discord.File(buffer, "%s.%s" %(searchquery,ext)))
 					else:
 						await ctx.send("This command is not enabled")
 			else:
