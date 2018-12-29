@@ -25,7 +25,7 @@ if not os.path.exists('data'):
 	print("Please configure this bot according to readme file.")
 	sys.exit("data folder and it's contents are missing")
 client.remove_command('help')
-appversion = "b20181225"
+appversion = "b20181230"
 
 defaultembedthumbnail = "https://cdn.discordapp.com/emojis/526133207079583746.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
