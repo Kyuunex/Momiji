@@ -9,16 +9,15 @@ import aiohttp
 import imghdr
 from urllib.parse import urlparse
 import json
-from io import BytesIO
 from collections import Counter
 import operator
 import random
+import importlib
 
 from cogs import permissions
 from cogs import dbhandler
 from cogs import utils
 
-from modules import momiji
 
 client = commands.Bot(command_prefix=';', description='Momiji is best wolf')
 if not os.path.exists('data'):
@@ -321,8 +320,16 @@ async def img(ctx, *, searchquery):
 async def on_message(message):
 	try:
 		if message.author.id != client.user.id : 
-			# TODO: Dynamically load a module depending on the channel used
-			await momiji.main(client, message)
+			where = [
+				['channelid', message.channel.id],
+				['type', "module"],
+			]
+			bridgedchannel = await dbhandler.select('bridges', 'value', where)
+			if bridgedchannel:
+				module = importlib.import_module("modules.%s" % (bridgedchannel[0][0]))
+			else:
+				module = importlib.import_module('modules.momiji')
+			await module.main(client, message)
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in on_message")
