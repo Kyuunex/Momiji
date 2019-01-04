@@ -24,12 +24,11 @@ if not os.path.exists('data'):
 	print("Please configure this bot according to readme file.")
 	sys.exit("data folder and it's contents are missing")
 client.remove_command('help')
-appversion = "b20181231"
+appversion = "b20190104"
 
 defaultembedthumbnail = "https://cdn.discordapp.com/emojis/526133207079583746.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
 defaultembedfootericon = "https://avatars0.githubusercontent.com/u/5400432"
-uaheaders = {'User-Agent': ' Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:64.0) Gecko/20100101 Firefox/64.0'}
 
 @client.event
 async def on_ready():
@@ -100,6 +99,7 @@ async def help(ctx, admin: str = None):
 	helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
 	helpembed.add_field(name="img", value="Google image search", inline=True)
 	helpembed.add_field(name="neko", value="Nekos are life", inline=True)
+	helpembed.add_field(name="art", value="See some amazing anime style art", inline=True)
 
 	if admin == "admin":
 		helpembed.add_field(name="gitpull", value="Update the bot", inline=True)
@@ -252,6 +252,25 @@ async def neko(ctx):
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in neko")
+		print(e)
+
+@client.command(name="art", brief="Art", description="Art", pass_context=True)
+async def art(ctx):
+	try:
+		if await utils.cooldowncheck('lastarttime'):
+			artdir = "data/art/"
+			if os.path.exists(artdir):
+				a = True
+				while a:
+					randompicture = random.choice(os.listdir(artdir))
+					if (randompicture.split("."))[-1] == "png" or (randompicture.split("."))[-1] == "jpg":
+						a = False
+				await ctx.send(file=discord.File(artdir+randompicture))
+		else:
+			await ctx.send('slow down bruh')
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in art")
 		print(e)
 
 @client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)

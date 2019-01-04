@@ -7,7 +7,10 @@ async def query(query):
 	try:
 		conn = sqlite3.connect(dbfile)
 		c = conn.cursor()
-		result = list(c.execute(query))
+		if type(query) is str:
+			result = list(c.execute(query))
+		elif type(query) is list:
+			result = list(c.execute(query[0], query[1]))			
 		conn.commit()
 		conn.close()
 		return result
