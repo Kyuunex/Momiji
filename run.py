@@ -38,7 +38,7 @@ async def on_ready():
 	print('------')
 	if not os.path.exists('data/maindb.sqlite3'):
 		appinfo = await client.application_info()
-		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, messageid, contents)")
+		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, messageid, contents, timestamp)")
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
 		await dbhandler.query("CREATE TABLE config (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE temp (setting, value)")
@@ -125,7 +125,7 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 			channel = await utils.get_channel(client.get_all_channels(), channelid)
 
 		log_instance = channel.history(limit=amount)
-		#starttime = time.clock()
+		starttime = time.process_time()
 		exportfilename = "data/export.%s.%s.%s.json" % (str(int(time.time())), str(channelid), str(amount))
 		log_file = open(exportfilename, "a", encoding="utf8")	
 		collection = []
@@ -146,33 +146,42 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 			#collection.update(template)
 			collection.append(template)
 		log_file.write(json.dumps(collection, indent=4, sort_keys=True))
-		#timeittook = time.clock() - starttime
+		endtime = time.process_time()
 		exportembed=discord.Embed(color=0xadff2f)
 		exportembed.set_author(name="Exporting finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
 		exportembed.add_field(name="Exported to:", value=exportfilename, inline=False)
+		exportembed.add_field(name="Channel:", value=channel.name, inline=False)
 		exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
-		#exportembed.add_field(name="Time taken while exporting:", value=str(int(timeittook))+" seconds", inline=False)
+		exportembed.add_field(name="Time taken while exporting:", value=await utils.measuretime(starttime,endtime), inline=False)
 		await ctx.send(embed=exportembed)
 	else :
 		await ctx.send(embed=await permissions.error())
 
 @client.command(name="import", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
-async def importmessages(ctx):
+async def importmessages(ctx, channelid: int = None):
 	if await permissions.check(ctx.message.author.id) :
 		try:
-			channel = ctx.message.channel
+			if channelid == None:
+				channel = ctx.message.channel
+				channelid = ctx.message.channel.id
+			else:
+				channel = await utils.get_channel(client.get_all_channels(), channelid)
+				
 			log_instance = channel.history(limit=999999999)
-			#starttime = time.clock()
+			starttime = time.process_time()
 			logcounter = 0
+			whattocommit = []
 			async for message in log_instance:
-				if await utils.msgfilter(message, True) != None:
-					logcounter += 1
-					await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8')))
-			#timeittook = time.clock() - starttime
+				logcounter += 1
+				#await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8')))
+				whattocommit.append(("INSERT INTO channellogs VALUES (?,?,?,?,?,?)", (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8'), str(int(time.mktime(message.created_at.timetuple()))))))
+			await dbhandler.massquery(whattocommit)
+			endtime = time.process_time()
 			exportembed=discord.Embed(color=0xadff2f, description="Imported the channel into database.")
 			exportembed.set_author(name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
+			exportembed.add_field(name="Channel:", value=channel.name, inline=False)
 			exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
-			#exportembed.add_field(name="Time taken while importing:", value=str(int(timeittook))+" seconds", inline=False)
+			exportembed.add_field(name="Time taken while importing:", value=await utils.measuretime(starttime,endtime), inline=False)
 			await ctx.send(embed=exportembed)
 		except Exception as e:
 			print(time.strftime('%X %x %Z'))

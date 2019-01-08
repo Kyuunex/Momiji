@@ -39,3 +39,12 @@ async def cooldowncheck(setting):
         return True
     else:
         return None
+
+async def measuretime(starttime, endtime):
+	timeittook = int(endtime - starttime)
+	if timeittook > 120:
+		minutes = int(timeittook / 60)
+		seconds = int(timeittook % 60)
+		return "%s minutes and %s seconds" % (str(minutes), str(seconds))
+	else:
+		return "%s seconds" % (str(timeittook))

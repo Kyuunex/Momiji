@@ -1,5 +1,6 @@
 import random
 import discord
+import time
 from cogs import dbhandler
 from cogs import utils
 
@@ -15,7 +16,12 @@ async def bridgecheck(channelid):
 		return channelid
 
 async def pickmessage(channelid):
-	return (random.choice(await dbhandler.select('channellogs', 'contents', [['channelid', channelid],])))[0]
+	loop = True
+	while loop:
+		message = (random.choice(await dbhandler.select('channellogs', 'contents', [['channelid', channelid],])))[0]
+		if await utils.msgfilter(message.decode("utf-8"), False) != None:
+			loop = False
+			return message
 
 async def momijispeak(channel):
 	channeltouse = int(await bridgecheck(channel.id))
@@ -39,16 +45,16 @@ async def spammessage(client, message):
 
 async def logmessage(message):
 	# TODO: add option to exclude some discord users from having their messages logged
-	filtered = await utils.msgfilter(message.content, False)
-	if filtered != None:
-		# I am basically making it log these:
-		# channel id, so the message can be randomly picked with channel id
-		# message id, so maybe in future we can auto delete messages from DM when they are deleted on discord
-		# author id, so if someone says "delete everything I said", I can easily.
-		# contents, so we can send them when required.
-		#
-		# Please use responsibly
-		await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8')))
+	#filtered = await utils.msgfilter(message.content, False)
+	#if filtered != None:
+	# I am basically making it log these:
+	# channel id, so the message can be randomly picked with channel id
+	# message id, so maybe in future we can auto delete messages from DM when they are deleted on discord
+	# author id, so if someone says "delete everything I said", I can easily.
+	# contents, so we can send them when required.
+	#
+	# Please use responsibly
+	await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8'), str(int(time.mktime(message.created_at.timetuple())))))
 
 async def main(client, message):
 	if not message.author.bot:
@@ -88,6 +94,6 @@ async def main(client, message):
 				if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
 					await message.channel.send('Happy Birthday <@%s>!' % (str(message.author.id)))
 
-				# Momiji stores messages in do with this. 
-				# And it makes sure not to log any links, invites, commands and mentions.
-				await logmessage(message)
+	# Momiji stores messages in do with this. 
+	# And it makes sure not to log any links, invites, commands and mentions.
+	await logmessage(message)
