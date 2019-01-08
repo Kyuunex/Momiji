@@ -232,7 +232,7 @@ async def serverstats(ctx):
 	else :
 		await ctx.send(embed=await permissions.error())
 
-@client.command(name="sql", brief="Executre an SQL query", description="", pass_context=True)
+@client.command(name="sql", brief="Execute an SQL query", description="", pass_context=True)
 async def sql(ctx, *, query):
 	if await permissions.checkowner(ctx.message.author.id) :
 		if len(query) > 0:
