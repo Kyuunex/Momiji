@@ -123,9 +123,8 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 			channelid = ctx.message.channel.id
 		else:
 			channel = await utils.get_channel(client.get_all_channels(), channelid)
-
-		log_instance = channel.history(limit=amount)
 		starttime = time.process_time()
+		log_instance = channel.history(limit=amount)
 		exportfilename = "data/export.%s.%s.%s.json" % (str(int(time.time())), str(channelid), str(amount))
 		log_file = open(exportfilename, "a", encoding="utf8")	
 		collection = []
@@ -166,9 +165,8 @@ async def importmessages(ctx, channelid: int = None):
 				channelid = ctx.message.channel.id
 			else:
 				channel = await utils.get_channel(client.get_all_channels(), channelid)
-				
+			starttime = time.process_time()	
 			log_instance = channel.history(limit=999999999)
-			starttime = time.process_time()
 			logcounter = 0
 			whattocommit = []
 			async for message in log_instance:
