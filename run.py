@@ -26,7 +26,7 @@ if not os.path.exists('data'):
 client.remove_command('help')
 appversion = "b20190109"
 
-defaultembedthumbnail = "https://cdn.discordapp.com/emojis/526133207079583746.png"
+defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
 defaultembedfootericon = "https://avatars0.githubusercontent.com/u/5400432"
 
