@@ -230,9 +230,9 @@ async def serverstats(ctx, arg: str = None):
 			messageamount = str(onemember[1])+" messages"
 			if not memberobject:
 				statsembed.add_field(name="[%s] : %s (%s)" % (counter, onemember[0][0], "User not found"), value=messageamount, inline=False)
-			elif memberobject.nick:
+			elif memberobject.nick and not memberobject.bot:
 				statsembed.add_field(name="[%s] : %s (%s)" % (counter, memberobject.nick, memberobject.name), value=messageamount, inline=False)
-			else:
+			elif not memberobject.bot:
 				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=messageamount, inline=False)
 			if counter == 10:
 				break
