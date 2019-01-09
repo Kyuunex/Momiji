@@ -67,7 +67,15 @@ async def main(client, message):
 			else :
 				#await spammessage(client, message) # TODO: fix spammessage
 
-				if (("<@%s>" % (client.user.id) in message.content) or (msg.startswith('...')) or (msg.startswith('omg')) or (msg.startswith('wut')) or (msg.startswith('wat')) or (msg.startswith('?'))):
+				if (
+					("<@%s>" % (client.user.id) in message.content) or 
+					(msg.startswith('...')) or 
+					(msg.startswith('omg')) or 
+					(msg.startswith('wut')) or 
+					(msg.startswith('wat')) or 
+					(message.content.isupper()) or 
+					(msg.startswith('?'))
+				):
 					await momijispeak(message.channel)
 				
 				# Custom responces go here.
