@@ -208,7 +208,7 @@ async def bridge(ctx, bridgetype: str, value: str):
 async def serverstats(ctx, arg: str = None):
 	if await permissions.check(ctx.message.author.id) :
 		if arg == "month": #2592000
-			title = "Here are 10 most active people in this server in last 30 days:"
+			title = "Here are 15 most active people in this server in last 30 days:"
 			after = int(time.time()) - 2592000
 			# TODO: fix this
 			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (int(ctx.message.guild.id), str(after))]
@@ -236,7 +236,7 @@ async def serverstats(ctx, arg: str = None):
 			elif not memberobject.bot:
 				counter += 1
 				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=messageamount, inline=False)
-			if counter == 10:
+			if counter == 15:
 				break
 		statsembed.set_footer(text = "Momiji is best wolf.", icon_url=defaultembedfootericon)
 		await ctx.send(embed=statsembed)
