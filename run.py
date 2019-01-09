@@ -211,8 +211,8 @@ async def serverstats(ctx, arg: str = None):
 			title = "Here are 10 most active people in this server in last 30 days:"
 			after = int(time.time()) - 2592000
 			# TODO: fix this
-			#query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
-			query = ["SELECT userid FROM channellogs WHERE timestamp > ?;", (str(after),)]
+			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (int(ctx.message.guild.id), str(after))]
+			#query = ["SELECT userid FROM channellogs WHERE timestamp > ?;", (str(after),)]
 			guilddata = await dbhandler.query(query)
 		else:
 			title = "Here are 10 most active people in this server:"
