@@ -205,13 +205,22 @@ async def bridge(ctx, bridgetype: str, value: str):
 		await ctx.send(embed=await permissions.error())
 
 @client.command(name="serverstats", brief="Show server stats", description="too lazy to write description", pass_context=True)
-async def serverstats(ctx):
+async def serverstats(ctx, arg: str = None):
 	if await permissions.check(ctx.message.author.id) :
-		guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', ctx.message.guild.id],])
+		if arg == "month": #2592000
+			title = "Here are 10 most active people in this server in last 30 days:"
+			after = int(time.time()) - 2592000
+			# TODO: fix this
+			#query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
+			query = ["SELECT userid FROM channellogs WHERE timestamp > ?;", (str(after),)]
+			guilddata = await dbhandler.query(query)
+		else:
+			title = "Here are 10 most active people in this server:"
+			guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', ctx.message.guild.id],])
 		results = dict(Counter(guilddata))
 		sorted_x = reversed(sorted(results.items(), key=operator.itemgetter(1)))
 		counter = 0
-		statsembed=discord.Embed(description="Here are 10 most active people in this server:", color=0xffffff)
+		statsembed=discord.Embed(description=title, color=0xffffff)
 		statsembed.set_author(name="Top members", icon_url=defaultembedicon)
 		statsembed.set_thumbnail(url=defaultembedthumbnail)
 		for onemember in sorted_x:
