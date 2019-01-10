@@ -1,6 +1,6 @@
 import asyncio
 import discord
-from cogs import dbhandler
+from modules import dbhandler
 
 async def check(id):
 	where = [

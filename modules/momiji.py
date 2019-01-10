@@ -1,8 +1,8 @@
 import random
 import discord
 import time
-from cogs import dbhandler
-from cogs import utils
+from modules import dbhandler
+from modules import utils
 
 async def bridgecheck(channelid):
 	where = [

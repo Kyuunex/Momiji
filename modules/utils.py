@@ -1,4 +1,4 @@
-from cogs import dbhandler
+from modules import dbhandler
 import time
 
 

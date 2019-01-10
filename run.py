@@ -14,15 +14,17 @@ import operator
 import random
 import importlib
 
-from cogs import permissions
-from cogs import dbhandler
-from cogs import utils
+from modules import permissions
+from modules import dbhandler
+from modules import utils
 
 
 client = commands.Bot(command_prefix=';', description='Momiji is best wolf')
 if not os.path.exists('data'):
 	print("Please configure this bot according to readme file.")
 	sys.exit("data folder and it's contents are missing")
+if not os.path.exists('usermodules'):
+	os.makedirs('usermodules')
 client.remove_command('help')
 appversion = "b20190109"
 
@@ -363,7 +365,7 @@ async def on_message(message):
 			]
 			bridgedchannel = await dbhandler.select('bridges', 'value', where)
 			if bridgedchannel:
-				module = importlib.import_module("modules.%s" % (bridgedchannel[0][0]))
+				module = importlib.import_module("usermodules.%s" % (bridgedchannel[0][0]))
 			else:
 				module = importlib.import_module('modules.momiji')
 			await module.main(client, message)
