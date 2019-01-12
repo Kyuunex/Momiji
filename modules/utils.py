@@ -1,5 +1,6 @@
 from modules import dbhandler
 import time
+import json
 
 
 async def msgfilter(message, isobject):
@@ -23,6 +24,12 @@ async def msgfilter(message, isobject):
         else:
             return None
 
+async def isntbotcheck(userjson):
+	jsondict = json.loads(userjson)
+	if jsondict[0]['bot'] == True:
+		return False
+	elif jsondict[0]['bot'] == False:
+		return True
 
 async def get_channel(channels, channel_id):  # client.get_all_channels()
     for channel in channels:

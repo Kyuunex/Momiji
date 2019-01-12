@@ -1,33 +1,41 @@
 import random
 import discord
 import time
+import json
 from modules import dbhandler
 from modules import utils
 
 async def bridgecheck(channelid):
 	where = [
-		['channelid', channelid],
+		['channelid', str(channelid)],
 		['type', "channel"],
 	]
 	bridgedchannel = await dbhandler.select('bridges', 'value', where)
 	if bridgedchannel:
-		return bridgedchannel[0][0]
+		return str(bridgedchannel[0][0])
 	else:
-		return channelid
+		return str(channelid)
 
 async def pickmessage(channelid):
 	loop = True
+	counter = 0
 	while loop:
-		message = (random.choice(await dbhandler.select('channellogs', 'contents', [['channelid', channelid],])))[0]
-		if await utils.msgfilter(message.decode("utf-8"), False) != None:
+		if counter > 100:
+			print("something is wrong. VERY WRONG")
 			loop = False
-			return message
+		counter += 1
+		#dbrequest = await dbhandler.select('channellogs', 'contents', [['channelid', str(channelid)],])
+		dbrequest = await dbhandler.query(["SELECT userjson, contents FROM channellogs WHERE channelid = ?", (str(channelid),)])
+		message = random.choice(dbrequest)
+		if (await utils.msgfilter(message[1], False) != None) and (await utils.isntbotcheck(message[0])):
+			loop = False
+			return message[1]
 
 async def momijispeak(channel):
 	channeltouse = int(await bridgecheck(channel.id))
 	messagetosend = await pickmessage(channeltouse)
 	if messagetosend:
-		await channel.send(messagetosend.decode("utf-8"))
+		await channel.send(messagetosend)
 
 async def spammessage(client, message):
 	previousMessages = message.channel.history(limit=2+random.randint(1,4))
@@ -44,17 +52,26 @@ async def spammessage(client, message):
 			await message.channel.send(filtered)
 
 async def logmessage(message):
-	# TODO: add option to exclude some discord users from having their messages logged
-	#filtered = await utils.msgfilter(message.content, False)
-	#if filtered != None:
-	# I am basically making it log these:
-	# channel id, so the message can be randomly picked with channel id
-	# message id, so maybe in future we can auto delete messages from DM when they are deleted on discord
-	# author id, so if someone says "delete everything I said", I can easily.
-	# contents, so we can send them when required.
-	#
-	# Please use responsibly
-	await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8'), str(int(time.mktime(message.created_at.timetuple())))))
+	# Please use the data logged through this responsibly
+	messageauthorjson = {
+		'id': str(message.author.id),
+		'username': str(message.author.name),
+		'discriminator': str(message.author.discriminator),
+		'avatar': str(message.author.avatar),
+		'bot': bool(message.author.bot),
+	},
+	await dbhandler.insert(
+		'channellogs', 
+		(
+			str(message.guild.id), # for serverstats
+			str(message.channel.id), # so the message can be randomly picked with channel id
+			str(message.author.id), # to make serverstats command work
+			str(json.dumps(messageauthorjson)), # to identify easily who wrote the message and whether it was a bot or not
+			str(message.id), # maybe in future we can auto delete messages from DB when they are deleted on discord
+			str(message.content), # duh. 
+			str(int(time.mktime(message.created_at.timetuple()))) # to make serverstats month command to work
+		)
+	)
 
 async def main(client, message):
 	if not message.author.bot:

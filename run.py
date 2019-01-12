@@ -26,7 +26,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190110"
+appversion = "b20190112"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -40,7 +40,7 @@ async def on_ready():
 	print('------')
 	if not os.path.exists('data/maindb.sqlite3'):
 		appinfo = await client.application_info()
-		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, messageid, contents, timestamp)")
+		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, userjson, messageid, contents, timestamp)")
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
 		await dbhandler.query("CREATE TABLE config (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE temp (setting, value)")
@@ -134,15 +134,16 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 		async for message in log_instance:
 			logcounter += 1
 			template = {
-				'timestamp': message.created_at.isoformat(), 
+				'timestamp': str(message.created_at.isoformat()), 
 				'id': str(message.id), 
 				'author': {
 					'id': str(message.author.id),
-					'username': message.author.name,
-					'discriminator': message.author.discriminator,
-					'avatar': message.author.avatar,
+					'username': str(message.author.name),
+					'discriminator': str(message.author.discriminator),
+					'avatar': str(message.author.avatar),
+					'bot': bool(message.author.bot),
 				},
-				'content': message.content, 
+				'content': str(message.content), 
 			}
 			#collection.update(template)
 			collection.append(template)
@@ -159,34 +160,54 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 		await ctx.send(embed=await permissions.error())
 
 @client.command(name="import", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
-async def importmessages(ctx, channelid: int = None):
+async def importmessages(ctx, *channelids):
 	if await permissions.check(ctx.message.author.id) :
-		try:
-			if channelid == None:
-				channel = ctx.message.channel
-				channelid = ctx.message.channel.id
-			else:
-				channel = await utils.get_channel(client.get_all_channels(), channelid)
-			starttime = time.process_time()	
-			log_instance = channel.history(limit=999999999)
-			logcounter = 0
-			whattocommit = []
-			async for message in log_instance:
-				logcounter += 1
-				#await dbhandler.insert('channellogs', (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8')))
-				whattocommit.append(("INSERT INTO channellogs VALUES (?,?,?,?,?,?)", (message.guild.id, message.channel.id, message.author.id, message.id, message.content.encode('utf-8'), str(int(time.mktime(message.created_at.timetuple()))))))
-			await dbhandler.massquery(whattocommit)
-			endtime = time.process_time()
-			exportembed=discord.Embed(color=0xadff2f, description="Imported the channel into database.")
-			exportembed.set_author(name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
-			exportembed.add_field(name="Channel:", value=channel.name, inline=False)
-			exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
-			exportembed.add_field(name="Time taken while importing:", value=await utils.measuretime(starttime,endtime), inline=False)
-			await ctx.send(embed=exportembed)
-		except Exception as e:
-			print(time.strftime('%X %x %Z'))
-			print("in importmessages")
-			print(e)
+		for channelid in channelids:
+			try:
+				if channelid == "this":
+					channel = ctx.message.channel
+					channelid = ctx.message.channel.id
+				else:
+					channel = await utils.get_channel(client.get_all_channels(), int(channelid))
+				starttime = time.process_time()	
+				log_instance = channel.history(limit=999999999)
+				logcounter = 0
+				whattocommit = []
+				async for message in log_instance:
+					logcounter += 1
+					messageauthorjson = {
+						'id': str(message.author.id),
+						'username': str(message.author.name),
+						'discriminator': str(message.author.discriminator),
+						'avatar': str(message.author.avatar),
+						'bot': bool(message.author.bot),
+					},
+					whattocommit.append(
+						(
+							"INSERT INTO channellogs VALUES (?,?,?,?,?,?,?)", 
+							(
+								str(message.guild.id), 
+								str(message.channel.id), 
+								str(message.author.id), 
+								str(json.dumps(messageauthorjson)),
+								str(message.id), 
+								str(message.content), 
+								str(int(time.mktime(message.created_at.timetuple())))
+							)
+						)
+					)
+				await dbhandler.massquery(whattocommit)
+				endtime = time.process_time()
+				exportembed=discord.Embed(color=0xadff2f, description="Imported the channel into database.")
+				exportembed.set_author(name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
+				exportembed.add_field(name="Channel:", value=channel.name, inline=False)
+				exportembed.add_field(name="Number of messages:", value=logcounter, inline=False)
+				exportembed.add_field(name="Time taken while importing:", value=await utils.measuretime(starttime,endtime), inline=False)
+				await ctx.send(embed=exportembed)
+			except Exception as e:
+				print(time.strftime('%X %x %Z'))
+				print("in importmessages")
+				print(e)
 	else :
 		await ctx.send(embed=await permissions.error())
 
@@ -195,11 +216,11 @@ async def bridge(ctx, bridgetype: str, value: str):
 	if await permissions.check(ctx.message.author.id) :
 		if len(value) > 0:
 			where = [
-				['channelid', ctx.message.channel.id],
+				['channelid', str(ctx.message.channel.id)],
 			]
 			bridgedchannel = await dbhandler.select('bridges', 'value', where)
 			if not bridgedchannel:
-				await dbhandler.insert('bridges', (ctx.message.channel.id, bridgetype, value))
+				await dbhandler.insert('bridges', (str(ctx.message.channel.id), str(bridgetype), str(value)))
 				await ctx.send("`The bridge was created`")
 			else :
 				await ctx.send("`This channel is already bridged`")
@@ -212,13 +233,21 @@ async def serverstats(ctx, arg: str = None):
 		if arg == "month": #2592000
 			title = "Here are 15 most active people in this server in last 30 days:"
 			after = int(time.time()) - 2592000
-			# TODO: fix this
-			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (int(ctx.message.guild.id), str(after))]
-			#query = ["SELECT userid FROM channellogs WHERE timestamp > ?;", (str(after),)]
+			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
+			guilddata = await dbhandler.query(query)
+		elif arg == "week": #604800
+			title = "Here are 15 most active people in this server in last 7 days:"
+			after = int(time.time()) - 604800
+			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
+			guilddata = await dbhandler.query(query)
+		elif arg == "day": #86400
+			title = "Here are 15 most active people in this server in last 24 hours:"
+			after = int(time.time()) - 86400
+			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
 			guilddata = await dbhandler.query(query)
 		else:
-			title = "Here are 10 most active people in this server:"
-			guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', ctx.message.guild.id],])
+			title = "Here are 15 most active people in this server:"
+			guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', str(ctx.message.guild.id)],])
 		results = dict(Counter(guilddata))
 		sorted_x = reversed(sorted(results.items(), key=operator.itemgetter(1)))
 		counter = 0
@@ -226,18 +255,18 @@ async def serverstats(ctx, arg: str = None):
 		statsembed.set_author(name="Top members", icon_url=defaultembedicon)
 		statsembed.set_thumbnail(url=defaultembedthumbnail)
 		for onemember in sorted_x:
-			memberobject = ctx.guild.get_member(onemember[0][0])
+			memberobject = ctx.guild.get_member(int(onemember[0][0]))
 			#messageamount = str(results[onemember])
 			messageamount = str(onemember[1])+" messages"
 			if not memberobject:
 				counter += 1
-				statsembed.add_field(name="[%s] : %s (%s)" % (counter, onemember[0][0], "User not found"), value=messageamount, inline=False)
+				statsembed.add_field(name="[%s] : %s (%s)" % (counter, onemember[0][0], "User not found"), value=messageamount, inline=True)
 			elif memberobject.nick and not memberobject.bot:
 				counter += 1
-				statsembed.add_field(name="[%s] : %s (%s)" % (counter, memberobject.nick, memberobject.name), value=messageamount, inline=False)
+				statsembed.add_field(name="[%s] : %s (%s)" % (counter, memberobject.nick, memberobject.name), value=messageamount, inline=True)
 			elif not memberobject.bot:
 				counter += 1
-				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=messageamount, inline=False)
+				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=messageamount, inline=True)
 			if counter == 15:
 				break
 		statsembed.set_footer(text = "Momiji is best wolf.", icon_url=defaultembedfootericon)
@@ -301,7 +330,7 @@ async def inspire(ctx):
 			async with aiohttp.ClientSession() as session:
 				async with session.get(url) as textresponse:
 					if "https://generated.inspirobot.me/a/" in (await textresponse.text()):
-						imageurl = await textresponse.text()#.decode('utf-8')
+						imageurl = await textresponse.text()
 						async with aiohttp.ClientSession() as session:
 							async with session.get(imageurl) as imageresponse:
 								buffer = (await imageresponse.read())
@@ -324,10 +353,10 @@ async def img(ctx, *, searchquery):
 					googlesearchengineid = (await dbhandler.select('config', 'value', [['setting', 'googlesearchengineid'],]))
 					if googleapikey:
 						query = {
-							'q': searchquery,
-							'key': googleapikey[0][0],
+							'q': str(searchquery),
+							'key': str(googleapikey[0][0]),
 							'searchType': 'image',
-							'cx': googlesearchengineid[0][0],
+							'cx': str(googlesearchengineid[0][0]),
 							'start': str(random.randint(1,21))
 						}
 						url = "https://www.googleapis.com/customsearch/v1?"+urllib.parse.urlencode(query)
@@ -357,10 +386,10 @@ async def img(ctx, *, searchquery):
 
 @client.event
 async def on_message(message):
-	try:
+	if True:
 		if message.author.id != client.user.id : 
 			where = [
-				['channelid', message.channel.id],
+				['channelid', str(message.channel.id)],
 				['type', "module"],
 			]
 			bridgedchannel = await dbhandler.select('bridges', 'value', where)
@@ -369,10 +398,10 @@ async def on_message(message):
 			else:
 				module = importlib.import_module('modules.momiji')
 			await module.main(client, message)
-	except Exception as e:
-		print(time.strftime('%X %x %Z'))
-		print("in on_message")
-		print(e)
+	# except Exception as e:
+	# 	print(time.strftime('%X %x %Z'))
+	# 	print("in on_message")
+	# 	print(e)
 	await client.process_commands(message)
 
 client.run(open("data/token.txt", "r+").read(), bot=True)

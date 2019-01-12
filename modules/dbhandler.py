@@ -25,6 +25,8 @@ async def query(query):
 			result = list(c.execute(query))
 		elif type(query) is list:
 			result = list(c.execute(query[0], query[1]))			
+		elif type(query) is tuple:
+			result = list(c.execute(query[0], query[1]))			
 		conn.commit()
 		conn.close()
 		return result
