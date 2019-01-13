@@ -410,7 +410,7 @@ async def on_reaction_add(reaction, user):
 	try:
 		guildpinchannel = await dbhandler.select('config', 'value', [['setting', "guildpinchannelid"],['parent', str(reaction.message.guild.id)]])
 		if guildpinchannel:
-			if reaction.count > 0:
+			if reaction.count > 4:
 				if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(reaction.message.id)]])):
 					await dbhandler.insert('pinned', (str(reaction.message.id),))
 					pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
