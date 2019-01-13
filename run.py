@@ -44,6 +44,7 @@ async def on_ready():
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
 		await dbhandler.query("CREATE TABLE config (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE temp (setting, value)")
+		await dbhandler.query("CREATE TABLE pinned (messageid)")
 		await dbhandler.query("CREATE TABLE blacklist (value)")
 		await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
 		await dbhandler.insert('admins', (str(appinfo.owner.id), "1"))
@@ -386,7 +387,7 @@ async def img(ctx, *, searchquery):
 
 @client.event
 async def on_message(message):
-	if True:
+	try:
 		if message.author.id != client.user.id : 
 			where = [
 				['channelid', str(message.channel.id)],
@@ -398,10 +399,25 @@ async def on_message(message):
 			else:
 				module = importlib.import_module('modules.momiji')
 			await module.main(client, message)
-	# except Exception as e:
-	# 	print(time.strftime('%X %x %Z'))
-	# 	print("in on_message")
-	# 	print(e)
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in on_message")
+		print(e)
 	await client.process_commands(message)
+
+@client.event
+async def on_reaction_add(reaction, user):
+	try:
+		guildpinchannel = await dbhandler.select('config', 'value', [['setting', "guildpinchannelid"],['parent', str(reaction.message.guild.id)]])
+		if guildpinchannel:
+			if reaction.count > 0:
+				if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(reaction.message.id)]])):
+					await dbhandler.insert('pinned', (str(reaction.message.id),))
+					pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
+					await pin_channel_object.send(content="<#%s> %s" % (str(reaction.message.channel.id), str(reaction.emoji)), embed=await utils.messageembed(reaction.message))
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in on_reaction_add")
+		print(e)
 
 client.run(open("data/token.txt", "r+").read(), bot=True)
