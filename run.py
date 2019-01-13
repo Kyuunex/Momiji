@@ -410,19 +410,20 @@ async def on_raw_reaction_add(raw_reaction):
 	try:
 		guildpinchannel = await dbhandler.select('config', 'value', [['setting', "guildpinchannelid"],['parent', str(raw_reaction.guild_id)]])
 		if guildpinchannel:
-			channell = await utils.get_channel(client.get_all_channels(), raw_reaction.channel_id)
-			message = await channell.get_message(raw_reaction.message_id)
-			reactions = message.reactions
-			for reaction in reactions:
-				# onereact = {
-				# 	'count': int(reaction.count),
-				# 	'emoji': str(reaction.emoji),
-				# }
-				if reaction.count > 3: 
-					if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(raw_reaction.message_id)]])):
-						await dbhandler.insert('pinned', (str(raw_reaction.message_id),))
-						pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
-						await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await utils.messageembed(message))
+			if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
+				channell = await utils.get_channel(client.get_all_channels(), raw_reaction.channel_id)
+				message = await channell.get_message(raw_reaction.message_id)
+				reactions = message.reactions
+				for reaction in reactions:
+					# onereact = {
+					# 	'count': int(reaction.count),
+					# 	'emoji': str(reaction.emoji),
+					# }
+					if reaction.count > 3: 
+						if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(raw_reaction.message_id)]])):
+							await dbhandler.insert('pinned', (str(raw_reaction.message_id),))
+							pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
+							await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await utils.messageembed(message))
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in on_raw_reaction_add")
