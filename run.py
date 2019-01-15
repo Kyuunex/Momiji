@@ -390,9 +390,11 @@ async def vc(ctx, action: str, channelid: int):
 		global vc
 		if action == "join":
 			vc = await channell.connect(timeout=60.0)
+			await ctx.send("Momiji reporting for duty")
 		elif action == "leave":
 			await vc.disconnect()
 			vc = None
+			await ctx.send("if you dislike me this much, fine, i'll leave")
 	else :
 		await ctx.send(embed=await permissions.ownererror())
 
@@ -412,8 +414,10 @@ async def music(ctx, action: str):
 				#vc.is_playing()
 				#vc.pause()
 				#vc.resume()
+				await ctx.send("playing %s" % (randomaudio))
 		elif action == "stop":
 			vc.stop()
+			await ctx.send("stopped playin music")
 	else :
 		await ctx.send(embed=await permissions.ownererror())
 
