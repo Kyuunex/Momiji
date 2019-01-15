@@ -393,7 +393,6 @@ async def vc(ctx, action: str, channelid: int):
 			await ctx.send("Momiji reporting for duty")
 		elif action == "leave":
 			await vc.disconnect()
-			vc = None
 			await ctx.send("if you dislike me this much, fine, i'll leave")
 	else :
 		await ctx.send(embed=await permissions.ownererror())
