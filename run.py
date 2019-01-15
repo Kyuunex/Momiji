@@ -43,7 +43,7 @@ async def on_ready():
 		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, userjson, messageid, contents, timestamp)")
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
 		await dbhandler.query("CREATE TABLE config (setting, parent, value)")
-		await dbhandler.query("CREATE TABLE temp (setting, value)")
+		await dbhandler.query("CREATE TABLE temp (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE pinned (messageid)")
 		await dbhandler.query("CREATE TABLE blacklist (value)")
 		await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
@@ -384,12 +384,11 @@ async def img(ctx, *, searchquery):
 		print(e)
 
 @client.command(name="vc", brief="test", description="", pass_context=True)
-async def vc(ctx, action: str, channelid: int):
+async def vc(ctx, action: str,):
 	if await permissions.checkowner(ctx.message.author.id) :
-		channell = await utils.get_channel(client.get_all_channels(), channelid)
 		global vc
 		if action == "join":
-			vc = await channell.connect(timeout=60.0)
+			vc = await ctx.author.voice.channel.connect(timeout=60.0)
 			await ctx.send("Momiji reporting for duty")
 		elif action == "leave":
 			await vc.disconnect()
@@ -401,37 +400,39 @@ async def vc(ctx, action: str, channelid: int):
 async def music(ctx, action: str):
 	if await permissions.checkowner(ctx.message.author.id) :
 		global vc
+		where = [
+			['setting', "stopmusic"],
+			['parent', str(ctx.message.guild.id)]
+		]
 		if action == "play":
+			await dbhandler.delete('temp', where)
 			audiodir = "data/audio/"
 			if os.path.exists(audiodir):
-				a = True
-				while a:
-					randomaudio = random.choice(os.listdir(audiodir))
-					if (randomaudio.split("."))[-1] == "mp3" or (randomaudio.split("."))[-1] == "ogg" or (randomaudio.split("."))[-1] == "flac":
-						a = False
-				vc.play(discord.FFmpegPCMAudio(audiodir+randomaudio), after=lambda e: print('done', e))
-				#vc.is_playing()
-				#vc.pause()
-				#vc.resume()
-				await ctx.send("playing `%s`" % (randomaudio))
+				musiclist = os.listdir(audiodir)
+				random.shuffle(musiclist)
+				for audio in musiclist:
+					musicloop = True
+					while musicloop:
+						if vc.is_playing():
+							await asyncio.sleep(3)
+						else:
+							musicloop = False	
+							if not (await dbhandler.select('temp', 'value', where)):
+								if (audio.split("."))[-1] == "mp3" or (audio.split("."))[-1] == "ogg" or (audio.split("."))[-1] == "flac":
+									try:
+										vc.play(discord.FFmpegPCMAudio(audiodir+audio), after=lambda e: print('done', e))
+									except Exception as e:
+										await ctx.send(e)
+									await ctx.send("playing `%s`" % (audio))
+		elif action == "next":
+			vc.stop()
+			await ctx.send("next track")
 		elif action == "stop":
+			await dbhandler.insert('temp', ("stopmusic", str(ctx.message.guild.id), str("0")))
 			vc.stop()
 			await ctx.send("stopped playin music")
 	else :
 		await ctx.send(embed=await permissions.ownererror())
-
-@client.command(name="osu", brief="test", description="", pass_context=True)
-async def osu(ctx, action: str, mapset: str):
-	if await permissions.checkowner(ctx.message.author.id) :
-		global vc
-		if action == "play":
-			print("test %s" % (mapset))
-		elif action == "stop":
-			vc.stop()
-			await ctx.send("stopped playin music")
-	else :
-		await ctx.send(embed=await permissions.ownererror())
-
 
 #####################################################################################################
 
