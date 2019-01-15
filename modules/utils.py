@@ -40,7 +40,7 @@ async def get_channel(channels, channel_id):  # client.get_all_channels()
 
 async def cooldowncheck(setting):
 	if not await dbhandler.select('temp', 'value', [['setting', setting],]):
-		await dbhandler.insert('temp', (setting, str("0")))
+		await dbhandler.insert('temp', (setting, str("0"), str("0")))
 	lasttime = (await dbhandler.select('temp', 'value', [['setting', setting],]))[0][0]
 	if float(time.time())-float(lasttime) > 20:
 		await dbhandler.update('temp', 'value', str(time.time()), 'setting', setting)
