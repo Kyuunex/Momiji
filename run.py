@@ -398,6 +398,7 @@ async def vc(ctx, action: str,):
 
 @client.command(name="music", brief="test", description="", pass_context=True)
 async def music(ctx, action: str):
+	# I know this looks bad but for now it works. Forgive me.
 	if await permissions.checkowner(ctx.message.author.id) :
 		global vc
 		where = [
