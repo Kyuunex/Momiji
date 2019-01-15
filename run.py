@@ -383,6 +383,41 @@ async def img(ctx, *, searchquery):
 		print("in img")
 		print(e)
 
+@client.command(name="vc", brief="test", description="", pass_context=True)
+async def vc(ctx, action: str, channelid: int):
+	if await permissions.checkowner(ctx.message.author.id) :
+		channell = await utils.get_channel(client.get_all_channels(), channelid)
+		global vc
+		if action == "join":
+			vc = await channell.connect(timeout=60.0)
+		elif action == "leave":
+			await vc.disconnect()
+			vc = None
+	else :
+		await ctx.send(embed=await permissions.ownererror())
+
+@client.command(name="music", brief="test", description="", pass_context=True)
+async def music(ctx, action: str):
+	if await permissions.checkowner(ctx.message.author.id) :
+		global vc
+		if action == "play":
+			audiodir = "data/audio/"
+			if os.path.exists(audiodir):
+				a = True
+				while a:
+					randomaudio = random.choice(os.listdir(audiodir))
+					if (randomaudio.split("."))[-1] == "mp3" or (randomaudio.split("."))[-1] == "ogg" or (randomaudio.split("."))[-1] == "flac":
+						a = False
+				vc.play(discord.FFmpegPCMAudio(audiodir+randomaudio), after=lambda e: print('done', e))
+				#vc.is_playing()
+				#vc.pause()
+				#vc.resume()
+		elif action == "stop":
+			vc.stop()
+	else :
+		await ctx.send(embed=await permissions.ownererror())
+
+
 #####################################################################################################
 
 @client.event
