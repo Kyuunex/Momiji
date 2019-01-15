@@ -420,6 +420,18 @@ async def music(ctx, action: str):
 	else :
 		await ctx.send(embed=await permissions.ownererror())
 
+@client.command(name="osu", brief="test", description="", pass_context=True)
+async def osu(ctx, action: str, mapset: str):
+	if await permissions.checkowner(ctx.message.author.id) :
+		global vc
+		if action == "play":
+			print("test %s" % (mapset))
+		elif action == "stop":
+			vc.stop()
+			await ctx.send("stopped playin music")
+	else :
+		await ctx.send(embed=await permissions.ownererror())
+
 
 #####################################################################################################
 
