@@ -413,7 +413,7 @@ async def music(ctx, action: str):
 				#vc.is_playing()
 				#vc.pause()
 				#vc.resume()
-				await ctx.send("playing %s" % (randomaudio))
+				await ctx.send("playing `%s`" % (randomaudio))
 		elif action == "stop":
 			vc.stop()
 			await ctx.send("stopped playin music")
