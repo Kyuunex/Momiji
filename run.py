@@ -473,7 +473,7 @@ async def on_raw_reaction_add(raw_reaction):
 					# 	'emoji': str(reaction.emoji),
 					# }
 					if reaction.count > 5: 
-						if not str(raw_reaction.channel_id) in (await dbhandler.select('pinchannelblacklist', 'value', None)):
+						if not (raw_reaction.channel_id in (await dbhandler.select('pinchannelblacklist', 'value', None))):
 							if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(raw_reaction.message_id)]])):
 								await dbhandler.insert('pinned', (str(raw_reaction.message_id),))
 								pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
