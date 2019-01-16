@@ -26,7 +26,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190115"
+appversion = "b20190116"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -45,6 +45,7 @@ async def on_ready():
 		await dbhandler.query("CREATE TABLE config (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE temp (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE pinned (messageid)")
+		await dbhandler.query("CREATE TABLE pinchannelblacklist (value)")
 		await dbhandler.query("CREATE TABLE blacklist (value)")
 		await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
 		await dbhandler.insert('admins', (str(appinfo.owner.id), "1"))
@@ -471,11 +472,12 @@ async def on_raw_reaction_add(raw_reaction):
 					# 	'count': int(reaction.count),
 					# 	'emoji': str(reaction.emoji),
 					# }
-					if reaction.count > 3: 
-						if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(raw_reaction.message_id)]])):
-							await dbhandler.insert('pinned', (str(raw_reaction.message_id),))
-							pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
-							await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await utils.messageembed(message))
+					if reaction.count > 5: 
+						if not str(raw_reaction.channel_id) in (await dbhandler.select('pinchannelblacklist', 'value', None)):
+							if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(raw_reaction.message_id)]])):
+								await dbhandler.insert('pinned', (str(raw_reaction.message_id),))
+								pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
+								await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await utils.messageembed(message))
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in on_raw_reaction_add")
