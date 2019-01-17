@@ -18,15 +18,15 @@ from modules import permissions
 from modules import dbhandler
 from modules import utils
 
-
-client = commands.Bot(command_prefix=';', description='Momiji is best wolf')
+commandprefix = ';'
+client = commands.Bot(command_prefix=commandprefix, description='Momiji is best wolf')
 if not os.path.exists('data'):
 	print("Please configure this bot according to readme file.")
 	sys.exit("data folder and it's contents are missing")
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190116"
+appversion = "b20190117"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -100,21 +100,24 @@ async def help(ctx, admin: str = None):
 	helpembed.set_author(name="Momiji %s" % (appversion), icon_url=defaultembedicon, url='https://github.com/Kyuunex/Momiji')
 	helpembed.set_thumbnail(url=defaultembedthumbnail)
 	
-	helpembed.add_field(name="inspire", value="When you crave some inspiration in your life", inline=True)
-	helpembed.add_field(name="img", value="Google image search", inline=True)
-	helpembed.add_field(name="neko", value="Nekos are life", inline=True)
-	helpembed.add_field(name="art", value="See some amazing anime style art", inline=True)
+	helpembed.add_field(name="%sinspire" % (commandprefix), value="When you crave some inspiration in your life", inline=True)
+	helpembed.add_field(name="%simg" % (commandprefix), value="Google image search", inline=True)
+	helpembed.add_field(name="%sneko" % (commandprefix), value="Nekos are life", inline=True)
+	helpembed.add_field(name="%sart" % (commandprefix), value="See some amazing anime style art", inline=True)
 
 	if admin == "admin":
-		helpembed.add_field(name="gitpull", value="Update the bot", inline=True)
-		helpembed.add_field(name="restart", value="Restart the bot", inline=True)
-		helpembed.add_field(name="export", value="Exports the chat to json format", inline=True)
-		helpembed.add_field(name="import", value="Import the chat into database", inline=True)
-		helpembed.add_field(name="echo", value="Echo out a string", inline=True)
-		helpembed.add_field(name="bridge", value="Bridge the channel", inline=True)
-		helpembed.add_field(name="adminlist", value="List bot admins", inline=True)
-		helpembed.add_field(name="makeadmin", value="Make user a bot admin", inline=True)
-		helpembed.add_field(name="sql", value="Execute an SQL query", inline=True)
+		helpembed.add_field(name="%sgitpull" % (commandprefix), value="Update the bot", inline=True)
+		helpembed.add_field(name="%sserverstats [month/day/week]" % (commandprefix), value="Server Stats", inline=True)
+		helpembed.add_field(name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
+		helpembed.add_field(name="%smusic [play/stop/next]" % (commandprefix), value="Music controls", inline=True)
+		helpembed.add_field(name="%srestart" % (commandprefix), value="Restart the bot", inline=True)
+		helpembed.add_field(name="%sexport" % (commandprefix), value="Exports the chat to json format", inline=True)
+		helpembed.add_field(name="%simport" % (commandprefix), value="Import the chat into database", inline=True)
+		helpembed.add_field(name="%secho" % (commandprefix), value="Echo out a string", inline=True)
+		helpembed.add_field(name="%sbridge" % (commandprefix), value="Bridge the channel", inline=True)
+		helpembed.add_field(name="%sadminlist" % (commandprefix), value="List bot admins", inline=True)
+		helpembed.add_field(name="%smakeadmin" % (commandprefix), value="Make user a bot admin", inline=True)
+		helpembed.add_field(name="%ssql" % (commandprefix), value="Execute an SQL query", inline=True)
 
 	helpembed.set_footer(text = "Made by Kyuunex", icon_url=defaultembedfootericon)
 	await ctx.send(embed=helpembed)
@@ -233,28 +236,28 @@ async def bridge(ctx, bridgetype: str, value: str):
 async def serverstats(ctx, arg: str = None):
 	if await permissions.check(ctx.message.author.id) :
 		if arg == "month": #2592000
-			title = "Here are 15 most active people in this server in last 30 days:"
+			title = "Here are 20 most active people in this server in last 30 days:"
 			after = int(time.time()) - 2592000
 			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
 			guilddata = await dbhandler.query(query)
 		elif arg == "week": #604800
-			title = "Here are 15 most active people in this server in last 7 days:"
+			title = "Here are 20 most active people in this server in last 7 days:"
 			after = int(time.time()) - 604800
 			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
 			guilddata = await dbhandler.query(query)
 		elif arg == "day": #86400
-			title = "Here are 15 most active people in this server in last 24 hours:"
+			title = "Here are 20 most active people in this server in last 24 hours:"
 			after = int(time.time()) - 86400
 			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
 			guilddata = await dbhandler.query(query)
 		else:
-			title = "Here are 15 most active people in this server:"
+			title = "Here are 20 most active people in this server all time:"
 			guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', str(ctx.message.guild.id)],])
 		results = dict(Counter(guilddata))
 		sorted_x = reversed(sorted(results.items(), key=operator.itemgetter(1)))
 		counter = 0
 		statsembed=discord.Embed(description=title, color=0xffffff)
-		statsembed.set_author(name="Top members", icon_url=defaultembedicon)
+		statsembed.set_author(name="Server activity stats per member", icon_url=defaultembedicon)
 		statsembed.set_thumbnail(url=defaultembedthumbnail)
 		for onemember in sorted_x:
 			memberobject = ctx.guild.get_member(int(onemember[0][0]))
@@ -269,7 +272,7 @@ async def serverstats(ctx, arg: str = None):
 			elif not memberobject.bot:
 				counter += 1
 				statsembed.add_field(name="[%s] : %s" % (counter, memberobject.name), value=messageamount, inline=True)
-			if counter == 15:
+			if counter == 20:
 				break
 		statsembed.set_footer(text = "Momiji is best wolf.", icon_url=defaultembedfootericon)
 		await ctx.send(embed=statsembed)
@@ -400,6 +403,7 @@ async def vc(ctx, action: str,):
 @client.command(name="music", brief="test", description="", pass_context=True)
 async def music(ctx, action: str):
 	# I know this looks bad but for now it works. Forgive me.
+	# Please don't use it on more than one server at a time
 	if await permissions.check(ctx.message.author.id) :
 		global vc
 		where = [
@@ -412,6 +416,7 @@ async def music(ctx, action: str):
 			if os.path.exists(audiodir):
 				musiclist = os.listdir(audiodir)
 				random.shuffle(musiclist)
+				await ctx.send("Total amount of tracks in the playlist: %s" % (len(musiclist)))
 				for audio in musiclist:
 					musicloop = True
 					while musicloop:
@@ -425,14 +430,14 @@ async def music(ctx, action: str):
 										vc.play(discord.FFmpegPCMAudio(audiodir+audio), after=lambda e: print('done', e))
 									except Exception as e:
 										await ctx.send(e)
-									await ctx.send("playing `%s`" % (audio))
+									await ctx.send("Currently playing: `%s`" % (audio))
 		elif action == "next":
 			vc.stop()
-			await ctx.send("next track")
+			await ctx.send("Next track")
 		elif action == "stop":
 			await dbhandler.insert('temp', ("stopmusic", str(ctx.message.guild.id), str("0")))
 			vc.stop()
-			await ctx.send("stopped playin music")
+			await ctx.send("Stopped playing music")
 	else :
 		await ctx.send(embed=await permissions.error())
 

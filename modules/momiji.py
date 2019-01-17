@@ -68,7 +68,7 @@ async def logmessage(message):
 			str(message.author.id), # to make serverstats command work
 			str(json.dumps(messageauthorjson)), # to identify easily who wrote the message and whether it was a bot or not
 			str(message.id), # maybe in future we can auto delete messages from DB when they are deleted on discord
-			str(message.content), # duh. 
+			str(message.content), # duh. Yes, we can get away by just logging message ID, however I actually need contents for what I have planned in future update
 			str(int(time.mktime(message.created_at.timetuple()))) # to make serverstats month command to work
 		)
 	)
@@ -116,9 +116,8 @@ async def main(client, message):
 					await message.channel.send(';w;')
 				if msg.startswith('good bot'):
 					await message.channel.send('^w^')
+				if "sentient" in msg:
+					await message.channel.send('yes ^w^')
 				if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
 					await message.channel.send('Happy Birthday <@%s>!' % (str(message.author.id)))
-
-	# Momiji stores messages in do with this. 
-	# And it makes sure not to log any links, invites, commands and mentions.
 	await logmessage(message)
