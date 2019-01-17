@@ -386,7 +386,7 @@ async def img(ctx, *, searchquery):
 
 @client.command(name="vc", brief="test", description="", pass_context=True)
 async def vc(ctx, action: str,):
-	if await permissions.checkowner(ctx.message.author.id) :
+	if await permissions.check(ctx.message.author.id) :
 		global vc
 		if action == "join":
 			vc = await ctx.author.voice.channel.connect(timeout=60.0)
@@ -395,12 +395,12 @@ async def vc(ctx, action: str,):
 			await vc.disconnect()
 			await ctx.send("if you dislike me this much, fine, i'll leave")
 	else :
-		await ctx.send(embed=await permissions.ownererror())
+		await ctx.send(embed=await permissions.error())
 
 @client.command(name="music", brief="test", description="", pass_context=True)
 async def music(ctx, action: str):
 	# I know this looks bad but for now it works. Forgive me.
-	if await permissions.checkowner(ctx.message.author.id) :
+	if await permissions.check(ctx.message.author.id) :
 		global vc
 		where = [
 			['setting', "stopmusic"],
@@ -434,7 +434,7 @@ async def music(ctx, action: str):
 			vc.stop()
 			await ctx.send("stopped playin music")
 	else :
-		await ctx.send(embed=await permissions.ownererror())
+		await ctx.send(embed=await permissions.error())
 
 #####################################################################################################
 
