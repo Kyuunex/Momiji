@@ -26,7 +26,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190117"
+appversion = "b20190121"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -104,6 +104,7 @@ async def help(ctx, admin: str = None):
 	helpembed.add_field(name="%simg" % (commandprefix), value="Google image search", inline=True)
 	helpembed.add_field(name="%sneko" % (commandprefix), value="Nekos are life", inline=True)
 	helpembed.add_field(name="%sart" % (commandprefix), value="See some amazing anime style art", inline=True)
+	helpembed.add_field(name="%sroll" % (commandprefix), value="Roll", inline=True)
 
 	if admin == "admin":
 		helpembed.add_field(name="%sgitpull" % (commandprefix), value="Update the bot", inline=True)
@@ -440,6 +441,20 @@ async def music(ctx, action: str):
 			await ctx.send("Stopped playing music")
 	else :
 		await ctx.send(embed=await permissions.error())
+
+@client.command(name="roll", brief="a very complicated roll command", description="", pass_context=True)
+async def roll(ctx, max = None):
+	who = ctx.message.author.display_name
+	try:
+		max = int(max)
+	except:
+		max = 100
+	randomnumber = random.randint(1,max)
+	if randomnumber == 1:
+		point = "point"
+	else:
+		point = "points"
+	await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), randomnumber, point))
 
 #####################################################################################################
 
