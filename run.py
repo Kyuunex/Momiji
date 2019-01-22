@@ -408,12 +408,8 @@ async def music(ctx, action: str):
 	# Please don't use it on more than one server at a time
 	if await permissions.check(ctx.message.author.id) :
 		global vc
-		where = [
-			['setting', "stopmusic"],
-			['parent', str(ctx.message.guild.id)]
-		]
 		if action == "play":
-			await dbhandler.delete('temp', where)
+			await dbhandler.query(["DELETE FROM temp WHERE setting = ? AND parent = ?", ["stopmusic", str(ctx.message.guild.id)]])
 			audiodir = "data/audio/"
 			if os.path.exists(audiodir):
 				musiclist = os.listdir(audiodir)
@@ -425,8 +421,9 @@ async def music(ctx, action: str):
 						if vc.is_playing():
 							await asyncio.sleep(3)
 						else:
-							musicloop = False	
-							if not (await dbhandler.select('temp', 'value', where)):
+							musicloop = False
+							dbselect = await dbhandler.query(["SELECT value FROM temp WHERE setting = ? AND parent = ?", ["stopmusic", str(ctx.message.guild.id)]])
+							if not dbselect:
 								if (audio.split("."))[-1] == "mp3" or (audio.split("."))[-1] == "ogg" or (audio.split("."))[-1] == "flac":
 									try:
 										vc.play(discord.FFmpegPCMAudio(audiodir+audio), after=lambda e: print('done', e))
@@ -437,7 +434,7 @@ async def music(ctx, action: str):
 			vc.stop()
 			await ctx.send("Next track")
 		elif action == "stop":
-			await dbhandler.insert('temp', ("stopmusic", str(ctx.message.guild.id), str("0")))
+			await dbhandler.query(["INSERT INTO temp VALUES (?,?,?)", ["stopmusic", str(ctx.message.guild.id), str("0")]])
 			vc.stop()
 			await ctx.send("Stopped playing music")
 	else :
