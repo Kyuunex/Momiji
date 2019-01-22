@@ -26,7 +26,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190121"
+appversion = "b20190122"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -456,6 +456,10 @@ async def roll(ctx, max = None):
 	else:
 		point = "points"
 	await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), randomnumber, point))
+
+@client.command(name="birthday", brief="", description="", pass_context=True)
+async def birthday(ctx, month: int, day: int, timezone: int):
+	await ctx.send("this function is a placeholder for now")
 
 #####################################################################################################
 
