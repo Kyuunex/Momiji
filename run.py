@@ -16,6 +16,7 @@ import importlib
 
 from modules import permissions
 from modules import dbhandler
+from modules import logembeds
 from modules import utils
 
 commandprefix = ';'
@@ -503,6 +504,19 @@ async def on_raw_reaction_add(raw_reaction):
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in on_raw_reaction_add")
+		print(e)
+
+@client.event
+async def on_message_delete(message):
+	try:
+		if not message.author.bot:
+			guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"],['parent', str(message.guild.id)]])
+			if guildlogchannel:
+				channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
+				await channell.send(embed=await logembeds.message_delete(message))
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in on_message_delete")
 		print(e)
 
 client.run(open("data/token.txt", "r+").read(), bot=True)
