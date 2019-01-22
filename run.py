@@ -47,6 +47,7 @@ async def on_ready():
 		await dbhandler.query("CREATE TABLE pinned (messageid)")
 		await dbhandler.query("CREATE TABLE pinchannelblacklist (value)")
 		await dbhandler.query("CREATE TABLE blacklist (value)")
+		await dbhandler.query("CREATE TABLE birthdays (discordid, date)")
 		await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
 		await dbhandler.insert('admins', (str(appinfo.owner.id), "1"))
 		await dbhandler.insert('blacklist', ("@",))

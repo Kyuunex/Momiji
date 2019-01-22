@@ -104,6 +104,8 @@ async def main(client, message):
 					await message.channel.send('kotoga')
 				if msg.startswith('kasanari'):
 					await message.channel.send('AAAAAAAAAAAAUUUUUUUUUUUUUUUUU')
+				if msg.startswith('giri giri'):
+					await message.channel.send('EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
 				if msg.startswith('awoo'):
 					await message.channel.send('awoooooooooooooooooooooooooo')
 				if msg.startswith('cya'):
