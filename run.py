@@ -533,4 +533,28 @@ async def on_message_edit(before, after):
 		print("in on_message_edit")
 		print(e)
 
+@client.event
+async def on_member_join(member):
+	try:
+		guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"],['parent', str(member.guild.id)]])
+		if guildlogchannel:
+			channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
+			await channell.send(embed=await logembeds.member_join(member))
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in on_member_join")
+		print(e)
+
+@client.event
+async def on_member_remove(member):
+	try:
+		guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"],['parent', str(member.guild.id)]])
+		if guildlogchannel:
+			channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
+			await channell.send(embed=await logembeds.member_remove(member))
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in on_member_remove")
+		print(e)
+
 client.run(open("data/token.txt", "r+").read(), bot=True)
