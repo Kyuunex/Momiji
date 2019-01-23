@@ -519,4 +519,18 @@ async def on_message_delete(message):
 		print("in on_message_delete")
 		print(e)
 
+@client.event
+async def on_message_edit(before, after):
+	try:
+		if not before.author.bot:
+			if before.content != after.content:
+				guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"],['parent', str(before.guild.id)]])
+				if guildlogchannel:
+					channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
+					await channell.send(embed=await logembeds.message_edit(before, after))
+	except Exception as e:
+		print(time.strftime('%X %x %Z'))
+		print("in on_message_edit")
+		print(e)
+
 client.run(open("data/token.txt", "r+").read(), bot=True)
