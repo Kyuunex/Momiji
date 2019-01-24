@@ -27,7 +27,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190123"
+appversion = "b20190124"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -565,12 +565,12 @@ async def on_voice_state_update(member, before, after):
 			channell = await utils.get_channel(client.get_all_channels(), int(guildvoicelogchannel[0][0]))
 			if not before.channel == after.channel: 
 				if before.channel == None: # Member joined a channel
-					await channell.send(embed=await logembeds.member_voice_join_left(member, after.channel, "joined"), delete_after=4)
+					await channell.send(embed=await logembeds.member_voice_join_left(member, after.channel, "joined"), delete_after=400)
 				else:
 					if after.channel == None: # Member left channel
-						await channell.send(embed=await logembeds.member_voice_join_left(member, before.channel, "left"), delete_after=4)
+						await channell.send(embed=await logembeds.member_voice_join_left(member, before.channel, "left"), delete_after=400)
 					else: # Member switched channel
-						await channell.send(embed=await logembeds.member_voice_switch(member, before.channel, after.channel), delete_after=4)
+						await channell.send(embed=await logembeds.member_voice_switch(member, before.channel, after.channel), delete_after=400)
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in on_voice_state_update")
