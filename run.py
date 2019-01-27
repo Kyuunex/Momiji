@@ -90,7 +90,7 @@ async def gitpull(ctx):
 @client.command(name="echo", brief="Update the bot", description="it just does git pull", pass_context=True)
 async def echo(ctx, *, string):
 	if await permissions.check(ctx.message.author.id) :
-		await ctx.delete()
+		await ctx.message.delete()
 		await ctx.send(string)
 	else :
 		await ctx.send(embed=await permissions.error())
