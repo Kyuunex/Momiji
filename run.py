@@ -90,8 +90,8 @@ async def gitpull(ctx):
 @client.command(name="echo", brief="Update the bot", description="it just does git pull", pass_context=True)
 async def echo(ctx, *, string):
 	if await permissions.check(ctx.message.author.id) :
-		#await ctx.delete_message(ctx.message)
-		await ctx.send(await utils.msgfilter(string, False))
+		await ctx.delete()
+		await ctx.send(string)
 	else :
 		await ctx.send(embed=await permissions.error())
 
@@ -575,5 +575,7 @@ async def on_voice_state_update(member, before, after):
 		print(time.strftime('%X %x %Z'))
 		print("in on_voice_state_update")
 		print(e)
+
+# TODO: voiceroles, prune option, username change logs, role change logs (except voice role), self asignable roles,
 
 client.run(open("data/token.txt", "r+").read(), bot=True)
