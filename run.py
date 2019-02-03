@@ -27,7 +27,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190124"
+appversion = "b20190203"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -560,17 +560,17 @@ async def on_member_remove(member):
 @client.event
 async def on_voice_state_update(member, before, after):
 	try:
-		guildvoicelogchannel = await dbhandler.select('config', 'value', [['setting', "guildvoicelogchannel"],['parent', str(member.guild.id)]])
-		if guildvoicelogchannel:
-			channell = await utils.get_channel(client.get_all_channels(), int(guildvoicelogchannel[0][0]))
+		guildvoicelogchannelid = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ("guildvoicelogchannel", str(member.guild.id))])
+		if guildvoicelogchannelid:
+			voicelogchannel = await utils.get_channel(client.get_all_channels(), int(guildvoicelogchannelid[0][0]))
 			if not before.channel == after.channel: 
 				if before.channel == None: # Member joined a channel
-					await channell.send(embed=await logembeds.member_voice_join_left(member, after.channel, "joined"), delete_after=400)
+					await voicelogchannel.send(embed=await logembeds.member_voice_join_left(member, after.channel, "joined"), delete_after=600)
 				else:
 					if after.channel == None: # Member left channel
-						await channell.send(embed=await logembeds.member_voice_join_left(member, before.channel, "left"), delete_after=400)
+						await voicelogchannel.send(embed=await logembeds.member_voice_join_left(member, before.channel, "left"), delete_after=600)
 					else: # Member switched channel
-						await channell.send(embed=await logembeds.member_voice_switch(member, before.channel, after.channel), delete_after=400)
+						await voicelogchannel.send(embed=await logembeds.member_voice_switch(member, before.channel, after.channel), delete_after=600)
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in on_voice_state_update")

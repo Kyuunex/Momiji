@@ -71,10 +71,11 @@ async def member_remove(member):
 async def member_voice_join_left(member, channel, action):
 	if member:
 		embed=discord.Embed(
-			color=0xAAAAAA
+			color=0x419400,
+			description="has %s **%s**" % (action, channel.name)
 		)
 		embed.set_author(
-			name="%s %s %s" % (member.display_name, action, channel.name), 
+			name="%s" % (member.display_name), 
 			icon_url=member.avatar_url
 		)
 		return embed
@@ -84,10 +85,11 @@ async def member_voice_join_left(member, channel, action):
 async def member_voice_switch(member, beforechannel, afterchannel):
 	if member:
 		embed=discord.Embed(
-			color=0xAAAAAA
+			color=0x419400,
+			description="has switched from **%s** to **%s**" % (beforechannel.name, afterchannel.name)
 		)
 		embed.set_author(
-			name="%s switched from %s to %s" % (member.display_name, beforechannel.name, afterchannel.name), 
+			name="%s" % (member.display_name), 
 			icon_url=member.avatar_url
 		)
 		return embed
