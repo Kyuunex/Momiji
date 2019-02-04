@@ -240,31 +240,32 @@ async def userstats(ctx, where: str = "server", arg: str = None):
 			wherekey = "channelid"
 			if ":" in where:
 				wherevalue = str((where.split(':'))[1])
+				wherereadable = "<#%s>" % (wherevalue)
 			else:
 				wherevalue = str(ctx.message.channel.id)
-			wherereadable = "channel"
+				wherereadable = "this channel"
 		else:
 			wherekey = "guildid"
 			wherevalue = str(ctx.message.guild.id)
-			wherereadable = "server"
+			wherereadable = "this server"
 
 		if arg == "month": #2592000
-			title = "Here are 20 most active people in this %s in last 30 days:" % (wherereadable)
+			title = "Here are 20 most active people in %s in last 30 days:" % (wherereadable)
 			after = int(time.time()) - 2592000
 			query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
 			messages = await dbhandler.query(query)
 		elif arg == "week": #604800
-			title = "Here are 20 most active people in this %s in last 7 days:" % (wherereadable)
+			title = "Here are 20 most active people in %s in last 7 days:" % (wherereadable)
 			after = int(time.time()) - 604800
 			query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
 			messages = await dbhandler.query(query)
 		elif arg == "day": #86400
-			title = "Here are 20 most active people in this %s in last 24 hours:" % (wherereadable)
+			title = "Here are 20 most active people in %s in last 24 hours:" % (wherereadable)
 			after = int(time.time()) - 86400
 			query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
 			messages = await dbhandler.query(query)
 		else:
-			title = "Here are 20 most active people in this %s all time:" % (wherereadable)
+			title = "Here are 20 most active people in %s all time:" % (wherereadable)
 			query = ["SELECT userid FROM channellogs WHERE %s = ?;" % (wherekey), (wherevalue,)]
 			messages = await dbhandler.query(query)
 
