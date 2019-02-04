@@ -48,7 +48,7 @@ async def on_ready():
 		await dbhandler.query("CREATE TABLE blacklist (value)")
 		await dbhandler.query("CREATE TABLE birthdays (discordid, date)")
 		await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
-		await dbhandler.insert('admins', (str(appinfo.owner.id), "1"))
+		await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
 		await dbhandler.insert('blacklist', ("@",))
 		await dbhandler.insert('blacklist', ("discord.gg/",))
 		await dbhandler.insert('blacklist', ("https://",))
