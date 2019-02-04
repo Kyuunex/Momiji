@@ -236,9 +236,12 @@ async def bridge(ctx, bridgetype: str, value: str):
 @client.command(name="userstats", brief="Show user stats", description="too lazy to write description", pass_context=True)
 async def userstats(ctx, where: str = "server", arg: str = None):
 	if await utils.cooldowncheck('laststatstime'):
-		if where == "channel":
+		if "channel" in where:
 			wherekey = "channelid"
-			wherevalue = str(ctx.message.channel.id)
+			if ":" in where:
+				wherevalue = str((where.split(':'))[1])
+			else:
+				wherevalue = str(ctx.message.channel.id)
 			wherereadable = "channel"
 		else:
 			wherekey = "guildid"
