@@ -27,7 +27,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
 	os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190203"
+appversion = "b20190204"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -43,7 +43,7 @@ async def on_ready():
 		appinfo = await client.application_info()
 		await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, userjson, messageid, contents, timestamp)")
 		await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
-		await dbhandler.query("CREATE TABLE config (setting, parent, value)")
+		await dbhandler.query("CREATE TABLE config (setting, parent, value, flag)")
 		await dbhandler.query("CREATE TABLE temp (setting, parent, value)")
 		await dbhandler.query("CREATE TABLE pinned (messageid)")
 		await dbhandler.query("CREATE TABLE pinchannelblacklist (value)")
