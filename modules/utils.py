@@ -2,7 +2,8 @@ from modules import dbhandler
 import time
 import json
 import discord
-
+from collections import Counter
+import operator
 
 async def msgfilter(message, isobject):
 	if isobject:
@@ -75,3 +76,7 @@ async def messageembed(message):
 		return embed
 	else :
 		return None
+
+async def messagecounter(messageadata):
+	results = dict(Counter(messageadata))
+	return reversed(sorted(results.items(), key=operator.itemgetter(1)))

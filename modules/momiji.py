@@ -85,7 +85,7 @@ async def main(client, message):
 				#await spammessage(client, message) # TODO: fix spammessage
 
 				if (
-					("<@%s>" % (client.user.id) in message.content) or 
+					(client.user.mention in message.content) or 
 					(msg.startswith('...')) or 
 					(msg.startswith('omg')) or 
 					(msg.startswith('wut')) or 
@@ -121,5 +121,5 @@ async def main(client, message):
 				if "sentient" in msg:
 					await message.channel.send('yes ^w^')
 				if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
-					await message.channel.send('Happy Birthday <@%s>!' % (str(message.author.id)))
+					await message.channel.send('Happy Birthday %s!' % (message.author.mention))
 	await logmessage(message)

@@ -9,8 +9,6 @@ import aiohttp
 import imghdr
 from urllib.parse import urlparse
 import json
-from collections import Counter
-import operator
 import random
 import importlib
 
@@ -235,36 +233,47 @@ async def bridge(ctx, bridgetype: str, value: str):
 	else :
 		await ctx.send(embed=await permissions.error())
 
-@client.command(name="serverstats", brief="Show server stats", description="too lazy to write description", pass_context=True)
-async def serverstats(ctx, arg: str = None):
-	if await permissions.check(ctx.message.author.id) :
-		if arg == "month": #2592000
-			title = "Here are 20 most active people in this server in last 30 days:"
-			after = int(time.time()) - 2592000
-			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
-			guilddata = await dbhandler.query(query)
-		elif arg == "week": #604800
-			title = "Here are 20 most active people in this server in last 7 days:"
-			after = int(time.time()) - 604800
-			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
-			guilddata = await dbhandler.query(query)
-		elif arg == "day": #86400
-			title = "Here are 20 most active people in this server in last 24 hours:"
-			after = int(time.time()) - 86400
-			query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.message.guild.id), str(after))]
-			guilddata = await dbhandler.query(query)
+@client.command(name="userstats", brief="Show user stats", description="too lazy to write description", pass_context=True)
+async def userstats(ctx, where: str = "server", arg: str = None):
+	if await utils.cooldowncheck('laststatstime'):
+		if where == "channel":
+			wherekey = "channelid"
+			wherevalue = str(ctx.message.channel.id)
+			wherereadable = "channel"
 		else:
-			title = "Here are 20 most active people in this server all time:"
-			guilddata = await dbhandler.select('channellogs', 'userid', [['guildid', str(ctx.message.guild.id)],])
-		results = dict(Counter(guilddata))
-		sorted_x = reversed(sorted(results.items(), key=operator.itemgetter(1)))
+			wherekey = "guildid"
+			wherevalue = str(ctx.message.guild.id)
+			wherereadable = "server"
+
+		if arg == "month": #2592000
+			title = "Here are 20 most active people in this %s in last 30 days:" % (wherereadable)
+			after = int(time.time()) - 2592000
+			query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
+			messages = await dbhandler.query(query)
+		elif arg == "week": #604800
+			title = "Here are 20 most active people in this %s in last 7 days:" % (wherereadable)
+			after = int(time.time()) - 604800
+			query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
+			messages = await dbhandler.query(query)
+		elif arg == "day": #86400
+			title = "Here are 20 most active people in this %s in last 24 hours:" % (wherereadable)
+			after = int(time.time()) - 86400
+			query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
+			messages = await dbhandler.query(query)
+		else:
+			title = "Here are 20 most active people in this %s all time:" % (wherereadable)
+			query = ["SELECT userid FROM channellogs WHERE %s = ?;" % (wherekey), (wherevalue,)]
+			messages = await dbhandler.query(query)
+
+		stats = await utils.messagecounter(messages)
+
 		counter = 0
+
 		statsembed=discord.Embed(description=title, color=0xffffff)
-		statsembed.set_author(name="Server activity stats per member", icon_url=defaultembedicon)
+		statsembed.set_author(name="Activity stats per member", icon_url=defaultembedicon)
 		statsembed.set_thumbnail(url=defaultembedthumbnail)
-		for onemember in sorted_x:
+		for onemember in stats:
 			memberobject = ctx.guild.get_member(int(onemember[0][0]))
-			#messageamount = str(results[onemember])
 			messageamount = str(onemember[1])+" messages"
 			if not memberobject:
 				counter += 1
@@ -279,8 +288,8 @@ async def serverstats(ctx, arg: str = None):
 				break
 		statsembed.set_footer(text = "Momiji is best wolf.", icon_url=defaultembedfootericon)
 		await ctx.send(embed=statsembed)
-	else :
-		await ctx.send(embed=await permissions.error())
+	else:
+		await ctx.send('slow down bruh')
 
 @client.command(name="sql", brief="Execute an SQL query", description="", pass_context=True)
 async def sql(ctx, *, query):

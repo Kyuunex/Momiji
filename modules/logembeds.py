@@ -37,7 +37,7 @@ async def message_edit(before, after):
 async def member_join(member):
 	if member:
 		embed=discord.Embed(
-			description="<@%s>\n%s" % (str(member.id), str(member.id)), 
+			description="%s\n%s" % (member.mention, str(member.id)), 
 			color=0x00FF00
 		)
 		embed.set_author(
@@ -54,7 +54,7 @@ async def member_join(member):
 async def member_remove(member):
 	if member:
 		embed=discord.Embed(
-			description="<@%s>\n%s" % (str(member.id), str(member.id)), 
+			description="%s\n%s" % (member.mention, str(member.id)), 
 			color=0x000000
 		)
 		embed.set_author(
