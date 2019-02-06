@@ -13,7 +13,7 @@ async def msgfilter(message, isobject):
 	if len(contents) > 0:
 		blacklist = await dbhandler.select('blacklist', 'value', None)
 		if not (any(c[0] in contents.lower() for c in blacklist)):
-			if not (any(contents.startswith(c) for c in (";", "'", "!", ",", ".", "="))):
+			if not (any(contents.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-"))):
 				if isobject:
 					if not message.author.bot:
 						return contents
