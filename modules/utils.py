@@ -40,6 +40,7 @@ async def get_channel(channels, channel_id):  # client.get_all_channels()
 	return None
 
 async def cooldowncheck(setting):
+	# TODO: make the cooldowns guild by guild basis
 	if not await dbhandler.select('temp', 'value', [['setting', setting],]):
 		await dbhandler.insert('temp', (setting, str("0"), str("0")))
 	lasttime = (await dbhandler.select('temp', 'value', [['setting', setting],]))[0][0]

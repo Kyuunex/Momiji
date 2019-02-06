@@ -31,6 +31,9 @@ defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
 defaultembedfootericon = "https://avatars0.githubusercontent.com/u/5400432"
 
+vchan = {}
+vmstop = {}
+
 @client.event
 async def on_ready():
 	print('Logged in as')
@@ -406,51 +409,65 @@ async def img(ctx, *, searchquery):
 @client.command(name="vc", brief="test", description="", pass_context=True)
 async def vc(ctx, action: str,):
 	if await permissions.check(ctx.message.author.id) :
-		global vc
+		global vchan
 		if action == "join":
-			vc = await ctx.author.voice.channel.connect(timeout=60.0)
-			await ctx.send("Momiji reporting for duty")
+			try:
+				vchan[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
+				await ctx.send("Momiji reporting for duty")
+			except Exception as e:
+				await ctx.send("i am already in a voice channel lol")
 		elif action == "leave":
-			await vc.disconnect()
-			await ctx.send("if you dislike me this much, fine, i'll leave")
+			try:
+				if vchan[ctx.message.guild.id].is_playing():
+					vmstop[ctx.message.guild.id] = True
+					vchan[ctx.message.guild.id].stop()
+				await vchan[ctx.message.guild.id].disconnect()
+				await ctx.send("if you dislike me this much, fine, i'll leave")
+			except Exception as e:
+				await ctx.send("i can't leave a voice channel i am not in lol")
 	else :
 		await ctx.send(embed=await permissions.error())
 
 @client.command(name="music", brief="test", description="", pass_context=True)
 async def music(ctx, action: str):
-	# I know this looks bad but for now it works. Forgive me.
-	# Please don't use it on more than one server at a time
 	if await permissions.check(ctx.message.author.id) :
-		global vc
-		if action == "play":
-			await dbhandler.query(["DELETE FROM temp WHERE setting = ? AND parent = ?", ["stopmusic", str(ctx.message.guild.id)]])
-			audiodir = "data/audio/"
-			if os.path.exists(audiodir):
-				musiclist = os.listdir(audiodir)
-				random.shuffle(musiclist)
-				await ctx.send("Total amount of tracks in the playlist: %s" % (len(musiclist)))
-				for audio in musiclist:
-					musicloop = True
-					while musicloop:
-						if vc.is_playing():
-							await asyncio.sleep(3)
-						else:
-							musicloop = False
-							dbselect = await dbhandler.query(["SELECT value FROM temp WHERE setting = ? AND parent = ?", ["stopmusic", str(ctx.message.guild.id)]])
-							if not dbselect:
-								if (audio.split("."))[-1] == "mp3" or (audio.split("."))[-1] == "ogg" or (audio.split("."))[-1] == "flac":
-									try:
-										vc.play(discord.FFmpegPCMAudio(audiodir+audio), after=lambda e: print('done', e))
-									except Exception as e:
-										await ctx.send(e)
-									await ctx.send("Currently playing: `%s`" % (audio))
-		elif action == "next":
-			vc.stop()
-			await ctx.send("Next track")
-		elif action == "stop":
-			await dbhandler.query(["INSERT INTO temp VALUES (?,?,?)", ["stopmusic", str(ctx.message.guild.id), str("0")]])
-			vc.stop()
-			await ctx.send("Stopped playing music")
+		global vchan
+		global vmstop
+		try:
+			if action == "play":
+				if vchan[ctx.message.guild.id].is_playing():
+					await ctx.send("already playing in this guild.")
+				else:
+					vmstop[ctx.message.guild.id] = None
+					audiodir = "data/audio/"
+					if os.path.exists(audiodir):
+						musiclist = os.listdir(audiodir)
+						random.shuffle(musiclist)
+						await ctx.send("Total amount of tracks in the playlist: %s" % (len(musiclist)))
+						for audio in musiclist:
+							while True:
+								if vchan[ctx.message.guild.id].is_playing():
+									await asyncio.sleep(3)
+								else:
+									if not vmstop[ctx.message.guild.id]:
+										if (audio.split("."))[-1] == "mp3" or (audio.split("."))[-1] == "ogg" or (audio.split("."))[-1] == "flac":
+											try:
+												vchan[ctx.message.guild.id].play(discord.FFmpegPCMAudio(audiodir+audio), after=lambda e: print('done', e))
+											except Exception as e:
+												await ctx.send(e)
+											await ctx.send("Currently playing: `%s`" % (audio))
+									break
+			elif action == "next":
+				if vchan[ctx.message.guild.id].is_playing():
+					vchan[ctx.message.guild.id].stop()
+					await ctx.send("Next track")
+			elif action == "stop":
+				if vchan[ctx.message.guild.id].is_playing():
+					vmstop[ctx.message.guild.id] = True
+					vchan[ctx.message.guild.id].stop()
+					await ctx.send("Stopped playing music")
+		except Exception as e:
+			await ctx.send("summon me in vc first")
 	else :
 		await ctx.send(embed=await permissions.error())
 

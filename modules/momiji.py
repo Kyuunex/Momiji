@@ -18,6 +18,7 @@ async def bridgecheck(channelid):
 
 async def pickmessage(channelid):
 	dbrequest = await dbhandler.query(["SELECT userjson, contents FROM channellogs WHERE channelid = ?", (str(channelid),)])
+	# TODO: break the loops with return instead
 	loop = True
 	counter = 0
 	while loop:
@@ -43,6 +44,7 @@ async def momijispeak(channel):
 		await channel.send(messagetosend)
 
 async def spammessage(client, message):
+	# TODO: fix this
 	previousMessages = message.channel.history(limit=2+random.randint(1,4))
 	counter = 0
 	async for message in previousMessages:
