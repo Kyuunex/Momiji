@@ -78,7 +78,7 @@ async def logmessage(message):
 		)
 	)
 
-async def main(client, message):
+async def on_message(client, message):
 	if not message.author.bot:
 		msg = message.content.lower()
 		if '@everyone' in msg: 

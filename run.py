@@ -487,7 +487,7 @@ async def on_message(message):
 				module = importlib.import_module("usermodules.%s" % (bridgedchannel[0][0]))
 			else:
 				module = importlib.import_module('modules.momiji')
-			await module.main(client, message)
+			await module.on_message(client, message)
 	except Exception as e:
 		print(time.strftime('%X %x %Z'))
 		print("in on_message")
