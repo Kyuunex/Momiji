@@ -17,6 +17,7 @@ async def bridgecheck(channelid):
 		return str(channelid)
 
 async def pickmessage(channelid):
+	dbrequest = await dbhandler.query(["SELECT userjson, contents FROM channellogs WHERE channelid = ?", (str(channelid),)])
 	loop = True
 	counter = 0
 	while loop:
@@ -24,8 +25,6 @@ async def pickmessage(channelid):
 			print("something is wrong. VERY WRONG")
 			loop = False
 		counter += 1
-		#dbrequest = await dbhandler.select('channellogs', 'contents', [['channelid', str(channelid)],])
-		dbrequest = await dbhandler.query(["SELECT userjson, contents FROM channellogs WHERE channelid = ?", (str(channelid),)])
 		message = random.choice(dbrequest)
 		if (await utils.msgfilter(message[1], False) != None) and (await utils.isntbotcheck(message[0])):
 			loop = False
