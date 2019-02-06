@@ -24,11 +24,17 @@ async def pickmessage(channelid):
 		if counter > 100:
 			print("something is wrong. VERY WRONG")
 			loop = False
+			return None
 		counter += 1
-		message = random.choice(dbrequest)
-		if (await utils.msgfilter(message[1], False) != None) and (await utils.isntbotcheck(message[0])):
+		if dbrequest:
+			message = random.choice(dbrequest)
+			if (await utils.msgfilter(message[1], False) != None) and (await utils.isntbotcheck(message[0])):
+				loop = False
+				return message[1]
+		else:
+			print("no messages in specified channel")
 			loop = False
-			return message[1]
+			return None
 
 async def momijispeak(channel):
 	channeltouse = int(await bridgecheck(channel.id))
