@@ -421,7 +421,8 @@ async def vc(ctx, action: str,):
 				if vchan[ctx.message.guild.id].is_playing():
 					vmstop[ctx.message.guild.id] = True
 					vchan[ctx.message.guild.id].stop()
-				await vchan[ctx.message.guild.id].disconnect()
+				vchan[ctx.message.guild.id].disconnect()
+				del vchan[ctx.message.guild.id]
 				await ctx.send("if you dislike me this much, fine, i'll leave")
 			except Exception as e:
 				await ctx.send("i can't leave a voice channel i am not in lol")
