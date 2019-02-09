@@ -354,6 +354,40 @@ async def userstats(ctx, where: str = "server", arg: str = None):
         await ctx.send('slow down bruh')
 
 
+@client.command(name="regulars", brief="Make regulars", description="", pass_context=True)
+async def regulars(ctx):
+    if await permissions.check(ctx.message.author.id):
+        guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
+        if guildregularsrole:
+            regularsrole = discord.utils.get(ctx.guild.roles, id=int(guildregularsrole[0][0]))
+
+            after = int(time.time()) - 2592000
+            query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.guild.id), str(after))]
+            messages = await dbhandler.query(query)
+
+            stats = await utils.messagecounter(messages)
+
+            counter = 0
+            for onemember in stats:
+                memberobject = ctx.guild.get_member(int(onemember[0][0]))
+                if not memberobject: # user not in guild
+                    counter += 0
+                    #ctx.send("[%s] : %s (%s)" % (counter, onemember[0][0], "User not found"))
+                elif memberobject.nick and not memberobject.bot:
+                    counter += 1
+                    await memberobject.add_roles(regularsrole)
+                    await ctx.send(("[%s] : %s (%s) | %s" % (counter, memberobject.nick, memberobject.name, "Regulars role added")).replace("@", ""))
+                elif not memberobject.bot:
+                    counter += 1
+                    await memberobject.add_roles(regularsrole)
+                    await ctx.send(("[%s] : %s | %s" % (counter, memberobject.name, "Regulars role added")).replace("@", ""))
+                if counter == int(guildregularsrole[0][1]):
+                    break
+        else:
+            await ctx.send("This server has no Regular role configured in my database")
+    else:
+        await ctx.send(embed=await permissions.error())
+
 @client.command(name="sql", brief="Execute an SQL query", description="", pass_context=True)
 async def sql(ctx, *, query):
     if await permissions.checkowner(ctx.message.author.id):
