@@ -26,7 +26,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190208"
+appversion = "b20190210"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -360,6 +360,9 @@ async def regulars(ctx):
         guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
         if guildregularsrole:
             regularsrole = discord.utils.get(ctx.guild.roles, id=int(guildregularsrole[0][0]))
+
+            for member in regularsrole.members:
+                await member.remove_roles(regularsrole, reason="pruned role")
 
             after = int(time.time()) - 2592000
             query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.guild.id), str(after))]

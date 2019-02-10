@@ -67,19 +67,22 @@ async def measuretime(starttime, endtime):
 
 async def messageembed(message):
     if message:
-        embed = discord.Embed(
-            description=message.content,
-            color=0xFFFFFF
-        )
-        if message.attachments:
-            attachment = (message.attachments)[0]
-            embed.set_image(
-                url=attachment.url
+        if message.embeds:
+            embed = message.embeds[0]
+        else:
+            embed = discord.Embed(
+                description=message.content,
+                color=0xFFFFFF
             )
-        embed.set_author(
-            name=message.author.display_name,
-            icon_url=message.author.avatar_url
-        )
+            if message.attachments:
+                attachment = (message.attachments)[0]
+                embed.set_image(
+                    url=attachment.url
+                )
+            embed.set_author(
+                name=message.author.display_name,
+                icon_url=message.author.avatar_url
+            )
         return embed
     else:
         return None
