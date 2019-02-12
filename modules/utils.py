@@ -12,7 +12,7 @@ async def msgfilter(message, isobject):
     else:
         contents = message
     if len(contents) > 0:
-        blacklist = await dbhandler.select('blacklist', 'value', None)
+        blacklist = await dbhandler.query("SELECT value FROM blacklist")
         if not (any(c[0] in contents.lower() for c in blacklist)):
             if not (any(contents.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-"))):
                 if isobject:
@@ -45,11 +45,11 @@ async def get_channel(channels, channel_id):  # client.get_all_channels()
 
 async def cooldowncheck(setting):
     # TODO: make the cooldowns guild by guild basis
-    if not await dbhandler.select('temp', 'value', [['setting', setting], ]):
-        await dbhandler.insert('temp', (setting, str("0"), str("0")))
-    lasttime = (await dbhandler.select('temp', 'value', [['setting', setting], ]))[0][0]
+    if not await dbhandler.query(["SELECT value FROM temp WHERE setting = ?", [setting]]):
+        await dbhandler.query(["INSERT INTO temp VALUES (?, ?, ?)", [setting, str("0"), str("0")]])
+    lasttime = (await dbhandler.query(["SELECT value FROM temp WHERE setting = ?", [setting]]))[0][0]
     if float(time.time())-float(lasttime) > 20:
-        await dbhandler.update('temp', 'value', str(time.time()), 'setting', setting)
+        await dbhandler.query(["UPDATE temp SET value = ? WHERE setting = ? ", [str(time.time()), setting]])
         return True
     else:
         return None

@@ -39,8 +39,7 @@ async def query(query):
 async def update(tn, setkey, setvalue, wherekey, wherevalue):
     conn = sqlite3.connect(dbfile)
     c = conn.cursor()
-    result = list(c.execute("UPDATE %s SET %s = ? WHERE %s = ?;" %
-                            (tn, setkey, wherekey), (setvalue, wherevalue)))
+    result = list(c.execute("UPDATE %s SET %s = ? WHERE %s = ?;" % (tn, setkey, wherekey), (setvalue, wherevalue)))
     conn.commit()
     conn.close()
     return result

@@ -54,11 +54,11 @@ async def on_ready():
         await dbhandler.query("CREATE TABLE birthdays (discordid, date)")
         await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
         await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
-        await dbhandler.insert('blacklist', ("@",))
-        await dbhandler.insert('blacklist', ("discord.gg/",))
-        await dbhandler.insert('blacklist', ("https://",))
-        await dbhandler.insert('blacklist', ("http://",))
-        await dbhandler.insert('blacklist', ("momiji",))
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["@",]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["discord.gg/",]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["https://",]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["http://",]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["momiji",]])
 
 
 @client.command(name="adminlist", brief="Show bot admin list", description="", pass_context=True)
@@ -69,7 +69,7 @@ async def adminlist(ctx):
 @client.command(name="makeadmin", brief="Make a user bot admin", description="", pass_context=True)
 async def makeadmin(ctx, discordid: str):
     if await permissions.checkowner(ctx.message.author.id):
-        await dbhandler.insert('admins', (str(discordid), "0"))
+        await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(discordid), "0"]])
         await ctx.send(":ok_hand:")
     else:
         await ctx.send(embed=await permissions.ownererror())
@@ -227,19 +227,18 @@ async def importmessages(ctx, *channelids):
                         'bot': bool(message.author.bot),
                     },
                     whattocommit.append(
-                        (
+                        [
                             "INSERT INTO channellogs VALUES (?,?,?,?,?,?,?)",
-                            (
+                            [
                                 str(message.guild.id),
                                 str(message.channel.id),
                                 str(message.author.id),
                                 str(json.dumps(messageauthorjson)),
                                 str(message.id),
                                 str(message.content),
-                                str(int(time.mktime(
-                                    message.created_at.timetuple())))
-                            )
-                        )
+                                str(int(time.mktime(message.created_at.timetuple())))
+                            ]
+                        ]
                     )
                 await dbhandler.massquery(whattocommit)
                 endtime = time.process_time()
@@ -265,12 +264,9 @@ async def importmessages(ctx, *channelids):
 async def bridge(ctx, bridgetype: str, value: str):
     if await permissions.check(ctx.message.author.id):
         if len(value) > 0:
-            where = [
-                    ['channelid', str(ctx.message.channel.id)],
-            ]
-            bridgedchannel = await dbhandler.select('bridges', 'value', where)
+            bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channelid = ?", [str(ctx.message.channel.id)]])
             if not bridgedchannel:
-                await dbhandler.insert('bridges', (str(ctx.message.channel.id), str(bridgetype), str(value)))
+                await dbhandler.query(["INSERT INTO bridges VALUES (?, ?, ?)", [str(ctx.message.channel.id), str(bridgetype), str(value)]])
                 await ctx.send("`The bridge was created`")
             else:
                 await ctx.send("`This channel is already bridged`")

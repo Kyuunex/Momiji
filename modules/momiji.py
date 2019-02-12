@@ -72,22 +72,19 @@ async def logmessage(message):
         'avatar': str(message.author.avatar),
         'bot': bool(message.author.bot),
     },
-    await dbhandler.insert(
-        'channellogs',
-        (
-            str(message.guild.id),  # for serverstats
-            # so the message can be randomly picked with channel id
-            str(message.channel.id),
-            str(message.author.id),  # to make serverstats command work
-            # to identify easily who wrote the message and whether it was a bot or not
-            str(json.dumps(messageauthorjson)),
-            # maybe in future we can auto delete messages from DB when they are deleted on discord
-            str(message.id),
-            # duh. Yes, we can get away by just logging message ID, however I actually need contents for what I have planned in future update
-            str(message.content),
-            # to make serverstats month command to work
-            str(int(time.mktime(message.created_at.timetuple())))
-        )
+    await dbhandler.query(
+        [
+            "INSERT INTO channellogs VALUES (?,?,?,?,?,?,?)",
+            [
+                str(message.guild.id), # for userstats
+                str(message.channel.id), # for userstats and so the message can be randomly picked with channel id
+                str(message.author.id), # to identify message author when doing userstats
+                str(json.dumps(messageauthorjson)), # to identify easily who wrote the message and whether it was a bot or not if the user left the guild
+                str(message.id), # maybe in future we can auto delete messages from DB when they are deleted on discord or update them when they are edited
+                str(message.content), # duh. Yes, we can get away by just logging message ID, however I actually need contents for what I have planned in future update
+                str(int(time.mktime(message.created_at.timetuple()))) # to make userstats day/week/month command to work as intended and not send 1000000 api requests
+            ]
+        ]
     )
 
 
