@@ -61,6 +61,12 @@ To blacklist a word, type `;blacklist <whatever you want to blacklist>`
 By default, if a `guildpinchannelid` is configured for a guild, every channel the bot sees is eligable to have it's messages pinned in the pin channel. Blacklisting a channel will make messages from that channel unpinnable in the pin channel.
 To blacklist a channel, type `;sql INSERT INTO pinchannelblacklist VALUES ("<channel id>")`
 
+### Music playback
+Momiji's music functionality is playlist based. In the `data` folder, you create a folder named `audio` and put you `mp3`, `ogg` or `flac` files in. Currently, only bot admins can play music with this bot.
+For music to play, the bot must be in the voice channel, duh.  
+`;vc [join/leave]` - Join/Leave voice chat  
+`;music [play/stop/next]` - Music controls
+
 ---
 
 ## Stuff to note

@@ -129,7 +129,7 @@ async def help(ctx, admin: str = None):
 
     if admin == "admin":
         helpembed.add_field(name="%sgitpull" % (commandprefix), value="Update the bot", inline=True)
-        helpembed.add_field(name="%suserstats [server/channel:(channelid)] [month/day/week/(empty for all time)]" % (commandprefix), value="Server Stats", inline=True)
+        helpembed.add_field(name="%suserstats [server/channel:<channelid>] [month/day/week/<empty for all time>]" % (commandprefix), value="Server Stats", inline=True)
         helpembed.add_field(name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
         helpembed.add_field(name="%smusic [play/stop/next]" % (commandprefix), value="Music controls", inline=True)
         helpembed.add_field(name="%srestart" % (commandprefix), value="Restart the bot", inline=True)
