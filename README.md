@@ -17,8 +17,7 @@ Momiji is a discord bot that actually learns from the messages it can see and re
 ---
 
 ## Configuration
-To configure momiji, you are mostly gonna need to use sql commands. Everything in the database is stored as a string.
-To execute an sql command, type `;sql (command)`
+To configure momiji, you are mostly gonna need to use sql commands.   Everything in the database is stored as a string.
 
 ### config
 In this table, various configs are stored. 
@@ -26,35 +25,49 @@ The table columns are:
 + `setting` - Identifies what setting is this row represents
 + `parent` - This almost always indicates what guild this setting is for. If the setting is guild independent, it does not matter what is specified but a value of `0` is what I recommend for consistencey.
 + `value` - This indicates the value of the setting. This almost always stores a channel id/role id/api key. 
-+ `flag` - This is not always used
++ `flag` - Another value for this config that specifies something else regarding this setting. This column is not always used.
 
 #### `setting` column can be any of these things: (I'll finish this section of the docs later)
-+ `guildregularsrole`
-+ `googleapikey`
-+ `googlesearchengineid`
-+ `guildpinchannelid`
-+ `guildlogchannel`
-+ `guildvoicelogchannel`
++ `guildregularsrole` - This setting enables "Regulars" functionality in the guild. It enables `;regulars` command. 
+    + `parent` column for this setting must contain a guild id. 
+    + `value` column for this setting must contain a role id for the regular role.
+    + `flag` column for this setting must contain the amount of members the role can be asigned to. For example, a value of `20` will give top 20 mebers this role.
++ `googleapikey` - This setting stores google api key. It enables `;img` command. You can keep this setting absent if you don't wanna use the `;img` command.
+    + `value` column for this setting must contain a google api key.
++ `googlesearchengineid` - This setting stores google search engine id. This setting is required for `;img` command to work.
+    + `value` column for this setting must contain a google search engine id.
++ `guildpinchannelid` - This setting enables pin functionality in the guild. When a message gets 6 of the same reactions, it will be pinned in the pin channel.
+    + `parent` column for this setting must contain a guild id. 
+    + `value` column for this setting must contain a channel id where messages will be posted by the bot.
+    + `flag` column for this setting is unused for now but will contain amount of reactions required for pinning.
++ `guildlogchannel` - This setting enables logging functionality in the guild. When this is enabled, User Leave, User Join, Message Delete, Message Edit notifications will be posted in the specified channel. 
+    + `parent` column for this setting must contain a guild id. 
+    + `value` column for this setting must contain a channel id where the logs go.
++ `guildvoicelogchannel` - This setting enables voice join/leave logging functionality in the guild. When this is enabled, User Join, User Leave, User Switch Voice channel notifications will be posted in the specified channel. 
+    + `parent` column for this setting must contain a guild id. 
+    + `value` column for this setting must contain a channel id where the logs go.
+
+To set a config, follow this example command `;sql INSERT INTO config VALUES ("<setting>", "<parent>", "<value>", "<flag>")`. If a setting does not require a specific column, set that column to `0`.
 
 ### Bridging
 Bridging feature ties the specified channel to a module or to another channel. This is used when you wanna grab messages from another channel, or use a custom module to generate custom messages.
-To bridge a channel, type `;bridge [module/channel] [(channelid)/(modulename)]`
+To bridge a channel, type `;bridge [module/channel] [<channelid>/<modulename>]`
 
 ### Blacklist
 Blacklist is used to blacklist words what you never want the bot to respond with. I highly recommend blacklisting offensive words just to stay away from trouble.
-To blacklist a word, type `;blacklist (whatever you want to blacklist)`
+To blacklist a word, type `;blacklist <whatever you want to blacklist>`
 
 ### Blacklist channels from pinning
 By default, if a `guildpinchannelid` is configured for a guild, every channel the bot sees is eligable to have it's messages pinned in the pin channel. Blacklisting a channel will make messages from that channel unpinnable in the pin channel.
-To blacklist a channel, type `;sql INSERT INTO pinchannelblacklist VALUES ("channel id")`
+To blacklist a channel, type `;sql INSERT INTO pinchannelblacklist VALUES ("<channel id>")`
 
 ---
 
 ## Stuff to note
 
-+ Momiji's main functionality is taking a random message that has been said by someone else and replying with it once someone triggers Momiji. When Momiji first joins a server, it has no collection of chat logs. It's highly recommended import messages from the channel immediately so Momiji can get to working as intended. To import messages, type `;import` in each channel you are importing or if you wanna import multiple channels at once, type `;import (channel id) (channel id) (channel id) (channel id)...`. Basically, a list of channel ids separated by space. This will import old messages. This may take a very very long time depending on how many messages there are to import. Newer messages are automatically stored.
++ Momiji's main functionality is taking a random message that has been said by someone else and replying with it once someone triggers Momiji. When Momiji first joins a server, it has no collection of chat logs. It's highly recommended import messages from the channel immediately so Momiji can get to working as intended. To import messages, type `;import` in each channel you are importing or if you wanna import multiple channels at once, type `;import <channel id> <channel id> <channel id> <channel id>...`. Basically, a list of channel ids separated by space. This will import old messages. This may take a very very long time depending on how many messages there are to import. Newer messages are automatically stored.
 + To prevent leaking information between channels, Momiji will pick a message that has been said in that current channel before.
-+ The bot has no way of knowing when a message is deleted (for now), and it keeps every message it can use. Meaning if somebody said really against the rules stuff in a channel, momiji will learn that and may respond with it randomly. This is why I recommend blacklisting some offensive words with this command `;blacklist (whatever you want to blacklist)`.
++ The bot has no way of knowing when a message is deleted (for now), and it keeps every message it can use. Meaning if somebody said really against the rules stuff in a channel, momiji will learn that and may respond with it randomly. This is why I recommend blacklisting some offensive words with this command `;blacklist <whatever you want to blacklist>`.
 + To bring up the admin help menu type `;help admin`.
 
 ---
