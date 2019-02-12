@@ -104,54 +104,46 @@ async def echo(ctx, *, string):
         await ctx.send(embed=await permissions.error())
 
 
+@client.command(name="blacklist", brief="Add a word to blacklist", description="Blacklists a word", pass_context=True)
+async def blacklist(ctx, *, string):
+    if await permissions.check(ctx.message.author.id):
+        await ctx.message.delete()
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", [str(string)]])
+        await ctx.send(":ok_hand:", delete_after=3)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
 @client.command(name="help", brief="Help", description="", pass_context=True)
 async def help(ctx, admin: str = None):
-    helpembed = discord.Embed(title="Momiji is best wolf.",
-                              description="Here are just some available commands:", color=0xe95e62)
+    helpembed = discord.Embed(title="Momiji is best wolf.", description="Here are just some available commands:", color=0xe95e62)
 
-    helpembed.set_author(name="Momiji %s" % (
-        appversion), icon_url=defaultembedicon, url='https://github.com/Kyuunex/Momiji')
+    helpembed.set_author(name="Momiji %s" % (appversion), icon_url=defaultembedicon, url='https://github.com/Kyuunex/Momiji')
     helpembed.set_thumbnail(url=defaultembedthumbnail)
 
-    helpembed.add_field(name="%sinspire" % (
-        commandprefix), value="When you crave some inspiration in your life", inline=True)
-    helpembed.add_field(name="%simg" % (commandprefix),
-                        value="Google image search", inline=True)
-    helpembed.add_field(name="%sneko" % (commandprefix),
-                        value="Nekos are life", inline=True)
-    helpembed.add_field(name="%sart" % (commandprefix),
-                        value="See some amazing anime style art", inline=True)
-    helpembed.add_field(name="%sroll" % (commandprefix),
-                        value="Roll", inline=True)
+    helpembed.add_field(name="%sinspire" % (commandprefix), value="When you crave some inspiration in your life", inline=True)
+    helpembed.add_field(name="%simg" % (commandprefix), value="Google image search", inline=True)
+    helpembed.add_field(name="%sneko" % (commandprefix), value="Nekos are life", inline=True)
+    helpembed.add_field(name="%sart" % (commandprefix), value="See some amazing anime style art", inline=True)
+    helpembed.add_field(name="%sroll" % (commandprefix), value="Roll", inline=True)
 
     if admin == "admin":
-        helpembed.add_field(name="%sgitpull" % (
-            commandprefix), value="Update the bot", inline=True)
-        helpembed.add_field(
-            name="%sserverstats [month/day/week]" % (commandprefix), value="Server Stats", inline=True)
-        helpembed.add_field(
-            name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
-        helpembed.add_field(name="%smusic [play/stop/next]" %
-                            (commandprefix), value="Music controls", inline=True)
-        helpembed.add_field(name="%srestart" % (
-            commandprefix), value="Restart the bot", inline=True)
-        helpembed.add_field(name="%sexport" % (commandprefix),
-                            value="Exports the chat to json format", inline=True)
-        helpembed.add_field(name="%simport" % (commandprefix),
-                            value="Import the chat into database", inline=True)
-        helpembed.add_field(name="%secho" % (commandprefix),
-                            value="Echo out a string", inline=True)
-        helpembed.add_field(name="%sbridge" % (commandprefix),
-                            value="Bridge the channel", inline=True)
-        helpembed.add_field(name="%sadminlist" % (
-            commandprefix), value="List bot admins", inline=True)
-        helpembed.add_field(name="%smakeadmin" % (
-            commandprefix), value="Make user a bot admin", inline=True)
-        helpembed.add_field(name="%ssql" % (commandprefix),
-                            value="Execute an SQL query", inline=True)
+        helpembed.add_field(name="%sgitpull" % (commandprefix), value="Update the bot", inline=True)
+        helpembed.add_field(name="%suserstats [server/channel:(channelid)] [month/day/week/(empty for all time)]" % (commandprefix), value="Server Stats", inline=True)
+        helpembed.add_field(name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
+        helpembed.add_field(name="%smusic [play/stop/next]" % (commandprefix), value="Music controls", inline=True)
+        helpembed.add_field(name="%srestart" % (commandprefix), value="Restart the bot", inline=True)
+        helpembed.add_field(name="%sexport" % (commandprefix), value="Exports the chat to json format", inline=True)
+        helpembed.add_field(name="%simport" % (commandprefix), value="Import the chat into database", inline=True)
+        helpembed.add_field(name="%secho" % (commandprefix), value="Echo out a string", inline=True)
+        helpembed.add_field(name="%sblacklist" % (commandprefix), value="Blacklist a word", inline=True)
+        helpembed.add_field(name="%sbridge" % (commandprefix), value="Bridge the channel", inline=True)
+        helpembed.add_field(name="%sadminlist" % (commandprefix), value="List bot admins", inline=True)
+        helpembed.add_field(name="%smakeadmin" % (commandprefix), value="Make user a bot admin", inline=True)
+        helpembed.add_field(name="%sregulars" % (commandprefix), value="Clear the role and reassign regulars role to every regular", inline=True)
+        helpembed.add_field(name="%ssql" % (commandprefix), value="Execute an SQL query", inline=True)
 
-    helpembed.set_footer(text="Made by Kyuunex",
-                         icon_url=defaultembedfootericon)
+    helpembed.set_footer(text="Made by Kyuunex", icon_url=defaultembedfootericon)
     await ctx.send(embed=helpembed)
 
 
@@ -509,7 +501,7 @@ async def vc(ctx, action: str,):
             try:
                 vchan[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
                 await ctx.send("Momiji reporting for duty")
-            except Exception as e:
+            except:
                 await ctx.send("i am already in a voice channel lol")
         elif action == "leave":
             try:
@@ -519,7 +511,7 @@ async def vc(ctx, action: str,):
                 await vchan[ctx.message.guild.id].disconnect()
                 del vchan[ctx.message.guild.id]
                 await ctx.send("if you dislike me this much, fine, i'll leave")
-            except Exception as e:
+            except:
                 await ctx.send("i can't leave a voice channel i am not in lol")
     else:
         await ctx.send(embed=await permissions.error())
@@ -564,7 +556,7 @@ async def music(ctx, action: str):
                     vmstop[ctx.message.guild.id] = True
                     vchan[ctx.message.guild.id].stop()
                     await ctx.send("Stopped playing music")
-        except Exception as e:
+        except:
             await ctx.send("summon me in vc first")
     else:
         await ctx.send(embed=await permissions.error())
