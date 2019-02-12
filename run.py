@@ -87,7 +87,7 @@ async def restart(ctx):
 @client.command(name="gitpull", brief="Update the bot", description="it just does git pull", pass_context=True)
 async def gitpull(ctx):
     if await permissions.check(ctx.message.author.id):
-        await ctx.send("Updating my self, I guess. This feels scary though.")
+        await ctx.send("Feteching the latest version from the repository and updating from version %s" % (appversion))
         os.system('git pull')
         quit()
         # exit()
