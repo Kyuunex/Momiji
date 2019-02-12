@@ -27,7 +27,7 @@ The table columns are:
 + `value` - This indicates the value of the setting. This almost always stores a channel id/role id/api key. 
 + `flag` - Another value for this config that specifies something else regarding this setting. This column is not always used.
 
-#### `setting` column can be any of these things: (I'll finish this section of the docs later)
+#### `setting` column can be any of these things
 + `guildregularsrole` - This setting enables "Regulars" functionality in the guild. It enables `;regulars` command. 
     + `parent` column for this setting must contain a guild id. 
     + `value` column for this setting must contain a role id for the regular role.
