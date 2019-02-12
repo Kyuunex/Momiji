@@ -2,12 +2,13 @@
 The only Discord bot you'll ever need. Built using discord.py rewrite library and uses sqlite3 database.
 
 Momiji is a discord bot that actually learns from the messages it can see and responds you with the knowledge it obtained when it is triggered. Each channel has it's own personality, this is to prevent leaking stuff between channels and servers. Basically if a channel has a personality, Momiji would be it. How cancerous Momiji is really depends on stuff you guys talk about in the channel.
+![](https://i.imgur.com/ESbTn02.png)
 
 ---
 
 ## Installation Instructions
 
-1. Install git if you don't already have it.
+1. Install `git` if you don't already have it.
 2. Clone this repo using this command `git clone https://github.com/Kyuunex/Momiji.git`
 3. Install `Python 3.5.3` or newer if you don't have it
 4. Install `discord.py rewrite library` using this command `python -m pip install -U git+https://github.com/Rapptz/discord.py@rewrite#egg=discord.py[voice]`
