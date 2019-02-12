@@ -26,7 +26,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190210"
+appversion = "b20190212"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -466,8 +466,8 @@ async def img(ctx, *, searchquery):
         if ctx.channel.is_nsfw():
             if await utils.cooldowncheck('lastimgtime'):
                 if len(searchquery) > 0:
-                    googleapikey = (await dbhandler.select('config', 'value', [['setting', 'googleapikey'], ]))
-                    googlesearchengineid = (await dbhandler.select('config', 'value', [['setting', 'googlesearchengineid'], ]))
+                    googleapikey = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googleapikey"]]))
+                    googlesearchengineid = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googlesearchengineid"]]))
                     if googleapikey:
                         query = {
                             'q': str(searchquery),
@@ -596,11 +596,7 @@ async def birthday(ctx, month: int, day: int, timezone: int):
 async def on_message(message):
     try:
         if message.author.id != client.user.id:
-            where = [
-                    ['channelid', str(message.channel.id)],
-                    ['type', "module"],
-            ]
-            bridgedchannel = await dbhandler.select('bridges', 'value', where)
+            bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channelid = ? AND type = ?", [str(message.channel.id), "module"]])
             if bridgedchannel:
                 module = importlib.import_module(
                     "usermodules.%s" % (bridgedchannel[0][0]))
@@ -617,7 +613,7 @@ async def on_message(message):
 @client.event
 async def on_raw_reaction_add(raw_reaction):
     try:
-        guildpinchannel = await dbhandler.select('config', 'value', [['setting', "guildpinchannelid"], ['parent', str(raw_reaction.guild_id)]])
+        guildpinchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildpinchannelid", str(raw_reaction.guild_id)]])
         if guildpinchannel:
             if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
                 channell = await utils.get_channel(client.get_all_channels(), raw_reaction.channel_id)
@@ -629,9 +625,9 @@ async def on_raw_reaction_add(raw_reaction):
                     # 	'emoji': str(reaction.emoji),
                     # }
                     if reaction.count >= 6:
-                        if not (await dbhandler.select('pinchannelblacklist', 'value', [['value', str(raw_reaction.channel_id)]])):
-                            if not (await dbhandler.select('pinned', 'messageid', [['messageid', str(raw_reaction.message_id)]])):
-                                await dbhandler.insert('pinned', (str(raw_reaction.message_id),))
+                        if not (await dbhandler.query(["SELECT value FROM pinchannelblacklist WHERE value = ?", [str(raw_reaction.channel_id)]])):
+                            if not (await dbhandler.query(["SELECT messageid FROM pinned WHERE messageid = ?", [str(raw_reaction.message_id)]])):
+                                await dbhandler.query(["INSERT INTO pinned VALUES (?)", [str(raw_reaction.message_id)]])
                                 pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
                                 await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await utils.messageembed(message))
     except Exception as e:
@@ -644,7 +640,7 @@ async def on_raw_reaction_add(raw_reaction):
 async def on_message_delete(message):
     try:
         if not message.author.bot:
-            guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"], ['parent', str(message.guild.id)]])
+            guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(message.guild.id)]])
             if guildlogchannel:
                 channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
                 await channell.send(embed=await logembeds.message_delete(message))
@@ -659,7 +655,7 @@ async def on_message_edit(before, after):
     try:
         if not before.author.bot:
             if before.content != after.content:
-                guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"], ['parent', str(before.guild.id)]])
+                guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(before.guild.id)]])
                 if guildlogchannel:
                     channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
                     await channell.send(embed=await logembeds.message_edit(before, after))
@@ -672,7 +668,7 @@ async def on_message_edit(before, after):
 @client.event
 async def on_member_join(member):
     try:
-        guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"], ['parent', str(member.guild.id)]])
+        guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(member.guild.id)]])
         if guildlogchannel:
             channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
             await channell.send(embed=await logembeds.member_join(member))
@@ -685,7 +681,7 @@ async def on_member_join(member):
 @client.event
 async def on_member_remove(member):
     try:
-        guildlogchannel = await dbhandler.select('config', 'value', [['setting', "guildlogchannel"], ['parent', str(member.guild.id)]])
+        guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(member.guild.id)]])
         if guildlogchannel:
             channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
             await channell.send(embed=await logembeds.member_remove(member))
@@ -698,7 +694,7 @@ async def on_member_remove(member):
 @client.event
 async def on_voice_state_update(member, before, after):
     try:
-        guildvoicelogchannelid = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ("guildvoicelogchannel", str(member.guild.id))])
+        guildvoicelogchannelid = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildvoicelogchannel", str(member.guild.id)]])
         if guildvoicelogchannelid:
             voicelogchannel = await utils.get_channel(client.get_all_channels(), int(guildvoicelogchannelid[0][0]))
             if not before.channel == after.channel:

@@ -7,11 +7,7 @@ from modules import utils
 
 
 async def bridgecheck(channelid):
-    where = [
-            ['channelid', str(channelid)],
-            ['type', "channel"],
-    ]
-    bridgedchannel = await dbhandler.select('bridges', 'value', where)
+    bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channelid = ? AND type = ?", [str(channelid), "channel"]])
     if bridgedchannel:
         return str(bridgedchannel[0][0])
     else:
