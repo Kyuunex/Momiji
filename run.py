@@ -16,6 +16,7 @@ from modules import permissions
 from modules import dbhandler
 from modules import logembeds
 from modules import utils
+from modules import momijiutils
 
 commandprefix = ';'
 client = commands.Bot(command_prefix=commandprefix,
@@ -150,47 +151,7 @@ async def help(ctx, admin: str = None):
 @client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
 async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
     if await permissions.check(ctx.message.author.id):
-        if channelid == None:
-            channel = ctx.message.channel
-            channelid = ctx.message.channel.id
-        else:
-            channel = await utils.get_channel(client.get_all_channels(), channelid)
-        starttime = time.process_time()
-        log_instance = channel.history(limit=amount)
-        exportfilename = "data/export.%s.%s.%s.json" % (
-            str(int(time.time())), str(channelid), str(amount))
-        log_file = open(exportfilename, "a", encoding="utf8")
-        collection = []
-        logcounter = 0
-        async for message in log_instance:
-            logcounter += 1
-            template = {
-                'timestamp': str(message.created_at.isoformat()),
-                'id': str(message.id),
-                'author': {
-                    'id': str(message.author.id),
-                    'username': str(message.author.name),
-                    'discriminator': str(message.author.discriminator),
-                    'avatar': str(message.author.avatar),
-                    'bot': bool(message.author.bot),
-                },
-                'content': str(message.content),
-            }
-            # collection.update(template)
-            collection.append(template)
-        log_file.write(json.dumps(collection, indent=4, sort_keys=True))
-        endtime = time.process_time()
-        exportembed = discord.Embed(color=0xadff2f)
-        exportembed.set_author(
-            name="Exporting finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
-        exportembed.add_field(name="Exported to:",
-                              value=exportfilename, inline=False)
-        exportembed.add_field(
-            name="Channel:", value=channel.name, inline=False)
-        exportembed.add_field(name="Number of messages:",
-                              value=logcounter, inline=False)
-        exportembed.add_field(name="Time taken while exporting:", value=await utils.measuretime(starttime, endtime), inline=False)
-        await ctx.send(embed=exportembed)
+        await momijiutils.exportjson(client, ctx, channelid, amount)
     else:
         await ctx.send(embed=await permissions.error())
 
@@ -198,56 +159,7 @@ async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
 @client.command(name="import", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
 async def importmessages(ctx, *channelids):
     if await permissions.check(ctx.message.author.id):
-        for channelid in channelids:
-            try:
-                if channelid == "this":
-                    channel = ctx.message.channel
-                    channelid = ctx.message.channel.id
-                else:
-                    channel = await utils.get_channel(client.get_all_channels(), int(channelid))
-                starttime = time.process_time()
-                log_instance = channel.history(limit=999999999)
-                logcounter = 0
-                whattocommit = []
-                async for message in log_instance:
-                    logcounter += 1
-                    messageauthorjson = {
-                        'id': str(message.author.id),
-                        'username': str(message.author.name),
-                        'discriminator': str(message.author.discriminator),
-                        'avatar': str(message.author.avatar),
-                        'bot': bool(message.author.bot),
-                    },
-                    whattocommit.append(
-                        [
-                            "INSERT INTO channellogs VALUES (?,?,?,?,?,?,?)",
-                            [
-                                str(message.guild.id),
-                                str(message.channel.id),
-                                str(message.author.id),
-                                str(json.dumps(messageauthorjson)),
-                                str(message.id),
-                                str(message.content),
-                                str(int(time.mktime(message.created_at.timetuple())))
-                            ]
-                        ]
-                    )
-                await dbhandler.massquery(whattocommit)
-                endtime = time.process_time()
-                exportembed = discord.Embed(
-                    color=0xadff2f, description="Imported the channel into database.")
-                exportembed.set_author(
-                    name="Importing finished", url='https://github.com/Kyuunex/Momiji', icon_url=defaultembedicon)
-                exportembed.add_field(
-                    name="Channel:", value=channel.name, inline=False)
-                exportembed.add_field(
-                    name="Number of messages:", value=logcounter, inline=False)
-                exportembed.add_field(name="Time taken while importing:", value=await utils.measuretime(starttime, endtime), inline=False)
-                await ctx.send(embed=exportembed)
-            except Exception as e:
-                print(time.strftime('%X %x %Z'))
-                print("in importmessages")
-                print(e)
+        await momijiutils.importmessages(client, ctx, channelids)
     else:
         await ctx.send(embed=await permissions.error())
 
@@ -255,91 +167,14 @@ async def importmessages(ctx, *channelids):
 @client.command(name="bridge", brief="Bridge the channel", description="too lazy to write description", pass_context=True)
 async def bridge(ctx, bridgetype: str, value: str):
     if await permissions.check(ctx.message.author.id):
-        if len(value) > 0:
-            bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channelid = ?", [str(ctx.message.channel.id)]])
-            if not bridgedchannel:
-                await dbhandler.query(["INSERT INTO bridges VALUES (?, ?, ?)", [str(ctx.message.channel.id), str(bridgetype), str(value)]])
-                await ctx.send("`The bridge was created`")
-            else:
-                await ctx.send("`This channel is already bridged`")
+        await momijiutils.bridge(client, ctx, bridgetype, value)
     else:
         await ctx.send(embed=await permissions.error())
 
 
 @client.command(name="userstats", brief="Show user stats", description="too lazy to write description", pass_context=True)
 async def userstats(ctx, where: str = "server", arg: str = None):
-    if await utils.cooldowncheck('laststatstime'):
-        if "channel" in where:
-            wherekey = "channelid"
-            if ":" in where:
-                wherevalue = str((where.split(':'))[1])
-                wherereadable = "<#%s>" % (wherevalue)
-            else:
-                wherevalue = str(ctx.message.channel.id)
-                wherereadable = "this channel"
-        else:
-            wherekey = "guildid"
-            wherevalue = str(ctx.message.guild.id)
-            wherereadable = "this server"
-
-        if arg == "month":  # 2592000
-            title = "Here are 20 most active people in %s in last 30 days:" % (
-                wherereadable)
-            after = int(time.time()) - 2592000
-            query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (
-                wherekey), (wherevalue, str(after))]
-            messages = await dbhandler.query(query)
-        elif arg == "week":  # 604800
-            title = "Here are 20 most active people in %s in last 7 days:" % (
-                wherereadable)
-            after = int(time.time()) - 604800
-            query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (
-                wherekey), (wherevalue, str(after))]
-            messages = await dbhandler.query(query)
-        elif arg == "day":  # 86400
-            title = "Here are 20 most active people in %s in last 24 hours:" % (
-                wherereadable)
-            after = int(time.time()) - 86400
-            query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (
-                wherekey), (wherevalue, str(after))]
-            messages = await dbhandler.query(query)
-        else:
-            title = "Here are 20 most active people in %s all time:" % (
-                wherereadable)
-            query = ["SELECT userid FROM channellogs WHERE %s = ?;" %
-                     (wherekey), (wherevalue,)]
-            messages = await dbhandler.query(query)
-
-        stats = await utils.messagecounter(messages)
-
-        counter = 0
-
-        statsembed = discord.Embed(description=title, color=0xffffff)
-        statsembed.set_author(
-            name="Activity stats per member", icon_url=defaultembedicon)
-        statsembed.set_thumbnail(url=defaultembedthumbnail)
-        for onemember in stats:
-            memberobject = ctx.guild.get_member(int(onemember[0][0]))
-            messageamount = str(onemember[1])+" messages"
-            if not memberobject:
-                counter += 1
-                statsembed.add_field(name="[%s] : %s (%s)" % (
-                    counter, onemember[0][0], "User not found"), value=messageamount, inline=True)
-            elif memberobject.nick and not memberobject.bot:
-                counter += 1
-                statsembed.add_field(name="[%s] : %s (%s)" % (
-                    counter, memberobject.nick, memberobject.name), value=messageamount, inline=True)
-            elif not memberobject.bot:
-                counter += 1
-                statsembed.add_field(name="[%s] : %s" % (
-                    counter, memberobject.name), value=messageamount, inline=True)
-            if counter == 20:
-                break
-        statsembed.set_footer(text="Momiji is best wolf.",
-                              icon_url=defaultembedfootericon)
-        await ctx.send(embed=statsembed)
-    else:
-        await ctx.send('slow down bruh')
+    await momijiutils.userstats(client, ctx, where, arg)
 
 
 @client.command(name="regulars", brief="Make regulars", description="", pass_context=True)
