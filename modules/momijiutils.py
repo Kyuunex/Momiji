@@ -134,50 +134,44 @@ async def userstats(client, ctx, where, arg):
             wherereadable = "this server"
 
         if arg == "month":  # 2592000
-            title = "Here are 20 most active people in %s in last 30 days:" % (wherereadable)
+            title = "Here are 40 most active people in %s in last 30 days:" % (wherereadable)
             after = int(time.time()) - 2592000
             query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
             messages = await dbhandler.query(query)
         elif arg == "week":  # 604800
-            title = "Here are 20 most active people in %s in last 7 days:" % (wherereadable)
+            title = "Here are 40 most active people in %s in last 7 days:" % (wherereadable)
             after = int(time.time()) - 604800
             query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
             messages = await dbhandler.query(query)
         elif arg == "day":  # 86400
-            title = "Here are 20 most active people in %s in last 24 hours:" % (wherereadable)
+            title = "Here are 40 most active people in %s in last 24 hours:" % (wherereadable)
             after = int(time.time()) - 86400
             query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
             messages = await dbhandler.query(query)
         else:
-            title = "Here are 20 most active people in %s all time:" % (wherereadable)
+            title = "Here are 40 most active people in %s all time:" % (wherereadable)
             query = ["SELECT userid FROM channellogs WHERE %s = ?;" % (wherekey), (wherevalue,)]
             messages = await dbhandler.query(query)
 
         stats = await utils.messagecounter(messages)
 
         counter = 0
+        contents = ""
 
-        statsembed = discord.Embed(description=title, color=0xffffff)
-        statsembed.set_author(
-            name="Activity stats per member")
-        #statsembed.set_thumbnail(url=defaultembedthumbnail)
         for onemember in stats:
             memberobject = ctx.guild.get_member(int(onemember[0][0]))
             messageamount = str(onemember[1])+" messages"
             if not memberobject:
                 counter += 1
-                statsembed.add_field(name="[%s] : %s (%s)" % (
-                    counter, onemember[0][0], "User not found"), value=messageamount, inline=True)
-            elif memberobject.nick and not memberobject.bot:
-                counter += 1
-                statsembed.add_field(name="[%s] : %s (%s)" % (
-                    counter, memberobject.nick, memberobject.name), value=messageamount, inline=True)
+                contents += "**[%s]** : <@%s> (%s) : %s\n" % (counter, onemember[0][0], "User left", messageamount)
             elif not memberobject.bot:
                 counter += 1
-                statsembed.add_field(name="[%s] : %s" % (
-                    counter, memberobject.name), value=messageamount, inline=True)
-            if counter == 20:
+                contents += "**[%s]** : %s : %s\n" % (counter, memberobject.mention, messageamount)
+            if counter == 40:
                 break
+
+        statsembed = discord.Embed(description=contents, color=0xffffff)
+        statsembed.set_author(name=title)
         statsembed.set_footer(text="Momiji is best wolf.")
         await ctx.send(embed=statsembed)
     else:
