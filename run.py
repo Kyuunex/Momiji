@@ -404,7 +404,10 @@ async def roll(ctx, maax=None):
         maax = int(maax)
     except:
         maax = 100
-    randomnumber = random.randint(0, maax)
+    if maax < 0:
+        randomnumber = random.randint(maax, 0)
+    else:
+        randomnumber = random.randint(0, maax)
     if randomnumber == 1:
         point = "point"
     else:
