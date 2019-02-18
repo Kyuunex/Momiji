@@ -160,7 +160,7 @@ async def userstats(client, ctx, where, arg):
 
         for onemember in stats:
             memberobject = ctx.guild.get_member(int(onemember[0][0]))
-            messageamount = str(onemember[1])+" messages"
+            messageamount = str(onemember[1])+" msgs"
             if not memberobject:
                 counter += 1
                 contents += "**[%s]** : <@%s> (%s) : %s\n" % (counter, onemember[0][0], "User left", messageamount)
