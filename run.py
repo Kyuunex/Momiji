@@ -398,13 +398,13 @@ async def music(ctx, action: str):
 
 
 @client.command(name="roll", brief="a very complicated roll command", description="", pass_context=True)
-async def roll(ctx, max=None):
+async def roll(ctx, maax=None):
     who = ctx.message.author.display_name
     try:
-        max = int(max)
+        maax = int(maax)
     except:
-        max = 100
-    randomnumber = random.randint(1, max)
+        maax = 100
+    randomnumber = random.randint(0, maax)
     if randomnumber == 1:
         point = "point"
     else:
