@@ -14,7 +14,9 @@ import importlib
 
 from modules import permissions
 from modules import dbhandler
-from modules import logembeds
+from modules import logging
+from modules import voiceroles
+from modules import music
 from modules import utils
 from modules import momijiutils
 
@@ -27,14 +29,11 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190218"
+appversion = "b20190222"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
 defaultembedfootericon = "https://avatars0.githubusercontent.com/u/5400432"
-
-vchan = {}
-vmstop = {}
 
 
 @client.event
@@ -53,13 +52,14 @@ async def on_ready():
         await dbhandler.query("CREATE TABLE pinchannelblacklist (value)")
         await dbhandler.query("CREATE TABLE blacklist (value)")
         await dbhandler.query("CREATE TABLE birthdays (discordid, date)")
+        await dbhandler.query("CREATE TABLE voiceroles (guildid, channelid, roleid)")
         await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
         await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["@",]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["discord.gg/",]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["https://",]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["http://",]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["momiji",]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["@", ]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["discord.gg/", ]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["https://", ]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["http://", ]])
+        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["momiji", ]])
 
 
 @client.command(name="adminlist", brief="Show bot admin list", description="", pass_context=True)
@@ -117,34 +117,56 @@ async def blacklist(ctx, *, string):
 
 @client.command(name="help", brief="Help", description="", pass_context=True)
 async def help(ctx, admin: str = None):
-    helpembed = discord.Embed(title="Momiji is best wolf.", description="Here are just some available commands:", color=0xe95e62)
+    helpembed = discord.Embed(title="Momiji is best wolf.",
+                              description="Here are just some available commands:", color=0xe95e62)
 
-    helpembed.set_author(name="Momiji %s" % (appversion), icon_url=defaultembedicon, url='https://github.com/Kyuunex/Momiji')
+    helpembed.set_author(name="Momiji %s" % (
+        appversion), icon_url=defaultembedicon, url='https://github.com/Kyuunex/Momiji')
     helpembed.set_thumbnail(url=defaultembedthumbnail)
 
-    helpembed.add_field(name="%sinspire" % (commandprefix), value="When you crave some inspiration in your life", inline=True)
-    helpembed.add_field(name="%simg" % (commandprefix), value="Google image search", inline=True)
-    helpembed.add_field(name="%sneko" % (commandprefix), value="Nekos are life", inline=True)
-    helpembed.add_field(name="%sart" % (commandprefix), value="See some amazing anime style art", inline=True)
-    helpembed.add_field(name="%sroll" % (commandprefix), value="Roll", inline=True)
+    helpembed.add_field(name="%sinspire" % (
+        commandprefix), value="When you crave some inspiration in your life", inline=True)
+    helpembed.add_field(name="%simg" % (commandprefix),
+                        value="Google image search", inline=True)
+    helpembed.add_field(name="%sneko" % (commandprefix),
+                        value="Nekos are life", inline=True)
+    helpembed.add_field(name="%sart" % (commandprefix),
+                        value="See some amazing anime style art", inline=True)
+    helpembed.add_field(name="%sroll" % (commandprefix),
+                        value="Roll", inline=True)
 
     if admin == "admin":
-        helpembed.add_field(name="%sgitpull" % (commandprefix), value="Update the bot", inline=True)
-        helpembed.add_field(name="%suserstats [server/channel:<channelid>] [month/day/week/<empty for all time>]" % (commandprefix), value="Server Stats", inline=True)
-        helpembed.add_field(name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
-        helpembed.add_field(name="%smusic [play/stop/next]" % (commandprefix), value="Music controls", inline=True)
-        helpembed.add_field(name="%srestart" % (commandprefix), value="Restart the bot", inline=True)
-        helpembed.add_field(name="%sexport" % (commandprefix), value="Exports the chat to json format", inline=True)
-        helpembed.add_field(name="%simport" % (commandprefix), value="Import the chat into database", inline=True)
-        helpembed.add_field(name="%secho" % (commandprefix), value="Echo out a string", inline=True)
-        helpembed.add_field(name="%sblacklist" % (commandprefix), value="Blacklist a word", inline=True)
-        helpembed.add_field(name="%sbridge" % (commandprefix), value="Bridge the channel", inline=True)
-        helpembed.add_field(name="%sadminlist" % (commandprefix), value="List bot admins", inline=True)
-        helpembed.add_field(name="%smakeadmin" % (commandprefix), value="Make user a bot admin", inline=True)
-        helpembed.add_field(name="%sregulars" % (commandprefix), value="Clear the role and reassign regulars role to every regular", inline=True)
-        helpembed.add_field(name="%ssql" % (commandprefix), value="Execute an SQL query", inline=True)
+        helpembed.add_field(name="%sgitpull" % (
+            commandprefix), value="Update the bot", inline=True)
+        helpembed.add_field(name="%suserstats [server/channel:<channelid>] [month/day/week/<empty for all time>]" % (
+            commandprefix), value="Server Stats", inline=True)
+        helpembed.add_field(
+            name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
+        helpembed.add_field(name="%smusic [play/stop/next]" %
+                            (commandprefix), value="Music controls", inline=True)
+        helpembed.add_field(name="%srestart" % (
+            commandprefix), value="Restart the bot", inline=True)
+        helpembed.add_field(name="%sexport" % (commandprefix),
+                            value="Exports the chat to json format", inline=True)
+        helpembed.add_field(name="%simport" % (commandprefix),
+                            value="Import the chat into database", inline=True)
+        helpembed.add_field(name="%secho" % (commandprefix),
+                            value="Echo out a string", inline=True)
+        helpembed.add_field(name="%sblacklist" % (
+            commandprefix), value="Blacklist a word", inline=True)
+        helpembed.add_field(name="%sbridge" % (commandprefix),
+                            value="Bridge the channel", inline=True)
+        helpembed.add_field(name="%sadminlist" % (
+            commandprefix), value="List bot admins", inline=True)
+        helpembed.add_field(name="%smakeadmin" % (
+            commandprefix), value="Make user a bot admin", inline=True)
+        helpembed.add_field(name="%sregulars" % (
+            commandprefix), value="Clear the role and reassign regulars role to every regular", inline=True)
+        helpembed.add_field(name="%ssql" % (commandprefix),
+                            value="Execute an SQL query", inline=True)
 
-    helpembed.set_footer(text="Made by Kyuunex", icon_url=defaultembedfootericon)
+    helpembed.set_footer(text="Made by Kyuunex",
+                         icon_url=defaultembedfootericon)
     await ctx.send(embed=helpembed)
 
 
@@ -182,13 +204,15 @@ async def regulars(ctx):
     if await permissions.check(ctx.message.author.id):
         guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
         if guildregularsrole:
-            regularsrole = discord.utils.get(ctx.guild.roles, id=int(guildregularsrole[0][0]))
+            regularsrole = discord.utils.get(
+                ctx.guild.roles, id=int(guildregularsrole[0][0]))
 
             for member in regularsrole.members:
                 await member.remove_roles(regularsrole, reason="pruned role")
 
             after = int(time.time()) - 2592000
-            query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.guild.id), str(after))]
+            query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(
+                ctx.guild.id), str(after))]
             messages = await dbhandler.query(query)
 
             stats = await utils.messagecounter(messages)
@@ -196,7 +220,7 @@ async def regulars(ctx):
             counter = 0
             for onemember in stats:
                 memberobject = ctx.guild.get_member(int(onemember[0][0]))
-                if not memberobject: # user not in guild
+                if not memberobject:  # user not in guild
                     counter += 0
                     #ctx.send("[%s] : %s (%s)" % (counter, onemember[0][0], "User not found"))
                 elif memberobject.nick and not memberobject.bot:
@@ -213,6 +237,7 @@ async def regulars(ctx):
             await ctx.send("This server has no Regular role configured in my database")
     else:
         await ctx.send(embed=await permissions.error())
+
 
 @client.command(name="sql", brief="Execute an SQL query", description="", pass_context=True)
 async def sql(ctx, *, query):
@@ -329,70 +354,17 @@ async def img(ctx, *, searchquery):
 
 
 @client.command(name="vc", brief="test", description="", pass_context=True)
-async def vc(ctx, action: str,):
+async def vc(ctx, action: str):
     if await permissions.check(ctx.message.author.id):
-        global vchan
-        if action == "join":
-            try:
-                vchan[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
-                await ctx.send("Momiji reporting for duty")
-            except:
-                await ctx.send("i am already in a voice channel lol")
-        elif action == "leave":
-            try:
-                if vchan[ctx.message.guild.id].is_playing():
-                    vmstop[ctx.message.guild.id] = True
-                    vchan[ctx.message.guild.id].stop()
-                await vchan[ctx.message.guild.id].disconnect()
-                del vchan[ctx.message.guild.id]
-                await ctx.send("if you dislike me this much, fine, i'll leave")
-            except:
-                await ctx.send("i can't leave a voice channel i am not in lol")
+        await music.vc(ctx, action)
     else:
         await ctx.send(embed=await permissions.error())
 
 
 @client.command(name="music", brief="test", description="", pass_context=True)
-async def music(ctx, action: str):
+async def musicplayer(ctx, action: str):
     if await permissions.check(ctx.message.author.id):
-        global vchan
-        global vmstop
-        try:
-            if action == "play":
-                if vchan[ctx.message.guild.id].is_playing():
-                    await ctx.send("already playing in this guild.")
-                else:
-                    vmstop[ctx.message.guild.id] = None
-                    audiodir = "data/audio/"
-                    if os.path.exists(audiodir):
-                        musiclist = os.listdir(audiodir)
-                        random.shuffle(musiclist)
-                        await ctx.send("Total amount of tracks in the playlist: %s" % (len(musiclist)))
-                        for audio in musiclist:
-                            while True:
-                                if vchan[ctx.message.guild.id].is_playing():
-                                    await asyncio.sleep(3)
-                                else:
-                                    if not vmstop[ctx.message.guild.id]:
-                                        if (audio.split("."))[-1] == "mp3" or (audio.split("."))[-1] == "ogg" or (audio.split("."))[-1] == "flac":
-                                            try:
-                                                vchan[ctx.message.guild.id].play(discord.FFmpegPCMAudio(
-                                                    audiodir+audio), after=lambda e: print('done', e))
-                                            except Exception as e:
-                                                await ctx.send(e)
-                                            await ctx.send("Currently playing: `%s`" % (audio))
-                                    break
-            elif action == "next":
-                if vchan[ctx.message.guild.id].is_playing():
-                    vchan[ctx.message.guild.id].stop()
-                    await ctx.send("Next track")
-            elif action == "stop":
-                if vchan[ctx.message.guild.id].is_playing():
-                    vmstop[ctx.message.guild.id] = True
-                    vchan[ctx.message.guild.id].stop()
-                    await ctx.send("Stopped playing music")
-        except:
-            await ctx.send("summon me in vc first")
+        await music.music(ctx, action)
     else:
         await ctx.send(embed=await permissions.error())
 
@@ -413,6 +385,14 @@ async def roll(ctx, maax=None):
     else:
         point = "points"
     await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), randomnumber, point))
+
+
+@client.command(name="vr", brief="", description="", pass_context=True)
+async def vr(ctx, action, rolename):
+    if await permissions.check(ctx.message.author.id):
+        await voiceroles.role_management(ctx, action, rolename)
+    else:
+        await ctx.send(embed=await permissions.error())
 
 
 @client.command(name="birthday", brief="", description="", pass_context=True)
@@ -446,7 +426,7 @@ async def on_raw_reaction_add(raw_reaction):
         guildpinchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildpinchannelid", str(raw_reaction.guild_id)]])
         if guildpinchannel:
             if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
-                channell = await utils.get_channel(client.get_all_channels(), raw_reaction.channel_id)
+                channell = client.get_channel(raw_reaction.channel_id)
                 message = await channell.get_message(raw_reaction.message_id)
                 reactions = message.reactions
                 for reaction in reactions:
@@ -458,7 +438,8 @@ async def on_raw_reaction_add(raw_reaction):
                         if not (await dbhandler.query(["SELECT value FROM pinchannelblacklist WHERE value = ?", [str(raw_reaction.channel_id)]])):
                             if not (await dbhandler.query(["SELECT messageid FROM pinned WHERE messageid = ?", [str(raw_reaction.message_id)]])):
                                 await dbhandler.query(["INSERT INTO pinned VALUES (?)", [str(raw_reaction.message_id)]])
-                                pin_channel_object = await utils.get_channel(client.get_all_channels(), int((guildpinchannel)[0][0]))
+                                pin_channel_object = client.get_channel(
+                                    int((guildpinchannel)[0][0]))
                                 await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await utils.messageembed(message))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
@@ -468,77 +449,33 @@ async def on_raw_reaction_add(raw_reaction):
 
 @client.event
 async def on_message_delete(message):
-    try:
-        if not message.author.bot:
-            guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(message.guild.id)]])
-            if guildlogchannel:
-                channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
-                await channell.send(embed=await logembeds.message_delete(message))
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_message_delete")
-        print(e)
+    await logging.on_message_delete(client, message)
 
 
 @client.event
 async def on_message_edit(before, after):
-    try:
-        if not before.author.bot:
-            if before.content != after.content:
-                guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(before.guild.id)]])
-                if guildlogchannel:
-                    channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
-                    await channell.send(embed=await logembeds.message_edit(before, after))
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_message_edit")
-        print(e)
+    await logging.on_message_edit(client, before, after)
 
 
 @client.event
 async def on_member_join(member):
-    try:
-        guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(member.guild.id)]])
-        if guildlogchannel:
-            channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
-            await channell.send(embed=await logembeds.member_join(member))
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_member_join")
-        print(e)
+    await logging.on_member_join(client, member)
 
 
 @client.event
 async def on_member_remove(member):
-    try:
-        guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(member.guild.id)]])
-        if guildlogchannel:
-            channell = await utils.get_channel(client.get_all_channels(), int(guildlogchannel[0][0]))
-            await channell.send(embed=await logembeds.member_remove(member))
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_member_remove")
-        print(e)
+    await logging.on_member_remove(client, member)
+
+
+@client.event
+async def on_member_update(before, after):
+    await logging.on_member_update(client, before, after)
 
 
 @client.event
 async def on_voice_state_update(member, before, after):
-    try:
-        guildvoicelogchannelid = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildvoicelogchannel", str(member.guild.id)]])
-        if guildvoicelogchannelid:
-            voicelogchannel = await utils.get_channel(client.get_all_channels(), int(guildvoicelogchannelid[0][0]))
-            if not before.channel == after.channel:
-                if before.channel == None:  # Member joined a channel
-                    await voicelogchannel.send(embed=await logembeds.member_voice_join_left(member, after.channel, "joined"), delete_after=600)
-                else:
-                    if after.channel == None:  # Member left channel
-                        await voicelogchannel.send(embed=await logembeds.member_voice_join_left(member, before.channel, "left"), delete_after=600)
-                    else:  # Member switched channel
-                        await voicelogchannel.send(embed=await logembeds.member_voice_switch(member, before.channel, after.channel), delete_after=600)
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_voice_state_update")
-        print(e)
+    await logging.on_voice_state_update(client, member, before, after)
+    await voiceroles.on_voice_state_update(client, member, before, after)
 
 # TODO: voiceroles, prune option, username change logs, role change logs (except voice role), self asignable roles,
 

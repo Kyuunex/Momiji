@@ -5,7 +5,7 @@ async def message_delete(message):
     if message:
         embed = discord.Embed(
             description=message.content,
-            color=0xFF0000
+            color=0xAD6F49
         )
         embed.set_author(
             name="%s#%s | %s | %s" % (message.author.name, message.author.discriminator,
@@ -25,7 +25,7 @@ async def message_edit(before, after):
         embed = discord.Embed(
             description="**Before**:\n%s\n\n**After:**\n%s" % (
                 before.content, after.content),
-            color=0x0000FF
+            color=0x9ACDA5
         )
         embed.set_author(
             name="%s#%s | %s | %s" % (before.author.name, before.author.discriminator,
@@ -44,7 +44,7 @@ async def member_join(member):
     if member:
         embed = discord.Embed(
             description="%s\n%s" % (member.mention, str(member.id)),
-            color=0x00FF00
+            color=0x299880
         )
         embed.set_author(
             name="%s#%s" % (member.name, member.discriminator)
@@ -62,7 +62,7 @@ async def member_remove(member):
     if member:
         embed = discord.Embed(
             description="%s\n%s" % (member.mention, str(member.id)),
-            color=0x000000
+            color=0x523104
         )
         embed.set_author(
             name="%s#%s" % (member.name, member.discriminator)
@@ -101,6 +101,42 @@ async def member_voice_switch(member, beforechannel, afterchannel):
         embed.set_author(
             name="%s" % (member.display_name),
             icon_url=member.avatar_url
+        )
+        return embed
+    else:
+        return None
+
+
+async def role_change(member, desc):
+    if member:
+        embed = discord.Embed(
+            description=desc,
+            color=0xAABBBB
+        )
+        embed.set_author(
+            name="%s#%s | %s | %s" % (member.name, member.discriminator, member.display_name, str(member.id)),
+            icon_url=member.avatar_url
+        )
+        embed.set_footer(
+            text="Role Changes"
+        )
+        return embed
+    else:
+        return None
+
+
+async def name_change(member, before, after):
+    if member:
+        embed = discord.Embed(
+            description="**Before**:\n%s\n\n**After:**\n%s" % (before, after),
+            color=0xAACCEE
+        )
+        embed.set_author(
+            name="%s#%s | %s | %s" % (member.name, member.discriminator, member.display_name, str(member.id)),
+            icon_url=member.avatar_url
+        )
+        embed.set_footer(
+            text="Username Change"
         )
         return embed
     else:
