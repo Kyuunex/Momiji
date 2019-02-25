@@ -43,12 +43,12 @@ async def get_channel(channels, channel_id):  # client.get_all_channels()
     return None
 
 
-async def cooldowncheck(setting):
+async def cooldowncheck(setting, howlong):
     # TODO: make the cooldowns guild by guild basis
     if not await dbhandler.query(["SELECT value FROM temp WHERE setting = ?", [setting]]):
         await dbhandler.query(["INSERT INTO temp VALUES (?, ?, ?)", [setting, str("0"), str("0")]])
     lasttime = (await dbhandler.query(["SELECT value FROM temp WHERE setting = ?", [setting]]))[0][0]
-    if float(time.time())-float(lasttime) > 20:
+    if float(time.time())-float(lasttime) > int(howlong):
         await dbhandler.query(["UPDATE temp SET value = ? WHERE setting = ? ", [str(time.time()), setting]])
         return True
     else:

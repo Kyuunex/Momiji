@@ -252,7 +252,7 @@ async def sql(ctx, *, query):
 @client.command(name="neko", brief="When you want some neko in your life", description="Why are these not real? I am sad.", pass_context=True)
 async def neko(ctx):
     try:
-        if await utils.cooldowncheck('lastnekotime'):
+        if await utils.cooldowncheck('lastarttime', 40):
             url = 'https://www.nekos.life/api/v2/img/neko'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as jsonresponse:
@@ -273,7 +273,7 @@ async def neko(ctx):
 @client.command(name="art", brief="Art", description="Art", pass_context=True)
 async def art(ctx):
     try:
-        if await utils.cooldowncheck('lastarttime'):
+        if await utils.cooldowncheck('lastarttime', 40):
             artdir = "data/art/"
             if os.path.exists(artdir):
                 a = True
@@ -293,7 +293,7 @@ async def art(ctx):
 @client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
 async def inspire(ctx):
     try:
-        if await utils.cooldowncheck('lastinspiretime'):
+        if await utils.cooldowncheck('lastinspiretime', 20):
             url = 'http://inspirobot.me/api?generate=true'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as textresponse:
@@ -316,7 +316,7 @@ async def inspire(ctx):
 async def img(ctx, *, searchquery):
     try:
         if ctx.channel.is_nsfw():
-            if await utils.cooldowncheck('lastimgtime'):
+            if await utils.cooldowncheck('lastimgtime', 60):
                 if len(searchquery) > 0:
                     googleapikey = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googleapikey"]]))
                     googlesearchengineid = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googlesearchengineid"]]))

@@ -119,7 +119,7 @@ async def bridge(client, ctx, bridgetype, value):
             await ctx.send("`This channel is already bridged`")
 
 async def userstats(client, ctx, where, arg):
-    if await utils.cooldowncheck('laststatstime'):
+    if await utils.cooldowncheck('laststatstime', 20):
         if "channel" in where:
             wherekey = "channelid"
             if ":" in where:
