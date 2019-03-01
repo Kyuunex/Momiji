@@ -172,8 +172,11 @@ async def userstats(client, ctx, where, arg):
             messageamount = str(onemember[1])+" msgs"
 
             if not memberobject.bot:
-                if memberobject.nick:
-                    notice = " ("+memberobject.nick+") "
+                try:
+                    if memberobject.nick:
+                        notice = " ("+memberobject.nick+") "
+                except:
+                    print(memberobject.name+" broken nickname")
                 rank += 1
                 contents += "**[%s]** : %s%s : %s\n" % (rank, memberobject.name, notice, messageamount)
                 if rank == 40:
