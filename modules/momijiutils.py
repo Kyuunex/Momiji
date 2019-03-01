@@ -156,7 +156,7 @@ async def userstats(client, ctx, where, arg):
         stats = await utils.messagecounter(messages)
 
         counter = 0
-        contents = ""
+        contents = title + "\n\n"
 
         for onemember in stats:
             memberobject = ctx.guild.get_member(int(onemember[0][0]))
@@ -164,14 +164,17 @@ async def userstats(client, ctx, where, arg):
             if not memberobject:
                 counter += 1
                 contents += "**[%s]** : <@%s> (%s) : %s\n" % (counter, onemember[0][0], "User left", messageamount)
+            elif memberobject.nick and not memberobject.bot:
+                counter += 1
+                contents += "**[%s]** : %s (%s) : %s\n" % (counter, memberobject.nick, memberobject.name, messageamount)
             elif not memberobject.bot:
                 counter += 1
-                contents += "**[%s]** : %s : %s\n" % (counter, memberobject.mention, messageamount)
+                contents += "**[%s]** : %s : %s\n" % (counter, memberobject.name, messageamount)
             if counter == 40:
                 break
 
         statsembed = discord.Embed(description=contents, color=0xffffff)
-        statsembed.set_author(name=title)
+        statsembed.set_author(name="User stats")
         statsembed.set_footer(text="Momiji is best wolf.")
         await ctx.send(embed=statsembed)
     else:
