@@ -200,7 +200,7 @@ async def userstats(ctx, where: str = "server", arg: str = None):
 
 
 @client.command(name="regulars", brief="Make regulars", description="", pass_context=True)
-async def regulars(ctx):
+async def regulars(ctx): # TODO: fix
     if await permissions.check(ctx.message.author.id):
         guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
         if guildregularsrole:
