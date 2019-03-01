@@ -155,23 +155,29 @@ async def userstats(client, ctx, where, arg):
 
         stats = await utils.messagecounter(messages)
 
-        counter = 0
+        rank = 0
         contents = title + "\n\n"
 
         for onemember in stats:
             memberobject = ctx.guild.get_member(int(onemember[0][0]))
-            messageamount = str(onemember[1])+" msgs"
             if not memberobject:
-                counter += 1
-                contents += "**[%s]** : <@%s> (%s) : %s\n" % (counter, onemember[0][0], "User left", messageamount)
-            elif memberobject.nick and not memberobject.bot:
-                counter += 1
-                contents += "**[%s]** : %s (%s) : %s\n" % (counter, memberobject.nick, memberobject.name, messageamount)
-            elif not memberobject.bot:
-                counter += 1
-                contents += "**[%s]** : %s : %s\n" % (counter, memberobject.name, messageamount)
-            if counter == 40:
-                break
+                memberobject = client.get_user(int(onemember[0][0]))
+                if not memberobject:
+                    userjson = await dbhandler.query(["SELECT userjson FROM channellogs WHERE userid = ?;", [str(onemember[0][0])]])
+                    memberobject = utils.json_to_user(userjson[0][0])
+                notice = " **(User left)** "
+            else:
+                notice = ""
+
+            messageamount = str(onemember[1])+" msgs"
+
+            if not memberobject.bot:
+                if memberobject.nick:
+                    notice = " ("+memberobject.nick+") "
+                rank += 1
+                contents += "**[%s]** : %s%s : %s\n" % (rank, memberobject.name, notice, messageamount)
+                if rank == 40:
+                    break
 
         statsembed = discord.Embed(description=contents, color=0xffffff)
         statsembed.set_author(name="User stats")

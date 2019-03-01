@@ -217,22 +217,17 @@ async def regulars(ctx): # TODO: fix
 
             stats = await utils.messagecounter(messages)
 
-            counter = 0
+            rank = 0
             for onemember in stats:
                 memberobject = ctx.guild.get_member(int(onemember[0][0]))
-                if not memberobject:  # user not in guild
-                    counter += 0
-                    #ctx.send("[%s] : %s (%s)" % (counter, onemember[0][0], "User not found"))
-                elif memberobject.nick and not memberobject.bot:
-                    counter += 1
-                    await memberobject.add_roles(regularsrole)
-                    await ctx.send(("[%s] : %s (%s) | %s" % (counter, memberobject.nick, memberobject.name, "Regulars role added")).replace("@", ""))
-                elif not memberobject.bot:
-                    counter += 1
-                    await memberobject.add_roles(regularsrole)
-                    await ctx.send(("[%s] : %s | %s" % (counter, memberobject.name, "Regulars role added")).replace("@", ""))
-                if counter == int(guildregularsrole[0][1]):
-                    break
+                if memberobject:
+                    if not memberobject.bot:
+                        rank += 1
+                        await memberobject.add_roles(regularsrole)
+                        await ctx.send("**[%s]** : %s" % (rank, memberobject.name))
+                        if rank == int(guildregularsrole[0][1]):
+                            break
+            
         else:
             await ctx.send("This server has no Regular role configured in my database")
     else:

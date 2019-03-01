@@ -43,6 +43,20 @@ async def get_channel(channels, channel_id):  # client.get_all_channels()
     return None
 
 
+class json_to_user:
+    def __init__(self, userjson):
+        jsondict = json.loads(userjson)
+        self.id = jsondict[0]['id']
+        self.discriminator = jsondict[0]['discriminator']
+        self.avatar = jsondict[0]['avatar']
+        self.name = jsondict[0]['username']
+        self.nick = None
+        if jsondict[0]['bot'] == True:
+            self.bot = True
+        elif jsondict[0]['bot'] == False:
+            self.bot = False
+
+
 async def cooldowncheck(setting, howlong):
     # TODO: make the cooldowns guild by guild basis
     if not await dbhandler.query(["SELECT value FROM temp WHERE setting = ?", [setting]]):
