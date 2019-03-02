@@ -165,7 +165,9 @@ async def userstats(client, ctx, where, arg):
                 if not memberobject:
                     userjson = await dbhandler.query(["SELECT userjson FROM channellogs WHERE userid = ?;", [str(onemember[0][0])]])
                     memberobject = utils.json_to_user(userjson[0][0])
-                notice = " **(User left)** "
+                    notice = " **(User not found)** "
+                else:
+                    notice = " **(User left)** "
             else:
                 notice = ""
 
