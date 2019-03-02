@@ -178,7 +178,12 @@ async def userstats(client, ctx, where, arg):
                 except:
                     print(memberobject.name+" broken nickname")
                 rank += 1
-                contents += "**[%s]** : %s%s : %s\n" % (rank, memberobject.name, notice, messageamount)
+                if memberobject.name == "Deleted User":
+                    name = memberobject.id
+                    notice = " **(Deleted User)** "
+                else:
+                    name = memberobject.name
+                contents += "**[%s]** : %s%s : %s\n" % (rank, name, notice, messageamount)
                 if rank == 40:
                     break
 
