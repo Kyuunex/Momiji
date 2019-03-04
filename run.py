@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import discord
 import asyncio
 from discord.ext import commands
@@ -88,7 +90,7 @@ async def restart(ctx):
 @client.command(name="gitpull", brief="Update the bot", description="it just does git pull", pass_context=True)
 async def gitpull(ctx):
     if await permissions.check(ctx.message.author.id):
-        await ctx.send("Feteching the latest version from the repository and updating from version %s" % (appversion))
+        await ctx.send("Fetching the latest version from the repository and updating from version %s" % (appversion))
         os.system('git pull')
         quit()
         # exit()
