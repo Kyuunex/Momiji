@@ -131,6 +131,6 @@ async def on_message(client, message):
                     await message.channel.send('^w^')
                 if "sentient" in msg:
                     await message.channel.send('yes ^w^')
-                if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
-                    await message.channel.send('Happy Birthday %s!' % (message.author.mention))
+                #if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
+                #    await message.channel.send('Happy Birthday %s!' % (message.author.mention))
     await logmessage(message)
