@@ -105,7 +105,7 @@ async def on_member_update(client, before, after):
                     role = removed[0]
 
                 voicerole = await dbhandler.query(["SELECT roleid FROM voiceroles WHERE roleid = ?", [str(role.id)]])
-                regularsrole = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(after.guild.id)]])
+                regularsrole = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND value = ?", ["guildregularsrole", str(role.id)]])
                 if (not voicerole) and (not regularsrole): ## TODO: fix
                     channell = client.get_channel(int(guildlogchannel[0][0]))
                     await channell.send(embed=await logembeds.role_change(after, text % (role.name)))
