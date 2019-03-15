@@ -98,11 +98,21 @@ async def gitpull(ctx):
         await ctx.send(embed=await permissions.error())
 
 
-@client.command(name="echo", brief="Update the bot", description="it just does git pull", pass_context=True)
+@client.command(name="echo", brief="Echo a astring", description="", pass_context=True)
 async def echo(ctx, *, string):
     if await permissions.check(ctx.message.author.id):
         await ctx.message.delete()
         await ctx.send(string)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="copy", brief="", description="", pass_context=True)
+async def copy(ctx, channelid, messageid):
+    if await permissions.check(ctx.message.author.id):
+        channel = client.get_channel(int(channelid))
+        message = await channel.get_message(int(messageid))
+        await ctx.send(content=message.content, embed=message.embeds[0])
     else:
         await ctx.send(embed=await permissions.error())
 
