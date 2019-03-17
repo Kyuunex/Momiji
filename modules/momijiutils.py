@@ -195,3 +195,34 @@ async def userstats(client, ctx, where, arg):
         await ctx.send(embed=statsembed)
     else:
         await ctx.send('slow down bruh')
+
+
+async def wordstats(client, ctx):
+    if await utils.cooldowncheck('laststatstime', 20):
+        title = "Here are 40 most used words in server all time:"
+        messages = await dbhandler.query(["SELECT contents FROM channellogs WHERE guildid = ?;", [str(ctx.guild.id),]])
+
+        individualwords = []
+        for message in messages:
+            for oneword in (message[0]).split(" "):
+                individualwords.append(oneword.replace("`",""))
+
+        stats = await utils.messagecounter(individualwords)
+
+        rank = 0
+        contents = title + "\n\n"
+        
+        for wordstat in stats:
+            if not wordstat[0] == "":
+                rank += 1
+                amount = str(wordstat[1])+" times"
+                contents += "**[%s]** : `%s` : %s\n" % (rank, wordstat[0], amount)
+                if rank == 40:
+                    break
+
+        statsembed = discord.Embed(description=contents, color=0xffffff)
+        statsembed.set_author(name="Word stats")
+        statsembed.set_footer(text="Momiji is best wolf.")
+        await ctx.send(embed=statsembed)
+    else:
+        await ctx.send('slow down bruh')

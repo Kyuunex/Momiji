@@ -31,7 +31,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190308"
+appversion = "b20190317"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -252,6 +252,14 @@ async def sql(ctx, *, query):
         if len(query) > 0:
             response = await dbhandler.query(query)
             await ctx.send(response)
+    else:
+        await ctx.send(embed=await permissions.ownererror())
+
+
+@client.command(name="wordstats", brief="Word statistics", description="", pass_context=True)
+async def wordstats(ctx):
+    if await permissions.checkowner(ctx.message.author.id):
+        await momijiutils.wordstats(client, ctx)
     else:
         await ctx.send(embed=await permissions.ownererror())
 
