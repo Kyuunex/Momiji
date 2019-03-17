@@ -257,9 +257,9 @@ async def sql(ctx, *, query):
 
 
 @client.command(name="wordstats", brief="Word statistics", description="", pass_context=True)
-async def wordstats(ctx):
+async def wordstats(ctx, arg = None):
     if await permissions.checkowner(ctx.message.author.id):
-        await momijiutils.wordstats(client, ctx)
+        await momijiutils.wordstats(client, ctx, arg)
     else:
         await ctx.send(embed=await permissions.ownererror())
 

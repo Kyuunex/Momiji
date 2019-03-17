@@ -197,7 +197,7 @@ async def userstats(client, ctx, where, arg):
         await ctx.send('slow down bruh')
 
 
-async def wordstats(client, ctx):
+async def wordstats(client, ctx, arg = None):
     if await utils.cooldowncheck('laststatstime', 20):
         title = "Here are 40 most used words in server all time:"
         messages = await dbhandler.query(["SELECT contents FROM channellogs WHERE guildid = ?;", [str(ctx.guild.id),]])
@@ -205,15 +205,58 @@ async def wordstats(client, ctx):
         individualwords = []
         for message in messages:
             for oneword in (message[0]).split(" "):
-                individualwords.append(oneword.replace("`",""))
+                individualwords.append(oneword.replace("`","").lower())
 
         stats = await utils.messagecounter(individualwords)
 
         rank = 0
         contents = title + "\n\n"
-        
+        if arg:
+            blacklist = [
+                "",
+                "i",
+                "the",
+                "a",
+                "to",
+                "is",
+                "it",
+                "you",
+                "and",
+                "that",
+                "in",
+                "like",
+                "this",
+                "of",
+                "just",
+                "my",
+                "but",
+                "not",
+                "no",
+                "me",
+                "have",
+                "can",
+                "so",
+                "if",
+                "do",
+                "on",
+                "are",
+                "be",
+                "u",
+                "what",
+                "with",
+                "has",
+                "-",
+                "was",
+                "it's",
+                "im",
+            ]
+        else:
+            blacklist = [
+                "",
+            ]
+
         for wordstat in stats:
-            if not wordstat[0] == "":
+            if not (any(c == wordstat[0] for c in blacklist)):
                 rank += 1
                 amount = str(wordstat[1])+" times"
                 contents += "**[%s]** : `%s` : %s\n" % (rank, wordstat[0], amount)
