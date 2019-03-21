@@ -17,6 +17,7 @@ import importlib
 from modules import permissions
 from modules import dbhandler
 from modules import logging
+from modules import welcome
 from modules import voiceroles
 from modules import music
 from modules import utils
@@ -31,7 +32,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190320"
+appversion = "b20190321"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -475,11 +476,13 @@ async def on_message_edit(before, after):
 @client.event
 async def on_member_join(member):
     await logging.on_member_join(client, member)
+    await welcome.on_member_join(client, member)
 
 
 @client.event
 async def on_member_remove(member):
     await logging.on_member_remove(client, member)
+    await welcome.on_member_remove(client, member)
 
 
 @client.event
