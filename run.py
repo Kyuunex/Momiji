@@ -112,7 +112,7 @@ async def echo(ctx, *, string):
 async def copy(ctx, channelid, messageid):
     if await permissions.check(ctx.message.author.id):
         channel = client.get_channel(int(channelid))
-        message = await channel.get_message(int(messageid))
+        message = await channel.fetch_message(int(messageid))
         await ctx.send(content=message.content, embed=message.embeds[0])
     else:
         await ctx.send(embed=await permissions.error())
@@ -443,7 +443,7 @@ async def on_raw_reaction_add(raw_reaction):
         if guildpinchannel:
             if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
                 channell = client.get_channel(raw_reaction.channel_id)
-                message = await channell.get_message(raw_reaction.message_id)
+                message = await channell.fetch_message(raw_reaction.message_id)
                 reactions = message.reactions
                 for reaction in reactions:
                     # onereact = {
