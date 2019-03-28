@@ -22,6 +22,7 @@ from modules import voiceroles
 from modules import music
 from modules import utils
 from modules import momijiutils
+from modules import crpair
 
 commandprefix = ';'
 client = commands.Bot(command_prefix=commandprefix,
@@ -32,7 +33,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190321"
+appversion = "b20190328"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -56,6 +57,7 @@ async def on_ready():
         await dbhandler.query("CREATE TABLE blacklist (value)")
         await dbhandler.query("CREATE TABLE birthdays (discordid, date)")
         await dbhandler.query("CREATE TABLE voiceroles (guildid, channelid, roleid)")
+        await dbhandler.query("CREATE TABLE crpair (commandid, responceid)")
         await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
         await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
         await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["@", ]])
@@ -466,6 +468,7 @@ async def on_raw_reaction_add(raw_reaction):
 @client.event
 async def on_message_delete(message):
     await logging.on_message_delete(client, message)
+    await crpair.on_message_delete(client, message)
 
 
 @client.event

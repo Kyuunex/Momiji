@@ -31,16 +31,22 @@ async def pickmessage(channelid):
                 loop = False
                 return message[1]
         else:
-            print("no messages in specified channel")
+            print("no messages in specified channel, counted %s times" % (str(counter)))
             loop = False
             return None
 
 
-async def momijispeak(channel):
+async def momijispeak(message):
+    channel = message.channel
     channeltouse = int(await bridgecheck(channel.id))
-    messagetosend = await pickmessage(channeltouse)
+    async with channel.typing():
+        messagetosend = await pickmessage(channeltouse)
     if messagetosend:
-        await channel.send(messagetosend)
+        responcemsg = await channel.send(messagetosend)
+        await dbhandler.query(["INSERT INTO crpair VALUES (?, ?)", [str(message.id), str(responcemsg.id)]])
+        return True
+    else:
+        return None
 
 
 async def spammessage(client, message):
@@ -91,7 +97,7 @@ async def on_message(client, message):
             await message.channel.send(file=discord.File('res/pinged.gif'))
         else:
             if 'momiji' in msg:
-                await momijispeak(message.channel)
+                await momijispeak(message)
             else:
                 # await spammessage(client, message) # TODO: fix spammessage
 
@@ -104,7 +110,7 @@ async def on_message(client, message):
                         (message.content.isupper()) or
                         (msg.startswith('?'))
                 ):
-                    await momijispeak(message.channel)
+                    await momijispeak(message)
 
                 # Custom responces go here.
                 if msg.startswith('^'):
