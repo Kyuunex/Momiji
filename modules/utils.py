@@ -57,18 +57,6 @@ class json_to_user:
             self.bot = False
 
 
-async def cooldowncheck(setting, howlong):
-    # TODO: make the cooldowns guild by guild basis
-    if not await dbhandler.query(["SELECT value FROM temp WHERE setting = ?", [setting]]):
-        await dbhandler.query(["INSERT INTO temp VALUES (?, ?, ?)", [setting, str("0"), str("0")]])
-    lasttime = (await dbhandler.query(["SELECT value FROM temp WHERE setting = ?", [setting]]))[0][0]
-    if float(time.time())-float(lasttime) > int(howlong):
-        await dbhandler.query(["UPDATE temp SET value = ? WHERE setting = ? ", [str(time.time()), setting]])
-        return True
-    else:
-        return None
-
-
 async def measuretime(starttime, endtime):
     timeittook = int(endtime - starttime)
     if timeittook > 120:

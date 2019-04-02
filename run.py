@@ -23,6 +23,7 @@ from modules import music
 from modules import utils
 from modules import momijiutils
 from modules import crpair
+from modules import cooldown
 
 commandprefix = ';'
 client = commands.Bot(command_prefix=commandprefix,
@@ -33,7 +34,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190328"
+appversion = "b20190402"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -270,7 +271,7 @@ async def wordstats(ctx, arg = None):
 @client.command(name="neko", brief="When you want some neko in your life", description="Why are these not real? I am sad.", pass_context=True)
 async def neko(ctx):
     try:
-        if await utils.cooldowncheck('lastarttime', 40):
+        if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
             url = 'https://www.nekos.life/api/v2/img/neko'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as jsonresponse:
@@ -291,7 +292,7 @@ async def neko(ctx):
 @client.command(name="art", brief="Art", description="Art", pass_context=True)
 async def art(ctx):
     try:
-        if await utils.cooldowncheck('lastarttime', 40):
+        if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
             artdir = "data/art/"
             if os.path.exists(artdir):
                 a = True
@@ -311,7 +312,7 @@ async def art(ctx):
 @client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
 async def inspire(ctx):
     try:
-        if await utils.cooldowncheck('lastinspiretime', 20):
+        if await cooldown.check(str(ctx.author.id), 'lastinspiretime', 40):
             url = 'http://inspirobot.me/api?generate=true'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as textresponse:
@@ -334,7 +335,7 @@ async def inspire(ctx):
 async def img(ctx, *, searchquery):
     try:
         if ctx.channel.is_nsfw():
-            if await utils.cooldowncheck('lastimgtime', 60):
+            if await cooldown.check(str(ctx.author.id), 'lastimgtime', 40):
                 if len(searchquery) > 0:
                     googleapikey = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googleapikey"]]))
                     googlesearchengineid = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googlesearchengineid"]]))
