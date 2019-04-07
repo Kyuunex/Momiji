@@ -2,6 +2,7 @@ import json
 import time
 import discord
 from modules import utils
+from modules import cooldown
 from modules import dbhandler
 
 async def exportjson(client, ctx, channelid: int = None, amount: int = 999999999):
@@ -119,7 +120,7 @@ async def bridge(client, ctx, bridgetype, value):
             await ctx.send("`This channel is already bridged`")
 
 async def userstats(client, ctx, where, arg):
-    if await utils.cooldowncheck('laststatstime', 20):
+    if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
         if "channel" in where:
             wherekey = "channelid"
             if ":" in where:
@@ -198,7 +199,7 @@ async def userstats(client, ctx, where, arg):
 
 
 async def wordstats(client, ctx, arg = None):
-    if await utils.cooldowncheck('laststatstime', 20):
+    if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
         title = "Here are 40 most used words in server all time:"
         messages = await dbhandler.query(["SELECT contents FROM channellogs WHERE guildid = ?;", [str(ctx.guild.id),]])
 

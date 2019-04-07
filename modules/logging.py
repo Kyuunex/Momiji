@@ -1,6 +1,5 @@
 from modules import logembeds
 from modules import dbhandler
-from modules import utils
 import time
 
 
