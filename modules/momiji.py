@@ -107,8 +107,7 @@ async def on_message(client, message):
                         (msg.startswith('omg')) or
                         (msg.startswith('wut')) or
                         (msg.startswith('wat')) or
-                        (message.content.isupper()) or
-                        (msg.startswith('?'))
+                        (message.content.isupper() and len(message.content) > 1)
                 ):
                     await momijispeak(message)
 
