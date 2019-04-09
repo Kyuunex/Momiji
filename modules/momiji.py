@@ -1,9 +1,18 @@
 import random
 import discord
+import asyncio
 import time
 import json
 from modules import dbhandler
-from modules import utils
+from modules import crpair
+
+
+async def isntbotcheck(userjson):
+    jsondict = json.loads(userjson)
+    if jsondict[0]['bot'] == True:
+        return False
+    elif jsondict[0]['bot'] == False:
+        return True
 
 
 async def bridgecheck(channelid):
@@ -12,6 +21,28 @@ async def bridgecheck(channelid):
         return str(bridgedchannel[0][0])
     else:
         return str(channelid)
+
+
+async def msgfilter(message, isobject):
+    if isobject:
+        contents = message.content
+    else:
+        contents = message
+    if len(contents) > 0:
+        blacklist = await dbhandler.query("SELECT value FROM blacklist")
+        if not (any(c[0] in contents.lower() for c in blacklist)):
+            if not (any(contents.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-"))):
+                if isobject:
+                    if not message.author.bot:
+                        return contents
+                    else:
+                        return None
+                else:
+                    return contents
+            else:
+                return None
+        else:
+            return None
 
 
 async def pickmessage(channelid):
@@ -27,7 +58,7 @@ async def pickmessage(channelid):
         counter += 1
         if dbrequest:
             message = random.choice(dbrequest)
-            if (await utils.msgfilter(message[1], False) != None) and (await utils.isntbotcheck(message[0])):
+            if (await msgfilter(message[1], False) != None) and (await isntbotcheck(message[0])):
                 loop = False
                 return message[1]
         else:
@@ -43,7 +74,7 @@ async def momijispeak(message):
         messagetosend = await pickmessage(channeltouse)
     if messagetosend:
         responcemsg = await channel.send(messagetosend)
-        await dbhandler.query(["INSERT INTO crpair VALUES (?, ?)", [str(message.id), str(responcemsg.id)]])
+        await crpair.pair(message.id, responcemsg.id)
         return True
     else:
         return None
@@ -60,7 +91,7 @@ async def spammessage(client, message):
             else:
                 counter = counter + 1
     if counter == 3:
-        filtered = await utils.msgfilter(message.content, False)
+        filtered = await msgfilter(message.content, False)
         if filtered != None:
             await message.channel.send(filtered)
 
@@ -111,31 +142,27 @@ async def on_message(client, message):
                 ):
                     await momijispeak(message)
 
-                # Custom responces go here.
-                if msg.startswith('^'):
-                    await message.channel.send('I agree!')
-                if msg.startswith('gtg'):
-                    await message.channel.send('nooooo don\'t leaveeeee!')
-                if msg.startswith('kakushi'):
-                    await message.channel.send('kotoga')
-                if msg.startswith('kasanari'):
-                    await message.channel.send('AAAAAAAAAAAAUUUUUUUUUUUUUUUUU')
-                if msg.startswith('giri giri'):
-                    await message.channel.send('EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE')
-                if msg.startswith('awoo'):
-                    await message.channel.send('awoooooooooooooooooooooooooo')
-                if msg.startswith('cya'):
-                    await message.channel.send('nooooo don\'t leaveeeee!')
-                if msg.startswith('it is self aware'):
-                    await message.channel.send('yes')
-                if msg.startswith('bad bot'):
-                    await message.channel.send(';w;')
-                if msg.startswith('stupid bot'):
-                    await message.channel.send(';w;')
-                if msg.startswith('good bot'):
-                    await message.channel.send('^w^')
-                if "sentient" in msg:
-                    await message.channel.send('yes ^w^')
+                # TODO: grab these from db, allow searching by guild
+                responsedb = [
+                    ["^", "I agree!"],
+                    ["gtg", "nooooo don\'t leaveeeee!"],
+                    ["kakushi", "kotoga"],
+                    ["kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU"],
+                    ["giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"],
+                    ["awoo", "awoooooooooooooooooooooooooo"],
+                    ["cya", "nooooo don\'t leaveeeee!"],
+                    ["bad bot", ";w;"],
+                    ["stupid bot", ";w;"],
+                    ["good bot", "^w^"],
+                    ["sentient", "yes ^w^"],
+                    ["it is self aware", "yes"],
+                ]
+
+                for oneresponse in responsedb:
+                    if msg.startswith(oneresponse[0]):
+                        responcemsg = await message.channel.send(oneresponse[1])
+                        await crpair.pair(message.id, responcemsg.id)
+
                 #if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
                 #    await message.channel.send('Happy Birthday %s!' % (message.author.mention))
     await logmessage(message)

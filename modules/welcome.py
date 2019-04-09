@@ -1,5 +1,6 @@
 from modules import dbhandler
 import time
+import asyncio
 
 async def on_member_remove(client, member):
     try:

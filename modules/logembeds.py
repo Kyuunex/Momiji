@@ -1,5 +1,5 @@
 import discord
-
+import asyncio
 
 async def message_delete(message):
     if message:

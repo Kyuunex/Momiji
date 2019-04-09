@@ -6,11 +6,6 @@ from discord.ext import commands
 import sys
 import os
 import time
-import urllib.request
-import aiohttp
-import imghdr
-from urllib.parse import urlparse
-import json
 import random
 import importlib
 
@@ -20,10 +15,10 @@ from modules import logging
 from modules import welcome
 from modules import voiceroles
 from modules import music
-from modules import utils
+from modules import pinning
 from modules import momijiutils
 from modules import crpair
-from modules import cooldown
+from modules import img
 
 commandprefix = ';'
 client = commands.Bot(command_prefix=commandprefix,
@@ -34,7 +29,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190407"
+appversion = "b20190409"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -102,7 +97,7 @@ async def gitpull(ctx):
         await ctx.send(embed=await permissions.error())
 
 
-@client.command(name="echo", brief="Echo a astring", description="", pass_context=True)
+@client.command(name="echo", brief="Echo a string", description="", pass_context=True)
 async def echo(ctx, *, string):
     if await permissions.check(ctx.message.author.id):
         await ctx.message.delete()
@@ -142,7 +137,7 @@ async def help(ctx, admin: str = None):
 
     helpembed.add_field(name="%sinspire" % (
         commandprefix), value="When you crave some inspiration in your life", inline=True)
-    helpembed.add_field(name="%simg" % (commandprefix),
+    helpembed.add_field(name="%sgis" % (commandprefix),
                         value="Google image search", inline=True)
     helpembed.add_field(name="%sneko" % (commandprefix),
                         value="Nekos are life", inline=True)
@@ -216,36 +211,9 @@ async def userstats(ctx, where: str = "server", arg: str = None):
 
 
 @client.command(name="regulars", brief="Make regulars", description="", pass_context=True)
-async def regulars(ctx): # TODO: fix
+async def regulars(ctx):
     if await permissions.check(ctx.message.author.id):
-        guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
-        if guildregularsrole:
-            regularsrole = discord.utils.get(
-                ctx.guild.roles, id=int(guildregularsrole[0][0]))
-
-            for member in regularsrole.members:
-                await member.remove_roles(regularsrole, reason="pruned role")
-
-            after = int(time.time()) - 2592000
-            query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(
-                ctx.guild.id), str(after))]
-            messages = await dbhandler.query(query)
-
-            stats = await utils.messagecounter(messages)
-
-            rank = 0
-            for onemember in stats:
-                memberobject = ctx.guild.get_member(int(onemember[0][0]))
-                if memberobject:
-                    if not memberobject.bot:
-                        rank += 1
-                        await memberobject.add_roles(regularsrole)
-                        await ctx.send("**[%s]** : %s" % (rank, memberobject.name))
-                        if rank == int(guildregularsrole[0][1]):
-                            break
-            
-        else:
-            await ctx.send("This server has no Regular role configured in my database")
+        await momijiutils.regulars(ctx)
     else:
         await ctx.send(embed=await permissions.error())
 
@@ -270,106 +238,22 @@ async def wordstats(ctx, arg = None):
 
 @client.command(name="neko", brief="When you want some neko in your life", description="Why are these not real? I am sad.", pass_context=True)
 async def neko(ctx):
-    try:
-        if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
-            url = 'https://www.nekos.life/api/v2/img/neko'
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as jsonresponse:
-                    imageurl = (await jsonresponse.json())['url']
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(imageurl) as imageresponse:
-                            buffer = (await imageresponse.read())
-                            a = urlparse(imageurl)
-                            await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
-        else:
-            await ctx.send('slow down bruh')
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in neko")
-        print(e)
+    await img.neko(ctx)
 
 
 @client.command(name="art", brief="Art", description="Art", pass_context=True)
 async def art(ctx):
-    try:
-        if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
-            artdir = "data/art/"
-            if os.path.exists(artdir):
-                a = True
-                while a:
-                    randompicture = random.choice(os.listdir(artdir))
-                    if (randompicture.split("."))[-1] == "png" or (randompicture.split("."))[-1] == "jpg":
-                        a = False
-                await ctx.send(file=discord.File(artdir+randompicture))
-        else:
-            await ctx.send('slow down bruh')
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in art")
-        print(e)
+    await img.art(ctx)
 
 
 @client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
 async def inspire(ctx):
-    try:
-        if await cooldown.check(str(ctx.author.id), 'lastinspiretime', 40):
-            url = 'http://inspirobot.me/api?generate=true'
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as textresponse:
-                    if "https://generated.inspirobot.me/a/" in (await textresponse.text()):
-                        imageurl = await textresponse.text()
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(imageurl) as imageresponse:
-                                buffer = (await imageresponse.read())
-                                a = urlparse(imageurl)
-                                await ctx.send(file=discord.File(buffer, os.path.basename(a.path)))
-        else:
-            await ctx.send('slow down bruh')
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in inspire")
-        print(e)
+    await img.inspire(ctx)
 
 
-@client.command(name="img", brief="Google image search", description="Search for stuff on Google images", pass_context=True)
-async def img(ctx, *, searchquery):
-    try:
-        if ctx.channel.is_nsfw():
-            if await cooldown.check(str(ctx.author.id), 'lastimgtime', 40):
-                if len(searchquery) > 0:
-                    googleapikey = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googleapikey"]]))
-                    googlesearchengineid = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googlesearchengineid"]]))
-                    if googleapikey:
-                        query = {
-                            'q': str(searchquery),
-                            'key': str(googleapikey[0][0]),
-                            'searchType': 'image',
-                            'cx': str(googlesearchengineid[0][0]),
-                            'start': str(random.randint(1, 21))
-                        }
-                        url = "https://www.googleapis.com/customsearch/v1?" + \
-                            urllib.parse.urlencode(query)
-
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(url) as jsonresponse:
-                                imageurl = (await jsonresponse.json())['items'][(random.randint(0, 9))]['link']
-                                if len(imageurl) > 1:
-                                    async with aiohttp.ClientSession() as session:
-                                        async with session.get(imageurl) as imageresponse:
-                                            buffer = (await imageresponse.read())
-                                            ext = imghdr.what("", h=buffer)
-                                            # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
-                                            await ctx.send(file=discord.File(buffer, "%s.%s" % (searchquery, ext)))
-                    else:
-                        await ctx.send("This command is not enabled")
-            else:
-                await ctx.send('slow down bruh')
-        else:
-            await ctx.send("This command works in NSFW channels only.")
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in img")
-        print(e)
+@client.command(name="gis", brief="Google image search", description="Search for stuff on Google images", pass_context=True)
+async def gis(ctx, *, searchquery):
+    await img.gis(ctx, searchquery)
 
 
 @client.command(name="vc", brief="test", description="", pass_context=True)
@@ -441,29 +325,7 @@ async def on_message(message):
 
 @client.event
 async def on_raw_reaction_add(raw_reaction):
-    try:
-        guildpinchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildpinchannelid", str(raw_reaction.guild_id)]])
-        if guildpinchannel:
-            if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
-                channell = client.get_channel(raw_reaction.channel_id)
-                message = await channell.fetch_message(raw_reaction.message_id)
-                reactions = message.reactions
-                for reaction in reactions:
-                    # onereact = {
-                    # 	'count': int(reaction.count),
-                    # 	'emoji': str(reaction.emoji),
-                    # }
-                    if reaction.count >= 6:
-                        if not (await dbhandler.query(["SELECT value FROM pinchannelblacklist WHERE value = ?", [str(raw_reaction.channel_id)]])):
-                            if not (await dbhandler.query(["SELECT messageid FROM pinned WHERE messageid = ?", [str(raw_reaction.message_id)]])):
-                                await dbhandler.query(["INSERT INTO pinned VALUES (?)", [str(raw_reaction.message_id)]])
-                                pin_channel_object = client.get_channel(
-                                    int((guildpinchannel)[0][0]))
-                                await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await utils.messageembed(message))
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_raw_reaction_add")
-        print(e)
+    await pinning.on_raw_reaction_add(client, raw_reaction)
 
 
 @client.event

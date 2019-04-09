@@ -1,9 +1,41 @@
 import json
 import time
 import discord
-from modules import utils
+import asyncio
+from collections import Counter
+import operator
 from modules import cooldown
 from modules import dbhandler
+
+
+async def measuretime(starttime, endtime):
+    timeittook = int(endtime - starttime)
+    if timeittook > 120:
+        minutes = int(timeittook / 60)
+        seconds = int(timeittook % 60)
+        return "%s minutes and %s seconds" % (str(minutes), str(seconds))
+    else:
+        return "%s seconds" % (str(timeittook))
+
+
+async def messagecounter(messageadata):
+    results = dict(Counter(messageadata))
+    return reversed(sorted(results.items(), key=operator.itemgetter(1)))
+
+
+class json_to_user:
+    def __init__(self, userjson):
+        jsondict = json.loads(userjson)
+        self.id = jsondict[0]['id']
+        self.discriminator = jsondict[0]['discriminator']
+        self.avatar = jsondict[0]['avatar']
+        self.name = jsondict[0]['username']
+        self.nick = None
+        if jsondict[0]['bot'] == True:
+            self.bot = True
+        elif jsondict[0]['bot'] == False:
+            self.bot = False
+
 
 async def exportjson(client, ctx, channelid: int = None, amount: int = 999999999):
     if channelid == None:
@@ -54,7 +86,7 @@ async def exportjson(client, ctx, channelid: int = None, amount: int = 999999999
         value=logcounter, 
         inline=False
     )
-    exportembed.add_field(name="Time taken while exporting:", value=await utils.measuretime(starttime, endtime), inline=False)
+    exportembed.add_field(name="Time taken while exporting:", value=await measuretime(starttime, endtime), inline=False)
     await ctx.send(embed=exportembed)
 
 async def importmessages(client, ctx, channelids):
@@ -102,7 +134,7 @@ async def importmessages(client, ctx, channelids):
                 name="Channel:", value=channel.name, inline=False)
             exportembed.add_field(
                 name="Number of messages:", value=logcounter, inline=False)
-            exportembed.add_field(name="Time taken while importing:", value=await utils.measuretime(starttime, endtime), inline=False)
+            exportembed.add_field(name="Time taken while importing:", value=await measuretime(starttime, endtime), inline=False)
             await ctx.send(embed=exportembed)
         except Exception as e:
             print(time.strftime('%X %x %Z'))
@@ -118,6 +150,7 @@ async def bridge(client, ctx, bridgetype, value):
             await ctx.send("`The bridge was created`")
         else:
             await ctx.send("`This channel is already bridged`")
+
 
 async def userstats(client, ctx, where, arg):
     if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
@@ -154,7 +187,7 @@ async def userstats(client, ctx, where, arg):
             query = ["SELECT userid FROM channellogs WHERE %s = ?;" % (wherekey), (wherevalue,)]
             messages = await dbhandler.query(query)
 
-        stats = await utils.messagecounter(messages)
+        stats = await messagecounter(messages)
 
         rank = 0
         contents = title + "\n\n"
@@ -165,7 +198,7 @@ async def userstats(client, ctx, where, arg):
                 memberobject = client.get_user(int(onemember[0][0]))
                 if not memberobject:
                     userjson = await dbhandler.query(["SELECT userjson FROM channellogs WHERE userid = ?;", [str(onemember[0][0])]])
-                    memberobject = utils.json_to_user(userjson[0][0])
+                    memberobject = json_to_user(userjson[0][0])
                     notice = " **(User not found)** "
                 else:
                     notice = " **(User left)** "
@@ -208,7 +241,7 @@ async def wordstats(client, ctx, arg = None):
             for oneword in (message[0]).split(" "):
                 individualwords.append(oneword.replace("`","").lower())
 
-        stats = await utils.messagecounter(individualwords)
+        stats = await messagecounter(individualwords)
 
         rank = 0
         contents = title + "\n\n"
@@ -235,3 +268,33 @@ async def wordstats(client, ctx, arg = None):
         await ctx.send(embed=statsembed)
     else:
         await ctx.send('slow down bruh')
+
+
+async def regulars(ctx):
+    guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
+    if guildregularsrole:
+        regularsrole = discord.utils.get(
+            ctx.guild.roles, id=int(guildregularsrole[0][0]))
+
+        for member in regularsrole.members:
+            await member.remove_roles(regularsrole, reason="pruned role")
+
+        after = int(time.time()) - 2592000
+        query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(
+            ctx.guild.id), str(after))]
+        messages = await dbhandler.query(query)
+
+        stats = await messagecounter(messages)
+
+        rank = 0
+        for onemember in stats:
+            memberobject = ctx.guild.get_member(int(onemember[0][0]))
+            if memberobject:
+                if not memberobject.bot:
+                    rank += 1
+                    await memberobject.add_roles(regularsrole)
+                    await ctx.send("**[%s]** : %s" % (rank, memberobject.name))
+                    if rank == int(guildregularsrole[0][1]):
+                        break       
+    else:
+        await ctx.send("This server has no Regular role configured in my database")

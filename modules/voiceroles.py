@@ -2,6 +2,7 @@ from modules import dbhandler
 
 import time
 import discord
+import asyncio
 
 async def on_voice_state_update(client, member, before, after):
     try:
