@@ -29,7 +29,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190409"
+appversion = "b20190411"
 
 defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
 defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -354,6 +354,11 @@ async def on_member_remove(member):
 @client.event
 async def on_member_update(before, after):
     await logging.on_member_update(client, before, after)
+
+
+@client.event
+async def on_user_update(before, after):
+    await logging.on_user_update(client, before, after)
 
 
 @client.event

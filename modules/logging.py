@@ -108,15 +108,24 @@ async def on_member_update(client, before, after):
                 if (not voicerole) and (not regularsrole): ## TODO: fix
                     channell = client.get_channel(int(guildlogchannel[0][0]))
                     await channell.send(embed=await logembeds.role_change(after, text % (role.name)))
-
-        if before.name != after.name:
-            # this possibly won't work in multiple guilds
-            # add the same for nicknames
-            guildlogchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(after.guild.id)]])
-            if guildlogchannel:
-                channell = client.get_channel(int(guildlogchannel[0][0]))
-                await channell.send(embed=await logembeds.name_change(after, before.name, after.name))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_member_update")
+        print(e)
+
+
+async def on_user_update(client, before, after):
+    try:
+        if before.name != after.name:
+            print("%s changed username to %s" % (before.name, after.name))
+            guild_log_channel_list = await dbhandler.query(["SELECT parent,value FROM config WHERE setting = ?", ["guildlogchannel"]])
+            for guild_log_channel in guild_log_channel_list:
+                guild = client.get_guild(int(guild_log_channel[0]))
+                if guild:
+                    if guild.get_member(after.id):
+                        channell = client.get_channel(int(guild_log_channel[1]))
+                        await channell.send(embed=await logembeds.name_change(after, before.name, after.name))
+    except Exception as e:
+        print(time.strftime('%X %x %Z'))
+        print("in on_user_update")
         print(e)
