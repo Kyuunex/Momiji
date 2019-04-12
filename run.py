@@ -19,6 +19,7 @@ from modules import pinning
 from modules import momijiutils
 from modules import crpair
 from modules import img
+from modules import docs
 
 commandprefix = ';'
 client = commands.Bot(command_prefix=commandprefix,
@@ -30,10 +31,6 @@ if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
 appversion = "b20190411"
-
-defaultembedthumbnail = "https://i.imgur.com/GgAOT37.png"
-defaultembedicon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
-defaultembedfootericon = "https://avatars0.githubusercontent.com/u/5400432"
 
 
 @client.event
@@ -127,58 +124,8 @@ async def blacklist(ctx, *, string):
 
 
 @client.command(name="help", brief="Help", description="", pass_context=True)
-async def help(ctx, admin: str = None):
-    helpembed = discord.Embed(title="Momiji is best wolf.",
-                              description="Here are just some available commands:", color=0xe95e62)
-
-    helpembed.set_author(name="Momiji %s" % (
-        appversion), icon_url=defaultembedicon, url='https://github.com/Kyuunex/Momiji')
-    helpembed.set_thumbnail(url=defaultembedthumbnail)
-
-    helpembed.add_field(name="%sinspire" % (
-        commandprefix), value="When you crave some inspiration in your life", inline=True)
-    helpembed.add_field(name="%sgis" % (commandprefix),
-                        value="Google image search", inline=True)
-    helpembed.add_field(name="%sneko" % (commandprefix),
-                        value="Nekos are life", inline=True)
-    helpembed.add_field(name="%sart" % (commandprefix),
-                        value="See some amazing anime style art", inline=True)
-    helpembed.add_field(name="%sroll" % (commandprefix),
-                        value="Roll", inline=True)
-
-    if admin == "admin":
-        helpembed.add_field(name="%sgitpull" % (
-            commandprefix), value="Update the bot", inline=True)
-        helpembed.add_field(name="%suserstats [server/channel:<channelid>] [month/day/week/<empty for all time>]" % (
-            commandprefix), value="Server Stats", inline=True)
-        helpembed.add_field(
-            name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
-        helpembed.add_field(name="%smusic [play/stop/next]" %
-                            (commandprefix), value="Music controls", inline=True)
-        helpembed.add_field(name="%srestart" % (
-            commandprefix), value="Restart the bot", inline=True)
-        helpembed.add_field(name="%sexport" % (commandprefix),
-                            value="Exports the chat to json format", inline=True)
-        helpembed.add_field(name="%simport" % (commandprefix),
-                            value="Import the chat into database", inline=True)
-        helpembed.add_field(name="%secho" % (commandprefix),
-                            value="Echo out a string", inline=True)
-        helpembed.add_field(name="%sblacklist" % (
-            commandprefix), value="Blacklist a word", inline=True)
-        helpembed.add_field(name="%sbridge" % (commandprefix),
-                            value="Bridge the channel", inline=True)
-        helpembed.add_field(name="%sadminlist" % (
-            commandprefix), value="List bot admins", inline=True)
-        helpembed.add_field(name="%smakeadmin" % (
-            commandprefix), value="Make user a bot admin", inline=True)
-        helpembed.add_field(name="%sregulars" % (
-            commandprefix), value="Clear the role and reassign regulars role to every regular", inline=True)
-        helpembed.add_field(name="%ssql" % (commandprefix),
-                            value="Execute an SQL query", inline=True)
-
-    helpembed.set_footer(text="Made by Kyuunex",
-                         icon_url=defaultembedfootericon)
-    await ctx.send(embed=helpembed)
+async def help(ctx, subhelp: str = None):
+    await docs.main(ctx, subhelp, client, appversion, commandprefix)
 
 
 @client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
