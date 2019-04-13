@@ -30,7 +30,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190411"
+appversion = "b20190413"
 
 
 @client.event
@@ -241,6 +241,20 @@ async def roll(ctx, maax=None):
 async def vr(ctx, action, rolename):
     if await permissions.check(ctx.message.author.id):
         await voiceroles.role_management(ctx, action, rolename)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="massnick", brief="", description="", pass_context=True)
+async def massnick(ctx, nick = None):
+    if await permissions.check(ctx.message.author.id):
+        for member in ctx.guild.members:
+            try:
+                await member.edit(nick=nick)
+            except Exception as e:
+                await ctx.send(member.name)
+                await ctx.send(e)
+        await ctx.send("Done")
     else:
         await ctx.send(embed=await permissions.error())
 
