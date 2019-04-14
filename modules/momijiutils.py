@@ -273,28 +273,31 @@ async def wordstats(client, ctx, arg = None):
 async def regulars(ctx):
     guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
     if guildregularsrole:
-        regularsrole = discord.utils.get(
-            ctx.guild.roles, id=int(guildregularsrole[0][0]))
+        async with ctx.channel.typing():
+            regularsrole = discord.utils.get(
+                ctx.guild.roles, id=int(guildregularsrole[0][0]))
 
-        for member in regularsrole.members:
-            await member.remove_roles(regularsrole, reason="pruned role")
+            for member in regularsrole.members:
+                await member.remove_roles(regularsrole, reason="pruned role")
 
-        after = int(time.time()) - 2592000
-        query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(
-            ctx.guild.id), str(after))]
-        messages = await dbhandler.query(query)
+            after = int(time.time()) - 2592000
+            query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.guild.id), str(after))]
+            messages = await dbhandler.query(query)
 
-        stats = await messagecounter(messages)
+            stats = await messagecounter(messages)
 
-        rank = 0
-        for onemember in stats:
-            memberobject = ctx.guild.get_member(int(onemember[0][0]))
-            if memberobject:
-                if not memberobject.bot:
-                    rank += 1
-                    await memberobject.add_roles(regularsrole)
-                    await ctx.send("**[%s]** : %s" % (rank, memberobject.name))
-                    if rank == int(guildregularsrole[0][1]):
-                        break       
+            rank = 0
+            for onemember in stats:
+                memberobject = ctx.guild.get_member(int(onemember[0][0]))
+                if memberobject:
+                    if not memberobject.bot:
+                        rank += 1
+                        try:
+                            await memberobject.add_roles(regularsrole)
+                        except Exception as e:
+                            print(e)
+                        if rank == int(guildregularsrole[0][1]):
+                            break
+        await ctx.send("Done")
     else:
         await ctx.send("This server has no Regular role configured in my database")

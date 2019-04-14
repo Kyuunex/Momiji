@@ -12,7 +12,7 @@ author_text = "Momiji"
 
 footer_icon = 'https://avatars0.githubusercontent.com/u/5400432'
 footer_text = "Made by Kyuunex"
-script_start_time = time.process_time()
+script_start_time = time.time()
 
 async def main(ctx, subhelp, client, appversion, commandprefix):
     if subhelp == "admin":
@@ -21,6 +21,8 @@ async def main(ctx, subhelp, client, appversion, commandprefix):
         else:
             await ctx.send(embed=await permissions.error())
     elif subhelp == "info":
+        await ctx.send(embed=await info(client, appversion, commandprefix))
+    elif subhelp == "stats":
         await ctx.send(embed=await info(client, appversion, commandprefix))
     else:
         await ctx.send(embed=await help(appversion, commandprefix))
@@ -68,21 +70,21 @@ async def admin(appversion, commandprefix):
     return embed
 
 async def info(client, appversion, commandprefix):
-    #TODO: fix
     appinfo = await client.application_info()
     guildamount = len(client.guilds)
     useramount = len(client.users)
-    script_now_time = time.process_time()
+    script_now_time = time.time()
     uptime = await momijiutils.measuretime(script_start_time, script_now_time)
-    description = """**Bot owner:** <@%s>
-    **Current version:** %s
-    **Amount of guilds serving:** %s
-    **Amount of users serving:** %s
-    **Lib used:** discord.py
-    **Uptime:** %s
-    **Memory usage:** idk how to see this but probably less than 100M
+    description = """__**Stats:**__
+**Bot owner:** <@%s>
+**Current version:** %s
+**Amount of guilds serving:** %s
+**Amount of users serving:** %s
+**Lib used:** discord.py
+**Uptime:** %s
+**Memory usage:** idk how to see this but probably less than 100M
 
-    """ % (appinfo.owner.id, appversion, guildamount, useramount, script_start_time)
+    """ % (appinfo.owner.id, appversion, guildamount, useramount, uptime)
     embed = discord.Embed(title="Momiji is best wolf.", description=description, color=0xe95e62)
     embed.set_author(name="Momiji", icon_url=author_icon, url='https://github.com/Kyuunex/Momiji')
     embed.set_thumbnail(url=help_thumbnail)
