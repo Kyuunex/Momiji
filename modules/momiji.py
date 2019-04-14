@@ -80,16 +80,14 @@ async def momijispeak(message):
         return None
 
 
-async def spammessage(client, message):
-    # TODO: fix this
-    previousMessages = message.channel.history(limit=2+random.randint(1, 4))
+async def spammessage(message):
     counter = 0
-    async for message in previousMessages:
-        if message.content == message.content:
+    async for previous_message in message.channel.history(limit=2+random.randint(1, 4)):
+        if (message.content == previous_message.content) and (message.author.id != previous_message.author.id):
             if message.author.bot:
                 counter = -500
             else:
-                counter = counter + 1
+                counter += 1
     if counter == 3:
         filtered = await msgfilter(message.content, False)
         if filtered != None:
@@ -130,7 +128,7 @@ async def on_message(client, message):
             if 'momiji' in msg:
                 await momijispeak(message)
             else:
-                # await spammessage(client, message) # TODO: fix spammessage
+                await spammessage(message)
 
                 if (
                         (client.user.mention in message.content) or
