@@ -80,7 +80,7 @@ async def info(client, appversion, commandprefix):
 **Current version:** %s
 **Amount of guilds serving:** %s
 **Amount of users serving:** %s
-**Lib used:** discord.py
+**Lib used:** [discord.py](https://github.com/Rapptz/discord.py/)
 **Uptime:** %s
 **Memory usage:** idk how to see this but probably less than 100M
 
