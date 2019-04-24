@@ -30,7 +30,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190414"
+appversion = "b20190424"
 
 
 @client.event
@@ -118,6 +118,21 @@ async def blacklist(ctx, *, string):
     if await permissions.check(ctx.message.author.id):
         await ctx.message.delete()
         await dbhandler.query(["INSERT INTO blacklist VALUES (?)", [str(string)]])
+        await ctx.send(":ok_hand:", delete_after=3)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="logchannel", brief="Add a word to blacklist", description="Blacklists a word", pass_context=True)
+async def logchannel(ctx, action = "add"):
+    if await permissions.check(ctx.message.author.id):
+        await ctx.message.delete()
+        if action == "remove":
+            await dbhandler.query(["DELETE FROM config WHERE setting = ? parent = ? value = ?", ["guildlogchannel", str(ctx.message.guild.id), str(ctx.message.channel.id)]])
+        elif action == "removeguild":
+            await dbhandler.query(["DELETE FROM config WHERE setting = ? parent = ?", ["guildlogchannel", str(ctx.message.guild.id)]])
+        else:
+            await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guildlogchannel", str(ctx.message.guild.id), str(ctx.message.channel.id), "0"]])
         await ctx.send(":ok_hand:", delete_after=3)
     else:
         await ctx.send(embed=await permissions.error())

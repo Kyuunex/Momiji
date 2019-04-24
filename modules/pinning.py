@@ -35,6 +35,8 @@ async def messageembed(message):
             embed = message.embeds[0]
         else:
             embed = discord.Embed(
+                title="[context]",
+                url="https://discordapp.com/channels/%s/%s/%s" % (str(message.guild.id), str(message.channel.id), str(message.id)),
                 description=message.content,
                 color=0xFFFFFF
             )
