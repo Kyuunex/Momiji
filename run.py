@@ -128,9 +128,9 @@ async def logchannel(ctx, action = "add"):
     if await permissions.check(ctx.message.author.id):
         await ctx.message.delete()
         if action == "remove":
-            await dbhandler.query(["DELETE FROM config WHERE setting = ? parent = ? value = ?", ["guildlogchannel", str(ctx.message.guild.id), str(ctx.message.channel.id)]])
+            await dbhandler.query(["DELETE FROM config WHERE setting = ? AND parent = ? AND value = ?", ["guildlogchannel", str(ctx.message.guild.id), str(ctx.message.channel.id)]])
         elif action == "removeguild":
-            await dbhandler.query(["DELETE FROM config WHERE setting = ? parent = ?", ["guildlogchannel", str(ctx.message.guild.id)]])
+            await dbhandler.query(["DELETE FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(ctx.message.guild.id)]])
         else:
             await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guildlogchannel", str(ctx.message.guild.id), str(ctx.message.channel.id), "0"]])
         await ctx.send(":ok_hand:", delete_after=3)
