@@ -116,15 +116,14 @@ async def on_member_update(client, before, after):
 
 async def on_user_update(client, before, after):
     try:
-        if before.name != after.name:
-            print("%s changed username to %s" % (before.name, after.name))
+        if before.name != after.name or before.discriminator != after.discriminator:
             guild_log_channel_list = await dbhandler.query(["SELECT parent,value FROM config WHERE setting = ?", ["guildlogchannel"]])
             for guild_log_channel in guild_log_channel_list:
                 guild = client.get_guild(int(guild_log_channel[0]))
                 if guild:
                     if guild.get_member(after.id):
                         channell = client.get_channel(int(guild_log_channel[1]))
-                        await channell.send(embed=await logembeds.name_change(after, before.name, after.name))
+                        await channell.send(embed=await logembeds.on_user_update(before, after))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_user_update")
