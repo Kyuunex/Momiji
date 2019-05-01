@@ -77,7 +77,7 @@ async def member_voice_join_left(member, channel, action):
     if member:
         embed = discord.Embed(
             color=0x419400,
-            description="%s has %s **%s**" % (member.mention, action, channel.name)
+            description="%s\nhas %s\n**%s**" % (member.mention, action, channel.name)
         )
         embed.set_thumbnail(url=member.avatar_url)
         return embed
@@ -89,7 +89,7 @@ async def member_voice_switch(member, beforechannel, afterchannel):
     if member:
         embed = discord.Embed(
             color=0x419400,
-            description="%s has switched from **%s** to **%s**" % (member.mention, beforechannel.name, afterchannel.name)
+            description="%s\nhas switched\nfrom **%s**\nto **%s**" % (member.mention, beforechannel.name, afterchannel.name)
         )
         embed.set_thumbnail(url=member.avatar_url)
         return embed
