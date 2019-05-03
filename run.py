@@ -30,7 +30,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190502"
+appversion = "b20190503"
 
 
 @client.event
@@ -203,9 +203,9 @@ async def neko(ctx):
     await img.neko(ctx)
 
 
-@client.command(name="art", brief="Art", description="Art", pass_context=True)
-async def art(ctx):
-    await img.art(ctx)
+#@client.command(name="art", brief="Art", description="Art", pass_context=True)
+#async def art(ctx):
+#    await img.art(ctx)
 
 
 @client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
