@@ -38,7 +38,7 @@ async def help(appversion, commandprefix):
     embed.add_field(name="%suserstats [server/channel:<channelid>] [month/day/week/<empty for all time>]" % (commandprefix), value="Server Stats", inline=True)
     embed.add_field(name="%sgis" % (commandprefix), value="Google image search", inline=True)
     embed.add_field(name="%sneko" % (commandprefix), value="Nekos are life", inline=True)
-    embed.add_field(name="%sart" % (commandprefix), value="See some amazing anime style art", inline=True)
+    #embed.add_field(name="%sart" % (commandprefix), value="See some amazing anime style art", inline=True)
     embed.add_field(name="%sroll" % (commandprefix), value="Roll", inline=True)
     embed.add_field(name="%shelp info" % (commandprefix), value="Stats and info about this bot", inline=True)
     embed.add_field(name="%shelp admin" % (commandprefix), value="Bot admin commands", inline=True)
