@@ -5,7 +5,7 @@ from modules import dbhandler
 
 async def on_raw_reaction_add(client, raw_reaction):
     try:
-        guildpinchannel = await dbhandler.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guildpinchannelid", str(raw_reaction.guild_id)]])
+        guildpinchannel = await dbhandler.query(["SELECT value,flag FROM config WHERE setting = ? AND parent = ?", ["guildpinchannelid", str(raw_reaction.guild_id)]])
         if guildpinchannel:
             if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
                 channell = client.get_channel(raw_reaction.channel_id)
@@ -16,7 +16,7 @@ async def on_raw_reaction_add(client, raw_reaction):
                     # 	'count': int(reaction.count),
                     # 	'emoji': str(reaction.emoji),
                     # }
-                    if reaction.count >= 6:
+                    if reaction.count >= int((guildpinchannel)[0][1]):
                         if not (await dbhandler.query(["SELECT value FROM pinchannelblacklist WHERE value = ?", [str(raw_reaction.channel_id)]])):
                             if not (await dbhandler.query(["SELECT messageid FROM pinned WHERE messageid = ?", [str(raw_reaction.message_id)]])):
                                 await dbhandler.query(["INSERT INTO pinned VALUES (?)", [str(raw_reaction.message_id)]])
@@ -34,10 +34,10 @@ async def messageembed(message):
         if message.embeds:
             embed = message.embeds[0]
         else:
+            embedcontents = message.content
+            embedcontents += "\n\n[(context)](https://discordapp.com/channels/%s/%s/%s)" % (str(message.guild.id), str(message.channel.id), str(message.id))
             embed = discord.Embed(
-                title="[context]",
-                url="https://discordapp.com/channels/%s/%s/%s" % (str(message.guild.id), str(message.channel.id), str(message.id)),
-                description=message.content,
+                description=embedcontents,
                 color=0xFFFFFF
             )
             if message.attachments:
