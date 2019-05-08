@@ -43,7 +43,7 @@ The table columns are:
 + `guildpinchannelid` - This setting enables pin functionality in the guild. When a message gets 6 of the same reactions, it will be pinned in the pin channel.
     + `parent` column for this setting must contain a guild id. 
     + `value` column for this setting must contain a channel id where messages will be posted by the bot.
-    + `flag` column for this setting is unused for now but will contain amount of reactions required for pinning.
+    + `flag` column for this setting must contain number indicating the amount of reactions required for pinning.
 + `guildlogchannel` - This setting enables logging functionality in the guild. When this is enabled, User Leave, User Join, Message Delete, Message Edit notifications will be posted in the specified channel. 
     + `parent` column for this setting must contain a guild id. 
     + `value` column for this setting must contain a channel id where the logs go.
