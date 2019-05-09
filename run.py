@@ -30,7 +30,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190508"
+appversion = "b20190509"
 
 
 @client.event
@@ -92,6 +92,17 @@ async def gitpull(ctx):
         # exit()
     else:
         await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="leave", brief="Leave the current guild.", description="", pass_context=True)
+async def leave(ctx):
+    if await permissions.checkowner(ctx.message.author.id):
+        try:
+            await ctx.guild.leave()
+        except Exception as e:
+            await ctx.send(e)
+    else:
+        await ctx.send(embed=await permissions.ownererror())
 
 
 @client.command(name="echo", brief="Echo a string", description="", pass_context=True)
