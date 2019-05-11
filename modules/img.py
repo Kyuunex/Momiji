@@ -48,23 +48,6 @@ async def neko(ctx):
         print(e)
 
 
-async def inspire(ctx):
-    try:
-        if await cooldown.check(str(ctx.author.id), 'lastinspiretime', 40):
-            url = 'http://inspirobot.me/api?generate=true'
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as textresponse:
-                    imageurl = await textresponse.text()
-                    if "https://generated.inspirobot.me/a/" in imageurl:
-                        await ctx.send(imageurl)
-        else:
-            await ctx.send('slow down bruh')
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in inspire")
-        print(e)
-
-
 async def gis(ctx, searchquery): #TODO: fix
     try:
         if ctx.channel.is_nsfw():

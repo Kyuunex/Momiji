@@ -20,6 +20,7 @@ from modules import momijiutils
 from modules import crpair
 from modules import img
 from modules import docs
+from modules import inspirobot
 
 commandprefix = ';'
 client = commands.Bot(command_prefix=commandprefix,
@@ -30,7 +31,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190509"
+appversion = "b20190511"
 
 
 @client.event
@@ -221,7 +222,12 @@ async def neko(ctx):
 
 @client.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
 async def inspire(ctx):
-    await img.inspire(ctx)
+    await inspirobot.inspire(ctx)
+
+
+@client.command(name="mindfulness", brief="Mindfulness mode for inspirobot", description="", pass_context=True)
+async def mindfulness(ctx, arg = "join"):
+    await inspirobot.mindfulness(ctx, arg)
 
 
 @client.command(name="gis", brief="Google image search", description="Search for stuff on Google images", pass_context=True)
