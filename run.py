@@ -226,7 +226,7 @@ async def inspire(ctx):
 
 
 @client.command(name="mindfulness", brief="Mindfulness mode for inspirobot", description="", pass_context=True)
-async def mindfulness(ctx, arg = "join"):
+async def mindfulness(ctx, arg = "start"):
     await inspirobot.mindfulness(ctx, arg)
 
 
