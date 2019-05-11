@@ -72,7 +72,7 @@ async def mindfulness(ctx, action):
                 vmstop[ctx.message.guild.id] = None
                 sessionid = await get_session()
                 if sessionid:
-                    await ctx.send("hi")
+                    await ctx.send("mindfulness mode of <http://inspirobot.me/>")
                     while True:
                         onething = await get_mindfulness(sessionid)
                         mp3url = onething["mp3"]
