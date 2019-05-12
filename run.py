@@ -31,7 +31,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190511"
+appversion = "b20190512"
 
 
 @client.event

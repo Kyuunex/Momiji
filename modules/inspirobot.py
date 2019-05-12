@@ -80,12 +80,15 @@ async def mindfulness(ctx, action):
                             if vchan[ctx.message.guild.id].is_playing():
                                 await asyncio.sleep(1)
                             else:
-                                if not vmstop[ctx.message.guild.id]:
-                                    try:
-                                        vchan[ctx.message.guild.id].play(discord.FFmpegPCMAudio(mp3url), after=lambda e: print('done', e))
-                                    except Exception as e:
-                                        await ctx.send(e)
-                                break
+                                if len(vchan[ctx.message.guild.id].channel.members) > 1:
+                                    if not vmstop[ctx.message.guild.id]:
+                                        try:
+                                            vchan[ctx.message.guild.id].play(discord.FFmpegPCMAudio(mp3url), after=lambda e: print('done', e))
+                                        except Exception as e:
+                                            await ctx.send(e)
+                                    break
+                                else:
+                                    await asyncio.sleep(5)
         except Exception as e:
             print(e)
     elif action == "stop":
