@@ -184,10 +184,10 @@ async def userstats(ctx, where: str = "server", arg: str = None, allchannels = N
     await momiji_utils.userstats(client, ctx, where, arg, allchannels)
 
 
-@client.command(name="regulars", brief="Make regulars", description="", pass_context=True)
-async def regulars(ctx):
+@client.command(name="regular", brief="Make regulars", description="", pass_context=True)
+async def regular(ctx, action = "Update", rolename = "Regular", amount = "10"):
     if await permissions.check(ctx.message.author.id):
-        await momiji_utils.regulars(ctx)
+        await momiji_utils.regulars_role_management(ctx, action, rolename, amount)
     else:
         await ctx.send(embed=await permissions.error())
 

@@ -315,3 +315,16 @@ async def regulars(ctx):
         await ctx.send("Done")
     else:
         await ctx.send("This server has no Regular role configured in my database")
+
+
+async def regulars_role_management(ctx, action, rolename, amount):
+    role = discord.utils.get(ctx.guild.roles, name=rolename)
+    if role:
+        if action == "add":
+            await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_regular_role", str(ctx.guild.id), str(role.id), str(amount)]])
+            await ctx.send("%s role is now regulars role with top %s getting the role" % (role.name, amount))
+        elif action == "remove":
+            await dbhandler.query(["DELETE FROM config WHERE guild_id = ? AND setting = ? AND role_id = ?", [str(ctx.guild.id), "guild_regular_role", str(role.id)]])
+            await ctx.send("%s is no longer the regulars role" % (role.name))
+        else:
+            await regulars(ctx)
