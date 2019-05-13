@@ -128,7 +128,10 @@ async def copy(ctx, channel_id, message_id):
 @client.command(name="blacklist", brief="Add a word to blacklist", description="Blacklists a word", pass_context=True)
 async def blacklist(ctx, *, string):
     if await permissions.check(ctx.message.author.id):
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except Exception as e:
+            print(e)
         await dbhandler.query(["INSERT INTO word_blacklist VALUES (?)", [str(string)]])
         await ctx.send(":ok_hand:", delete_after=3)
     else:
