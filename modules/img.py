@@ -53,14 +53,14 @@ async def gis(ctx, searchquery): #TODO: fix
         if ctx.channel.is_nsfw():
             if await cooldown.check(str(ctx.author.id), 'lastimgtime', 40):
                 if len(searchquery) > 0:
-                    googleapikey = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googleapikey"]]))
-                    googlesearchengineid = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["googlesearchengineid"]]))
-                    if googleapikey:
+                    google_api_key = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["google_api_key"]]))
+                    google_search_engine_id = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["google_search_engine_id"]]))
+                    if google_api_key:
                         query = {
                             'q': str(searchquery),
-                            'key': str(googleapikey[0][0]),
+                            'key': str(google_api_key[0][0]),
                             'searchType': 'image',
-                            'cx': str(googlesearchengineid[0][0]),
+                            'cx': str(google_search_engine_id[0][0]),
                             'start': str(random.randint(1, 21))
                         }
                         url = "https://www.googleapis.com/customsearch/v1?" + \

@@ -13,11 +13,11 @@ from modules import permissions
 from modules import dbhandler
 from modules import logging
 from modules import welcome
-from modules import voiceroles
+from modules import voice_roles
 from modules import music
 from modules import pinning
-from modules import momijiutils
-from modules import crpair
+from modules import momiji_utils
+from modules import cr_pair
 from modules import img
 from modules import docs
 from modules import inspirobot
@@ -42,23 +42,23 @@ async def on_ready():
     print('------')
     if not os.path.exists('data/maindb.sqlite3'):
         appinfo = await client.application_info()
-        await dbhandler.query("CREATE TABLE channellogs (guildid, channelid, userid, userjson, messageid, contents, timestamp)")
-        await dbhandler.query("CREATE TABLE bridges (channelid, type, value)")
+        await dbhandler.query("CREATE TABLE message_logs (guild_id, channel_id, user_id, user_info, message_id, contents, timestamp)")
+        await dbhandler.query("CREATE TABLE bridges (channel_id, type, value)")
         await dbhandler.query("CREATE TABLE config (setting, parent, value, flag)")
-        await dbhandler.query("CREATE TABLE temp (setting, parent, value)")
-        await dbhandler.query("CREATE TABLE pinned (messageid)")
-        await dbhandler.query("CREATE TABLE pinchannelblacklist (value)")
-        await dbhandler.query("CREATE TABLE blacklist (value)")
-        await dbhandler.query("CREATE TABLE birthdays (discordid, date)")
-        await dbhandler.query("CREATE TABLE voiceroles (guildid, channelid, roleid)")
-        await dbhandler.query("CREATE TABLE crpair (commandid, responceid)")
-        await dbhandler.query("CREATE TABLE admins (discordid, permissions)")
+        await dbhandler.query("CREATE TABLE pinned_messages (message_id)")
+        await dbhandler.query("CREATE TABLE pin_channel_blacklist (channel_id)")
+        await dbhandler.query("CREATE TABLE word_blacklist (word)")
+        await dbhandler.query("CREATE TABLE stats_channel_blacklist (channel_id)")
+        await dbhandler.query("CREATE TABLE user_birthdays (user_id, date)")
+        await dbhandler.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
+        await dbhandler.query("CREATE TABLE cr_pair (command_id, response_id)")
+        await dbhandler.query("CREATE TABLE admins (user_id, permissions)")
         await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["@", ]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["discord.gg/", ]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["https://", ]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["http://", ]])
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", ["momiji", ]])
+        await dbhandler.query(["INSERT INTO word_blacklist VALUES (?)", ["@", ]])
+        await dbhandler.query(["INSERT INTO word_blacklist VALUES (?)", ["discord.gg/", ]])
+        await dbhandler.query(["INSERT INTO word_blacklist VALUES (?)", ["https://", ]])
+        await dbhandler.query(["INSERT INTO word_blacklist VALUES (?)", ["http://", ]])
+        await dbhandler.query(["INSERT INTO word_blacklist VALUES (?)", ["momiji", ]])
 
 
 @client.command(name="adminlist", brief="Show bot admin list", description="", pass_context=True)
@@ -67,9 +67,9 @@ async def adminlist(ctx):
 
 
 @client.command(name="makeadmin", brief="Make a user bot admin", description="", pass_context=True)
-async def makeadmin(ctx, discordid: str):
+async def makeadmin(ctx, user_id: str):
     if await permissions.checkowner(ctx.message.author.id):
-        await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(discordid), "0"]])
+        await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(user_id), "0"]])
         await ctx.send(":ok_hand:")
     else:
         await ctx.send(embed=await permissions.ownererror())
@@ -116,10 +116,10 @@ async def echo(ctx, *, string):
 
 
 @client.command(name="copy", brief="", description="", pass_context=True)
-async def copy(ctx, channelid, messageid):
+async def copy(ctx, channel_id, message_id):
     if await permissions.check(ctx.message.author.id):
-        channel = client.get_channel(int(channelid))
-        message = await channel.fetch_message(int(messageid))
+        channel = client.get_channel(int(channel_id))
+        message = await channel.fetch_message(int(message_id))
         await ctx.send(content=message.content, embed=message.embeds[0])
     else:
         await ctx.send(embed=await permissions.error())
@@ -129,22 +129,22 @@ async def copy(ctx, channelid, messageid):
 async def blacklist(ctx, *, string):
     if await permissions.check(ctx.message.author.id):
         await ctx.message.delete()
-        await dbhandler.query(["INSERT INTO blacklist VALUES (?)", [str(string)]])
+        await dbhandler.query(["INSERT INTO word_blacklist VALUES (?)", [str(string)]])
         await ctx.send(":ok_hand:", delete_after=3)
     else:
         await ctx.send(embed=await permissions.error())
 
 
-@client.command(name="logchannel", brief="Add a word to blacklist", description="Blacklists a word", pass_context=True)
+@client.command(name="logchannel", brief="", description="", pass_context=True)
 async def logchannel(ctx, action = "add"):
     if await permissions.check(ctx.message.author.id):
         await ctx.message.delete()
         if action == "remove":
-            await dbhandler.query(["DELETE FROM config WHERE setting = ? AND parent = ? AND value = ?", ["guildlogchannel", str(ctx.message.guild.id), str(ctx.message.channel.id)]])
+            await dbhandler.query(["DELETE FROM config WHERE setting = ? AND parent = ? AND value = ?", ["guild_audit_log_channel", str(ctx.message.guild.id), str(ctx.message.channel.id)]])
         elif action == "removeguild":
-            await dbhandler.query(["DELETE FROM config WHERE setting = ? AND parent = ?", ["guildlogchannel", str(ctx.message.guild.id)]])
+            await dbhandler.query(["DELETE FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(ctx.message.guild.id)]])
         else:
-            await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guildlogchannel", str(ctx.message.guild.id), str(ctx.message.channel.id), "0"]])
+            await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_audit_log_channel", str(ctx.message.guild.id), str(ctx.message.channel.id), "0"]])
         await ctx.send(":ok_hand:", delete_after=3)
     else:
         await ctx.send(embed=await permissions.error())
@@ -156,17 +156,17 @@ async def help(ctx, subhelp: str = None):
 
 
 @client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
-async def exportjson(ctx, channelid: int = None, amount: int = 999999999):
+async def exportjson(ctx, channel_id: int = None, amount: int = 999999999):
     if await permissions.check(ctx.message.author.id):
-        await momijiutils.exportjson(client, ctx, channelid, amount)
+        await momiji_utils.exportjson(client, ctx, channel_id, amount)
     else:
         await ctx.send(embed=await permissions.error())
 
 
 @client.command(name="import", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
-async def importmessages(ctx, *channelids):
+async def importmessages(ctx, *channel_ids):
     if await permissions.check(ctx.message.author.id):
-        await momijiutils.importmessages(client, ctx, channelids)
+        await momiji_utils.importmessages(client, ctx, channel_ids)
     else:
         await ctx.send(embed=await permissions.error())
 
@@ -174,20 +174,20 @@ async def importmessages(ctx, *channelids):
 @client.command(name="bridge", brief="Bridge the channel", description="too lazy to write description", pass_context=True)
 async def bridge(ctx, bridgetype: str, value: str):
     if await permissions.check(ctx.message.author.id):
-        await momijiutils.bridge(client, ctx, bridgetype, value)
+        await momiji_utils.bridge(client, ctx, bridgetype, value)
     else:
         await ctx.send(embed=await permissions.error())
 
 
 @client.command(name="userstats", brief="Show user stats", description="too lazy to write description", pass_context=True)
 async def userstats(ctx, where: str = "server", arg: str = None):
-    await momijiutils.userstats(client, ctx, where, arg)
+    await momiji_utils.userstats(client, ctx, where, arg)
 
 
 @client.command(name="regulars", brief="Make regulars", description="", pass_context=True)
 async def regulars(ctx):
     if await permissions.check(ctx.message.author.id):
-        await momijiutils.regulars(ctx)
+        await momiji_utils.regulars(ctx)
     else:
         await ctx.send(embed=await permissions.error())
 
@@ -205,7 +205,7 @@ async def sql(ctx, *, query):
 @client.command(name="wordstats", brief="Word statistics", description="", pass_context=True)
 async def wordstats(ctx, arg = None):
     if await permissions.checkowner(ctx.message.author.id):
-        await momijiutils.wordstats(client, ctx, arg)
+        await momiji_utils.wordstats(client, ctx, arg)
     else:
         await ctx.send(embed=await permissions.ownererror())
 
@@ -272,7 +272,7 @@ async def roll(ctx, maax=None):
 @client.command(name="vr", brief="", description="", pass_context=True)
 async def vr(ctx, action, rolename):
     if await permissions.check(ctx.message.author.id):
-        await voiceroles.role_management(ctx, action, rolename)
+        await voice_roles.role_management(ctx, action, rolename)
     else:
         await ctx.send(embed=await permissions.error())
 
@@ -302,7 +302,7 @@ async def birthday(ctx, month: int, day: int, timezone: int):
 async def on_message(message):
     try:
         if message.author.id != client.user.id:
-            bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channelid = ? AND type = ?", [str(message.channel.id), "module"]])
+            bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [str(message.channel.id), "module"]])
             if bridgedchannel:
                 module = importlib.import_module(
                     "usermodules.%s" % (bridgedchannel[0][0]))
@@ -324,7 +324,7 @@ async def on_raw_reaction_add(raw_reaction):
 @client.event
 async def on_message_delete(message):
     await logging.on_message_delete(client, message)
-    await crpair.on_message_delete(client, message)
+    await cr_pair.on_message_delete(client, message)
 
 
 @client.event
@@ -357,8 +357,8 @@ async def on_user_update(before, after):
 @client.event
 async def on_voice_state_update(member, before, after):
     await logging.on_voice_state_update(client, member, before, after)
-    await voiceroles.on_voice_state_update(client, member, before, after)
+    await voice_roles.on_voice_state_update(client, member, before, after)
 
-# TODO: voiceroles, prune option, username change logs, role change logs (except voice role), self asignable roles,
+# TODO: voice_roles, prune option, username change logs, role change logs (except voice role), self asignable roles,
 
 client.run(open("data/token.txt", "r+").read(), bot=True)

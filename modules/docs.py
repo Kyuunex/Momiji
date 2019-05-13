@@ -4,7 +4,7 @@ import time
 
 from modules import dbhandler
 from modules import permissions
-from modules import momijiutils
+from modules import momiji_utils
 
 help_thumbnail = "https://i.imgur.com/GgAOT37.png"
 author_icon = "https://cdn.discordapp.com/emojis/499963996141518872.png"
@@ -35,7 +35,7 @@ async def help(appversion, commandprefix):
     embed.set_thumbnail(url=help_thumbnail)
 
     embed.add_field(name="%sinspire" % (commandprefix), value="When you crave some inspiration in your life", inline=True)
-    embed.add_field(name="%suserstats [server/channel:<channelid>] [month/day/week/<empty for all time>]" % (commandprefix), value="Server Stats", inline=True)
+    embed.add_field(name="%suserstats [server/channel:<channel_id>] [month/day/week/<empty for all time>]" % (commandprefix), value="Server Stats", inline=True)
     embed.add_field(name="%sgis" % (commandprefix), value="Google image search", inline=True)
     embed.add_field(name="%sneko" % (commandprefix), value="Nekos are life", inline=True)
     #embed.add_field(name="%sart" % (commandprefix), value="See some amazing anime style art", inline=True)
@@ -74,7 +74,7 @@ async def info(client, appversion, commandprefix):
     guildamount = len(client.guilds)
     useramount = len(client.users)
     script_now_time = time.time()
-    uptime = await momijiutils.measuretime(script_start_time, script_now_time)
+    uptime = await momiji_utils.measuretime(script_start_time, script_now_time)
     description = """__**Stats:**__
 **Bot owner:** <@%s>
 **Current version:** %s

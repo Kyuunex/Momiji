@@ -4,7 +4,7 @@ import asyncio
 
 async def on_member_remove(client, member):
     try:
-        guildgoodbyesettings = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildgoodbyesettings", str(member.guild.id)]])
+        guildgoodbyesettings = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_goodbye_settings", str(member.guild.id)]])
         if guildgoodbyesettings:
             channell = client.get_channel(int(guildgoodbyesettings[0][0]))
             await channell.send(guildgoodbyesettings[0][1] % (member.name))
@@ -16,7 +16,7 @@ async def on_member_remove(client, member):
 
 async def on_member_join(client, member):
     try:
-        guildwelcomesettings = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildwelcomesettings", str(member.guild.id)]])
+        guildwelcomesettings = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_welcome_settings", str(member.guild.id)]])
         if guildwelcomesettings:
             channell = client.get_channel(int(guildwelcomesettings[0][0]))
             await channell.send(guildwelcomesettings[0][1] % (member.mention))

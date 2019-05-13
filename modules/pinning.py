@@ -5,7 +5,7 @@ from modules import dbhandler
 
 async def on_raw_reaction_add(client, raw_reaction):
     try:
-        guildpinchannel = await dbhandler.query(["SELECT value,flag FROM config WHERE setting = ? AND parent = ?", ["guildpinchannelid", str(raw_reaction.guild_id)]])
+        guildpinchannel = await dbhandler.query(["SELECT value,flag FROM config WHERE setting = ? AND parent = ?", ["guild_pin_channel", str(raw_reaction.guild_id)]])
         if guildpinchannel:
             if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
                 channell = client.get_channel(raw_reaction.channel_id)
@@ -17,9 +17,9 @@ async def on_raw_reaction_add(client, raw_reaction):
                     # 	'emoji': str(reaction.emoji),
                     # }
                     if reaction.count >= int((guildpinchannel)[0][1]):
-                        if not (await dbhandler.query(["SELECT value FROM pinchannelblacklist WHERE value = ?", [str(raw_reaction.channel_id)]])):
-                            if not (await dbhandler.query(["SELECT messageid FROM pinned WHERE messageid = ?", [str(raw_reaction.message_id)]])):
-                                await dbhandler.query(["INSERT INTO pinned VALUES (?)", [str(raw_reaction.message_id)]])
+                        if not (await dbhandler.query(["SELECT channel_id FROM pin_channel_blacklist WHERE channel_id = ?", [str(raw_reaction.channel_id)]])):
+                            if not (await dbhandler.query(["SELECT message_id FROM pinned_messages WHERE message_id = ?", [str(raw_reaction.message_id)]])):
+                                await dbhandler.query(["INSERT INTO pinned_messages VALUES (?)", [str(raw_reaction.message_id)]])
                                 pin_channel_object = client.get_channel(
                                     int((guildpinchannel)[0][0]))
                                 await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await messageembed(message))

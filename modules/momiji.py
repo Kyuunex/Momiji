@@ -4,23 +4,23 @@ import asyncio
 import time
 import json
 from modules import dbhandler
-from modules import crpair
+from modules import cr_pair
 
 
-async def isntbotcheck(userjson):
-    jsondict = json.loads(userjson)
+async def isntbotcheck(user_info):
+    jsondict = json.loads(user_info)
     if jsondict[0]['bot'] == True:
         return False
     elif jsondict[0]['bot'] == False:
         return True
 
 
-async def bridgecheck(channelid):
-    bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channelid = ? AND type = ?", [str(channelid), "channel"]])
+async def bridgecheck(channel_id):
+    bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [str(channel_id), "channel"]])
     if bridgedchannel:
         return str(bridgedchannel[0][0])
     else:
-        return str(channelid)
+        return str(channel_id)
 
 
 async def msgfilter(message, isobject):
@@ -29,7 +29,7 @@ async def msgfilter(message, isobject):
     else:
         contents = message
     if len(contents) > 0:
-        blacklist = await dbhandler.query("SELECT value FROM blacklist")
+        blacklist = await dbhandler.query("SELECT word FROM word_blacklist")
         if not (any(c[0] in contents.lower() for c in blacklist)):
             if not (any(contents.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-"))):
                 if isobject:
@@ -45,8 +45,8 @@ async def msgfilter(message, isobject):
             return None
 
 
-async def pickmessage(channelid):
-    dbrequest = await dbhandler.query(["SELECT userjson, contents FROM channellogs WHERE channelid = ?", (str(channelid),)])
+async def pickmessage(channel_id):
+    dbrequest = await dbhandler.query(["SELECT user_info, contents FROM message_logs WHERE channel_id = ?", (str(channel_id),)])
     # TODO: break the loops with return instead
     loop = True
     counter = 0
@@ -73,8 +73,8 @@ async def momijispeak(message):
     async with channel.typing():
         messagetosend = await pickmessage(channeltouse)
     if messagetosend:
-        responcemsg = await channel.send(messagetosend)
-        await crpair.pair(message.id, responcemsg.id)
+        responsemsg = await channel.send(messagetosend)
+        await cr_pair.pair(message.id, responsemsg.id)
         return True
     else:
         return None
@@ -105,7 +105,7 @@ async def logmessage(message):
     },
     await dbhandler.query(
         [
-            "INSERT INTO channellogs VALUES (?,?,?,?,?,?,?)",
+            "INSERT INTO message_logs VALUES (?,?,?,?,?,?,?)",
             [
                 str(message.guild.id), # for userstats
                 str(message.channel.id), # for userstats and so the message can be randomly picked with channel id
@@ -158,8 +158,8 @@ async def on_message(client, message):
 
                 for oneresponse in responsedb:
                     if msg.startswith(oneresponse[0]):
-                        responcemsg = await message.channel.send(oneresponse[1])
-                        await crpair.pair(message.id, responcemsg.id)
+                        responsemsg = await message.channel.send(oneresponse[1])
+                        await cr_pair.pair(message.id, responsemsg.id)
 
                 #if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
                 #    await message.channel.send('Happy Birthday %s!' % (message.author.mention))

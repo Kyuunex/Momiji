@@ -28,8 +28,8 @@ async def messagecounter(messageadata):
 
 
 class json_to_user:
-    def __init__(self, userjson):
-        jsondict = json.loads(userjson)
+    def __init__(self, user_info):
+        jsondict = json.loads(user_info)
         self.id = jsondict[0]['id']
         self.discriminator = jsondict[0]['discriminator']
         self.avatar = jsondict[0]['avatar']
@@ -41,16 +41,16 @@ class json_to_user:
             self.bot = False
 
 
-async def exportjson(client, ctx, channelid: int = None, amount: int = 999999999):
+async def exportjson(client, ctx, channel_id: int = None, amount: int = 999999999):
     async with ctx.channel.typing():
-        if channelid == None:
+        if channel_id == None:
             channel = ctx.message.channel
-            channelid = ctx.message.channel.id
+            channel_id = ctx.message.channel.id
         else:
-            channel = client.get_channel(channelid)
+            channel = client.get_channel(channel_id)
         starttime = time.time()
         log_instance = channel.history(limit=amount)
-        exportfilename = "data/export.%s.%s.%s.json" % (str(int(time.time())), str(channelid), str(amount))
+        exportfilename = "data/export.%s.%s.%s.json" % (str(int(time.time())), str(channel_id), str(amount))
         log_file = open(exportfilename, "a", encoding="utf8")
         collection = []
         logcounter = 0
@@ -94,14 +94,14 @@ async def exportjson(client, ctx, channelid: int = None, amount: int = 999999999
         exportembed.add_field(name="Time taken while exporting:", value=await measuretime(starttime, endtime), inline=False)
     await ctx.send(embed=exportembed)
 
-async def importmessages(client, ctx, channelids):
-    for channelid in channelids:
+async def importmessages(client, ctx, channel_ids):
+    for channel_id in channel_ids:
         try:
-            if channelid == "this":
+            if channel_id == "this":
                 channel = ctx.message.channel
-                channelid = ctx.message.channel.id
+                channel_id = ctx.message.channel.id
             else:
-                channel = client.get_channel(int(channelid))
+                channel = client.get_channel(int(channel_id))
             starttime = time.time()
             log_instance = channel.history(limit=999999999)
             logcounter = 0
@@ -117,7 +117,7 @@ async def importmessages(client, ctx, channelids):
                 },
                 whattocommit.append(
                     [
-                        "INSERT INTO channellogs VALUES (?,?,?,?,?,?,?)",
+                        "INSERT INTO message_logs VALUES (?,?,?,?,?,?,?)",
                         [
                             str(message.guild.id),
                             str(message.channel.id),
@@ -149,7 +149,7 @@ async def importmessages(client, ctx, channelids):
 
 async def bridge(client, ctx, bridgetype, value):
     if len(value) > 0:
-        bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channelid = ?", [str(ctx.message.channel.id)]])
+        bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channel_id = ?", [str(ctx.message.channel.id)]])
         if not bridgedchannel:
             await dbhandler.query(["INSERT INTO bridges VALUES (?, ?, ?)", [str(ctx.message.channel.id), str(bridgetype), str(value)]])
             await ctx.send("`The bridge was created`")
@@ -161,7 +161,7 @@ async def userstats(client, ctx, where, arg):
     if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
         async with ctx.channel.typing():
             if "channel" in where:
-                wherekey = "channelid"
+                wherekey = "channel_id"
                 if ":" in where:
                     wherevalue = str((where.split(':'))[1])
                     wherereadable = "<#%s>" % (wherevalue)
@@ -169,28 +169,28 @@ async def userstats(client, ctx, where, arg):
                     wherevalue = str(ctx.message.channel.id)
                     wherereadable = "this channel"
             else:
-                wherekey = "guildid"
+                wherekey = "guild_id"
                 wherevalue = str(ctx.message.guild.id)
                 wherereadable = "this server"
 
             if arg == "month":  # 2592000
                 title = "Here are 40 most active people in %s in last 30 days:" % (wherereadable)
                 after = int(time.time()) - 2592000
-                query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
+                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
                 messages = await dbhandler.query(query)
             elif arg == "week":  # 604800
                 title = "Here are 40 most active people in %s in last 7 days:" % (wherereadable)
                 after = int(time.time()) - 604800
-                query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
+                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
                 messages = await dbhandler.query(query)
             elif arg == "day":  # 86400
                 title = "Here are 40 most active people in %s in last 24 hours:" % (wherereadable)
                 after = int(time.time()) - 86400
-                query = ["SELECT userid FROM channellogs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
+                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
                 messages = await dbhandler.query(query)
             else:
                 title = "Here are 40 most active people in %s all time:" % (wherereadable)
-                query = ["SELECT userid FROM channellogs WHERE %s = ?;" % (wherekey), (wherevalue,)]
+                query = ["SELECT user_id FROM message_logs WHERE %s = ?;" % (wherekey), (wherevalue,)]
                 messages = await dbhandler.query(query)
 
             stats = await messagecounter(messages)
@@ -203,8 +203,8 @@ async def userstats(client, ctx, where, arg):
                 if not memberobject:
                     memberobject = client.get_user(int(onemember[0][0]))
                     if not memberobject:
-                        userjson = await dbhandler.query(["SELECT userjson FROM channellogs WHERE userid = ?;", [str(onemember[0][0])]])
-                        memberobject = json_to_user(userjson[0][0])
+                        user_info = await dbhandler.query(["SELECT user_info FROM message_logs WHERE user_id = ?;", [str(onemember[0][0])]])
+                        memberobject = json_to_user(user_info[0][0])
                         notice = " **(User not found)** "
                     else:
                         notice = " **(User left)** "
@@ -241,7 +241,7 @@ async def wordstats(client, ctx, arg = None):
     if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
         async with ctx.channel.typing():
             title = "Here are 40 most used words in server all time:"
-            messages = await dbhandler.query(["SELECT contents FROM channellogs WHERE guildid = ?;", [str(ctx.guild.id),]])
+            messages = await dbhandler.query(["SELECT contents FROM message_logs WHERE guild_id = ?;", [str(ctx.guild.id),]])
 
             individualwords = []
             for message in messages:
@@ -278,17 +278,17 @@ async def wordstats(client, ctx, arg = None):
 
 
 async def regulars(ctx):
-    guildregularsrole = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guildregularsrole", str(ctx.guild.id)]])
-    if guildregularsrole:
+    guild_regular_role = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_regular_role", str(ctx.guild.id)]])
+    if guild_regular_role:
         async with ctx.channel.typing():
             regularsrole = discord.utils.get(
-                ctx.guild.roles, id=int(guildregularsrole[0][0]))
+                ctx.guild.roles, id=int(guild_regular_role[0][0]))
 
             for member in regularsrole.members:
                 await member.remove_roles(regularsrole, reason="pruned role")
 
             after = int(time.time()) - 2592000
-            query = ["SELECT userid FROM channellogs WHERE guildid = ? AND timestamp > ?;", (str(ctx.guild.id), str(after))]
+            query = ["SELECT user_id FROM message_logs WHERE guild_id = ? AND timestamp > ?;", (str(ctx.guild.id), str(after))]
             messages = await dbhandler.query(query)
 
             stats = await messagecounter(messages)
@@ -303,7 +303,7 @@ async def regulars(ctx):
                             await memberobject.add_roles(regularsrole)
                         except Exception as e:
                             print(e)
-                        if rank == int(guildregularsrole[0][1]):
+                        if rank == int(guild_regular_role[0][1]):
                             break
         await ctx.send("Done")
     else:

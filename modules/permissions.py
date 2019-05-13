@@ -4,27 +4,27 @@ from modules import dbhandler
 
 
 async def check(id):
-    if await dbhandler.query(["SELECT discordid FROM admins WHERE discordid = ?", [str(id)]]):
+    if await dbhandler.query(["SELECT user_id FROM admins WHERE user_id = ?", [str(id)]]):
         return 1
     else:
         return 0
 
 
 async def checkowner(id):
-    if await dbhandler.query(["SELECT discordid FROM admins WHERE discordid = ? AND permissions = ?", [str(id), str(1)]]):
+    if await dbhandler.query(["SELECT user_id FROM admins WHERE user_id = ? AND permissions = ?", [str(id), str(1)]]):
         return 1
     else:
         return 0
 
 
 async def botowner():
-    owner = await dbhandler.query(["SELECT discordid FROM admins WHERE permissions = ?", [str(1)]])
+    owner = await dbhandler.query(["SELECT user_id FROM admins WHERE permissions = ?", [str(1)]])
     return owner[0][0]
 
 
 async def adminlist():
     contents = ""
-    for admin in await dbhandler.query("SELECT discordid FROM admins"):
+    for admin in await dbhandler.query("SELECT user_id FROM admins"):
         contents += "<@%s>\n" % (admin)
     return discord.Embed(title="Bot admin list", description=contents, color=0xadff2f)
 
