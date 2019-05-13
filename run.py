@@ -31,7 +31,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190512"
+appversion = "b20190513"
 
 
 @client.event
@@ -163,7 +163,7 @@ async def exportjson(ctx, channel_id: int = None, amount: int = 999999999):
         await ctx.send(embed=await permissions.error())
 
 
-@client.command(name="import", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
+@client.command(name="import", brief="Import the chat", description="Imports stuff", pass_context=True)
 async def importmessages(ctx, *channel_ids):
     if await permissions.check(ctx.message.author.id):
         await momiji_utils.importmessages(client, ctx, channel_ids)
@@ -180,8 +180,8 @@ async def bridge(ctx, bridgetype: str, value: str):
 
 
 @client.command(name="userstats", brief="Show user stats", description="too lazy to write description", pass_context=True)
-async def userstats(ctx, where: str = "server", arg: str = None):
-    await momiji_utils.userstats(client, ctx, where, arg)
+async def userstats(ctx, where: str = "server", arg: str = None, allchannels = None):
+    await momiji_utils.userstats(client, ctx, where, arg, allchannels)
 
 
 @client.command(name="regulars", brief="Make regulars", description="", pass_context=True)

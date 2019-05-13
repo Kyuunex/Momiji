@@ -94,57 +94,54 @@ async def exportjson(client, ctx, channel_id: int = None, amount: int = 99999999
         exportembed.add_field(name="Time taken while exporting:", value=await measuretime(starttime, endtime), inline=False)
     await ctx.send(embed=exportembed)
 
-async def importmessages(client, ctx, channel_ids):
-    for channel_id in channel_ids:
-        try:
-            if channel_id == "this":
-                channel = ctx.message.channel
-                channel_id = ctx.message.channel.id
-            else:
-                channel = client.get_channel(int(channel_id))
-            starttime = time.time()
-            log_instance = channel.history(limit=999999999)
-            logcounter = 0
-            whattocommit = []
-            async for message in log_instance:
-                logcounter += 1
-                messageauthorjson = {
-                    'id': str(message.author.id),
-                    'username': str(message.author.name),
-                    'discriminator': str(message.author.discriminator),
-                    'avatar': str(message.author.avatar),
-                    'bot': bool(message.author.bot),
-                },
-                whattocommit.append(
+async def importmessages(client, ctx, channel_id_list):
+    for channel_id in channel_id_list:
+        if channel_id == "this":
+            await import_channel(ctx, ctx.message.channel)
+        elif channel_id == "server":
+            for channel in ctx.guild.channels:
+                if type(channel) is discord.TextChannel:
+                    await import_channel(ctx, channel)
+            await ctx.send("Finished importing everything")
+        else:
+            await import_channel(ctx, client.get_channel(int(channel_id)))
+            
+
+async def import_channel(ctx, channel):
+    try:
+        starttime = time.time()
+        log_instance = channel.history(limit=999999999)
+        logcounter = 0
+        whattocommit = []
+        async for message in log_instance:
+            logcounter += 1
+            messageauthorjson = {
+                'id': str(message.author.id),
+                'username': str(message.author.name),
+                'discriminator': str(message.author.discriminator),
+                'avatar': str(message.author.avatar),
+                'bot': bool(message.author.bot),
+            },
+            whattocommit.append(
+                [
+                    "INSERT INTO message_logs VALUES (?,?,?,?,?,?,?)",
                     [
-                        "INSERT INTO message_logs VALUES (?,?,?,?,?,?,?)",
-                        [
-                            str(message.guild.id),
-                            str(message.channel.id),
-                            str(message.author.id),
-                            str(json.dumps(messageauthorjson)),
-                            str(message.id),
-                            str(message.content),
-                            str(int(time.mktime(message.created_at.timetuple())))
-                        ]
+                        str(message.guild.id),
+                        str(message.channel.id),
+                        str(message.author.id),
+                        str(json.dumps(messageauthorjson)),
+                        str(message.id),
+                        str(message.content),
+                        str(int(time.mktime(message.created_at.timetuple())))
                     ]
-                )
-            await dbhandler.massquery(whattocommit)
-            endtime = time.time()
-            exportembed = discord.Embed(
-                color=0xadff2f, description="Imported the channel into database.")
-            exportembed.set_author(
-                name="Importing finished", url='https://github.com/Kyuunex/Momiji')
-            exportembed.add_field(
-                name="Channel:", value=channel.name, inline=False)
-            exportembed.add_field(
-                name="Number of messages:", value=logcounter, inline=False)
-            exportembed.add_field(name="Time taken while importing:", value=await measuretime(starttime, endtime), inline=False)
-            await ctx.send(embed=exportembed)
-        except Exception as e:
-            print(time.strftime('%X %x %Z'))
-            print("in importmessages")
-            print(e)
+                ]
+            )
+        await dbhandler.massquery(whattocommit)
+        endtime = time.time()
+        importfinished = "Finished importing %s messages from %s. This took %s." % (logcounter, channel.mention, await measuretime(starttime, endtime))
+        await ctx.send(importfinished)
+    except Exception as e:
+        print(e)
 
 
 async def bridge(client, ctx, bridgetype, value):
@@ -157,7 +154,7 @@ async def bridge(client, ctx, bridgetype, value):
             await ctx.send("`This channel is already bridged`")
 
 
-async def userstats(client, ctx, where, arg):
+async def userstats(client, ctx, where, arg, allchannels):
     if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
         async with ctx.channel.typing():
             if "channel" in where:
@@ -176,22 +173,26 @@ async def userstats(client, ctx, where, arg):
             if arg == "month":  # 2592000
                 title = "Here are 40 most active people in %s in last 30 days:" % (wherereadable)
                 after = int(time.time()) - 2592000
-                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
-                messages = await dbhandler.query(query)
+                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?" % (wherekey), (wherevalue, str(after))]
             elif arg == "week":  # 604800
                 title = "Here are 40 most active people in %s in last 7 days:" % (wherereadable)
                 after = int(time.time()) - 604800
-                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
-                messages = await dbhandler.query(query)
+                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?" % (wherekey), (wherevalue, str(after))]
             elif arg == "day":  # 86400
                 title = "Here are 40 most active people in %s in last 24 hours:" % (wherereadable)
                 after = int(time.time()) - 86400
-                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?;" % (wherekey), (wherevalue, str(after))]
-                messages = await dbhandler.query(query)
+                query = ["SELECT user_id FROM message_logs WHERE %s = ? AND timestamp > ?" % (wherekey), (wherevalue, str(after))]
             else:
                 title = "Here are 40 most active people in %s all time:" % (wherereadable)
-                query = ["SELECT user_id FROM message_logs WHERE %s = ?;" % (wherekey), (wherevalue,)]
-                messages = await dbhandler.query(query)
+                query = ["SELECT user_id FROM message_logs WHERE %s = ?" % (wherekey), (wherevalue,)]
+                
+            if not allchannels:
+                no_xp_channel_list = await dbhandler.query("SELECT * FROM stats_channel_blacklist")
+                if no_xp_channel_list:
+                    for one_no_xp_channel in no_xp_channel_list:
+                        query[0] += " AND channel_id != '%s'" % (str(one_no_xp_channel[0]))
+
+            messages = await dbhandler.query(query)
 
             stats = await messagecounter(messages)
 
@@ -288,7 +289,13 @@ async def regulars(ctx):
                 await member.remove_roles(regularsrole, reason="pruned role")
 
             after = int(time.time()) - 2592000
-            query = ["SELECT user_id FROM message_logs WHERE guild_id = ? AND timestamp > ?;", (str(ctx.guild.id), str(after))]
+            query = ["SELECT user_id FROM message_logs WHERE guild_id = ? AND timestamp > ?", (str(ctx.guild.id), str(after))]
+
+            no_xp_channel_list = await dbhandler.query("SELECT * FROM stats_channel_blacklist")
+            if no_xp_channel_list:
+                for one_no_xp_channel in no_xp_channel_list:
+                    query[0] += " AND channel_id != '%s'" % (str(one_no_xp_channel[0]))
+
             messages = await dbhandler.query(query)
 
             stats = await messagecounter(messages)
