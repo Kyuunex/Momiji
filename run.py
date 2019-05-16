@@ -31,7 +31,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190513"
+appversion = "b20190516"
 
 
 @client.event
@@ -148,6 +148,26 @@ async def logchannel(ctx, action = "add"):
             await dbhandler.query(["DELETE FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(ctx.message.guild.id)]])
         else:
             await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_audit_log_channel", str(ctx.message.guild.id), str(ctx.message.channel.id), "0"]])
+        await ctx.send(":ok_hand:", delete_after=3)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="welcome", brief="", description="", pass_context=True)
+async def welcome_message(ctx, welcome_message):
+    if await permissions.check(ctx.message.author.id):
+        await ctx.message.delete()
+        await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_welcome_settings", str(ctx.message.guild.id), str(ctx.message.channel.id), str(welcome_message)]])
+        await ctx.send(":ok_hand:", delete_after=3)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="goodbye", brief="", description="", pass_context=True)
+async def goodbye_message(ctx, goodbye_message):
+    if await permissions.check(ctx.message.author.id):
+        await ctx.message.delete()
+        await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_goodbye_settings", str(ctx.message.guild.id), str(ctx.message.channel.id), str(goodbye_message)]])
         await ctx.send(":ok_hand:", delete_after=3)
     else:
         await ctx.send(embed=await permissions.error())
