@@ -154,9 +154,12 @@ async def logchannel(ctx, action = "add"):
 
 
 @client.command(name="welcome", brief="", description="", pass_context=True)
-async def welcome_message(ctx, welcome_message):
+async def welcome_message(ctx, *, welcome_message):
     if await permissions.check(ctx.message.author.id):
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except Exception as e:
+            print(e)
         await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_welcome_settings", str(ctx.message.guild.id), str(ctx.message.channel.id), str(welcome_message)]])
         await ctx.send(":ok_hand:", delete_after=3)
     else:
@@ -164,9 +167,12 @@ async def welcome_message(ctx, welcome_message):
 
 
 @client.command(name="goodbye", brief="", description="", pass_context=True)
-async def goodbye_message(ctx, goodbye_message):
+async def goodbye_message(ctx, *, goodbye_message):
     if await permissions.check(ctx.message.author.id):
-        await ctx.message.delete()
+        try:
+            await ctx.message.delete()
+        except Exception as e:
+            print(e)
         await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_goodbye_settings", str(ctx.message.guild.id), str(ctx.message.channel.id), str(goodbye_message)]])
         await ctx.send(":ok_hand:", delete_after=3)
     else:
