@@ -34,7 +34,7 @@ class json_to_user:
         self.discriminator = jsondict[0]['discriminator']
         self.avatar = jsondict[0]['avatar']
         self.name = jsondict[0]['username']
-        self.nick = None
+        self.nick = "User Left"
         if jsondict[0]['bot'] == True:
             self.bot = True
         elif jsondict[0]['bot'] == False:
@@ -195,6 +195,7 @@ async def userstats(client, ctx, where, arg, allchannels):
             messages = await dbhandler.query(query)
 
             stats = await messagecounter(messages)
+            totalamount = len(messages)
 
             rank = 0
             contents = title + "\n\n"
@@ -202,37 +203,33 @@ async def userstats(client, ctx, where, arg, allchannels):
             for onemember in stats:
                 memberobject = ctx.guild.get_member(int(onemember[0][0]))
                 if not memberobject:
-                    memberobject = client.get_user(int(onemember[0][0]))
-                    if not memberobject:
-                        user_info = await dbhandler.query(["SELECT user_info FROM message_logs WHERE user_id = ?;", [str(onemember[0][0])]])
-                        memberobject = json_to_user(user_info[0][0])
-                        notice = " **(User not found)** "
-                    else:
-                        notice = " **(User left)** "
-                else:
-                    notice = ""
-
-                messageamount = str(onemember[1])+" msgs"
+                    user_info = await dbhandler.query(["SELECT user_info FROM message_logs WHERE user_id = ?;", [str(onemember[0][0])]])
+                    memberobject = json_to_user(user_info[0][0])
 
                 if not memberobject.bot:
-                    try:
-                        if memberobject.nick:
-                            notice = " ("+memberobject.nick+") "
-                    except:
-                        print(memberobject.name+" broken nickname")
+
                     rank += 1
+                    contents += "**[%s]**" % (rank)
+                    contents += " : "
+
                     if memberobject.name == "Deleted User":
-                        name = memberobject.id
-                        notice = " **(Deleted User)** "
+                        contents += "Deleted User: `%s`" % (memberobject.id)
                     else:
-                        name = memberobject.name
-                    contents += "**[%s]** : %s%s : %s\n" % (rank, name, notice, messageamount)
+                        contents += "`%s`" % (memberobject.name)
+                    contents += " : "
+
+                    if memberobject.nick:
+                        contents += "`%s`" % (memberobject.nick)
+                        contents += " : "
+
+                    contents += "%s msgs" % (str(onemember[1]))
+                    contents += "\n"
                     if rank == 40:
                         break
 
             statsembed = discord.Embed(description=contents, color=0xffffff)
             statsembed.set_author(name="User stats")
-            statsembed.set_footer(text="Momiji is best wolf.")
+            statsembed.set_footer(text="Total amount of messages sent: %s" %(totalamount))
         await ctx.send(embed=statsembed)
     else:
         await ctx.send('slow down bruh')
