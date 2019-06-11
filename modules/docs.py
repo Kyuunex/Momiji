@@ -52,7 +52,7 @@ async def admin(appversion, commandprefix):
     embed.set_author(name="Momiji %s" % (appversion), icon_url=author_icon, url='https://github.com/Kyuunex/Momiji')
     embed.set_thumbnail(url=help_thumbnail)
 
-    embed.add_field(name="%sgitpull" % (commandprefix), value="Update the bot", inline=True)
+    embed.add_field(name="%supdate" % (commandprefix), value="Update the bot", inline=True)
     embed.add_field(name="%svc [join/leave]" % (commandprefix), value="Join/Leave voice chat", inline=True)
     embed.add_field(name="%smusic [play/stop/next]" % (commandprefix), value="Music controls", inline=True)
     embed.add_field(name="%srestart" % (commandprefix), value="Restart the bot", inline=True)

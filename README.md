@@ -20,7 +20,7 @@ Momiji is a discord bot that actually learns from the messages it can see and re
 3. Install `Python 3.5.3` or newer if you don't have it
 4. Install `discord.py rewrite library` using this command `python -m pip install -U discord.py[voice]` for Windows and `python3 -m pip install -U discord.py[voice]` for Linux.
 5. Create a folder called `data` and create `token.txt` in it. Then put your bot token in the file. 
-6. To start the bot, run `momiji.bat` if you are on windows or `momiji.sh` if you are on linux. Alternatively, you can manually run `run.py` file but I recommend using the included launchers because it starts the bot in a loop which is required by the `;restart` and `;gitpull` commands.
+6. To start the bot, run `momiji.bat` if you are on windows or `momiji.sh` if you are on linux. Alternatively, you can manually run `run.py` file but I recommend using the included launchers because it starts the bot in a loop which is required by the `;restart` and `;update` commands.
 
 ---
 
