@@ -31,7 +31,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190521"
+appversion = "b20190611"
 
 
 @client.event
@@ -388,6 +388,7 @@ async def on_voice_state_update(member, before, after):
     await logging.on_voice_state_update(client, member, before, after)
     await voice_roles.on_voice_state_update(client, member, before, after)
 
-# TODO: voice_roles, prune option, username change logs, role change logs (except voice role), self asignable roles,
+# TODO: prune option
+# TODO: self asignable roles
 
 client.run(open("data/token.txt", "r+").read(), bot=True)

@@ -9,20 +9,21 @@ async def on_raw_reaction_add(client, raw_reaction):
         if guildpinchannel:
             if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
                 channell = client.get_channel(raw_reaction.channel_id)
-                message = await channell.fetch_message(raw_reaction.message_id)
-                reactions = message.reactions
-                for reaction in reactions:
-                    # onereact = {
-                    # 	'count': int(reaction.count),
-                    # 	'emoji': str(reaction.emoji),
-                    # }
-                    if reaction.count >= int((guildpinchannel)[0][1]):
-                        if not (await dbhandler.query(["SELECT channel_id FROM pin_channel_blacklist WHERE channel_id = ?", [str(raw_reaction.channel_id)]])):
-                            if not (await dbhandler.query(["SELECT message_id FROM pinned_messages WHERE message_id = ?", [str(raw_reaction.message_id)]])):
-                                await dbhandler.query(["INSERT INTO pinned_messages VALUES (?)", [str(raw_reaction.message_id)]])
-                                pin_channel_object = client.get_channel(
-                                    int((guildpinchannel)[0][0]))
-                                await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await messageembed(message))
+                if not channell.is_nsfw():
+                    message = await channell.fetch_message(raw_reaction.message_id)
+                    reactions = message.reactions
+                    for reaction in reactions:
+                        # onereact = {
+                        # 	'count': int(reaction.count),
+                        # 	'emoji': str(reaction.emoji),
+                        # }
+                        if reaction.count >= int((guildpinchannel)[0][1]):
+                            if not (await dbhandler.query(["SELECT channel_id FROM pin_channel_blacklist WHERE channel_id = ?", [str(raw_reaction.channel_id)]])):
+                                if not (await dbhandler.query(["SELECT message_id FROM pinned_messages WHERE message_id = ?", [str(raw_reaction.message_id)]])):
+                                    await dbhandler.query(["INSERT INTO pinned_messages VALUES (?)", [str(raw_reaction.message_id)]])
+                                    pin_channel_object = client.get_channel(
+                                        int((guildpinchannel)[0][0]))
+                                    await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await messageembed(message))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_raw_reaction_add")

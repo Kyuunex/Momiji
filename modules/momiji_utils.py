@@ -276,6 +276,7 @@ async def wordstats(client, ctx, arg = None):
 
 
 async def regulars(ctx):
+    # TODO: Make this more efficient, only apply changes, don't clear the role.
     guild_regular_role = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_regular_role", str(ctx.guild.id)]])
     if guild_regular_role:
         async with ctx.channel.typing():
