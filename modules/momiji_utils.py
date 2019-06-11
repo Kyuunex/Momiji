@@ -275,6 +275,19 @@ async def wordstats(client, ctx, arg = None):
         await ctx.send('slow down bruh')
 
 
+async def print_role(ctx, role_name):
+    role = discord.utils.get(ctx.guild.roles, name=role_name)
+    if role:
+        output = "```\n"
+        for member in role.members:
+            output += "%s\n" % (member.display_name)
+        output += "```\n"
+        output += "Total: %s\n" % (len(role.members))
+        output += "Role ID: %s\n" % (role.id)
+        await ctx.send(output)
+    else:
+        await ctx.send("Role not found")
+
 async def regulars(ctx):
     # TODO: Make this more efficient, only apply changes, don't clear the role.
     guild_regular_role = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_regular_role", str(ctx.guild.id)]])

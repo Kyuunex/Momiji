@@ -31,7 +31,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190611"
+appversion = "b20190612"
 
 
 @client.event
@@ -217,6 +217,14 @@ async def userstats(ctx, where: str = "server", arg: str = None, allchannels = N
 async def regular(ctx, action = "Update", rolename = "Regular", amount = "10"):
     if await permissions.check(ctx.message.author.id):
         await momiji_utils.regulars_role_management(ctx, action, rolename, amount)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="printrole", brief="printrole", description="", pass_context=True)
+async def print_role(ctx, role_name):
+    if await permissions.check(ctx.message.author.id):
+        await momiji_utils.print_role(ctx, role_name)
     else:
         await ctx.send(embed=await permissions.error())
 
