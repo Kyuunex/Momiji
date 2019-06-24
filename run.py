@@ -327,7 +327,7 @@ async def vr(ctx, action, rolename):
 
 
 @client.command(name="ar", brief="", description="", pass_context=True)
-async def ar(ctx, action, role_name):
+async def ar(ctx, action = None, role_name = None):
     if await permissions.check(ctx.message.author.id):
         await assignable_roles.role_management(ctx, action, role_name)
     else:
