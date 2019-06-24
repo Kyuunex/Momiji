@@ -14,6 +14,7 @@ from modules import dbhandler
 from modules import logging
 from modules import welcome
 from modules import voice_roles
+from modules import assignable_roles
 from modules import music
 from modules import pinning
 from modules import momiji_utils
@@ -21,6 +22,7 @@ from modules import cr_pair
 from modules import img
 from modules import docs
 from modules import inspirobot
+#from modules import hungergames
 
 commandprefix = ';'
 client = commands.Bot(command_prefix=commandprefix,
@@ -31,7 +33,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190612"
+appversion = "b20190624"
 
 
 @client.event
@@ -51,6 +53,8 @@ async def on_ready():
         await dbhandler.query("CREATE TABLE stats_channel_blacklist (channel_id)")
         await dbhandler.query("CREATE TABLE user_birthdays (user_id, date)")
         await dbhandler.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
+        await dbhandler.query("CREATE TABLE assignable_roles (guild_id, role_id)")
+        await dbhandler.query("CREATE TABLE private_channels (guild_id, channel_id)")
         await dbhandler.query("CREATE TABLE cr_pair (command_id, response_id)")
         await dbhandler.query("CREATE TABLE admins (user_id, permissions)")
         await dbhandler.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
@@ -95,8 +99,8 @@ async def update(ctx):
         await ctx.send(embed=await permissions.error())
 
 
-@client.command(name="leave", brief="Leave the current guild.", description="", pass_context=True)
-async def leave(ctx):
+@client.command(name="leaveguild", brief="Leave the current guild.", description="", pass_context=True)
+async def leaveguild(ctx):
     if await permissions.checkowner(ctx.message.author.id):
         try:
             await ctx.guild.leave()
@@ -222,7 +226,7 @@ async def regular(ctx, action = "Update", rolename = "Regular", amount = "10"):
 
 
 @client.command(name="printrole", brief="printrole", description="", pass_context=True)
-async def print_role(ctx, role_name):
+async def print_role(ctx, *, role_name):
     if await permissions.check(ctx.message.author.id):
         await momiji_utils.print_role(ctx, role_name)
     else:
@@ -245,6 +249,14 @@ async def wordstats(ctx, arg = None):
         await momiji_utils.wordstats(client, ctx, arg)
     else:
         await ctx.send(embed=await permissions.ownererror())
+
+
+# @client.command(name="hg", brief="Hunger Games", description="", pass_context=True)
+# async def hg(ctx):
+#     if await permissions.checkowner(ctx.message.author.id):
+#         await hungergames.main(client, ctx)
+#     else:
+#         await ctx.send(embed=await permissions.ownererror())
 
 
 @client.command(name="neko", brief="When you want some neko in your life", description="Why are these not real? I am sad.", pass_context=True)
@@ -312,6 +324,24 @@ async def vr(ctx, action, rolename):
         await voice_roles.role_management(ctx, action, rolename)
     else:
         await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="ar", brief="", description="", pass_context=True)
+async def ar(ctx, action, role_name):
+    if await permissions.check(ctx.message.author.id):
+        await assignable_roles.role_management(ctx, action, role_name)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="join", brief="", description="", pass_context=True)
+async def join(ctx, *, role_name):
+    await assignable_roles.join(ctx, role_name)
+
+
+@client.command(name="leave", brief="", description="", pass_context=True)
+async def leave(ctx, *, role_name):
+    await assignable_roles.leave(ctx, role_name)
 
 
 @client.command(name="massnick", brief="", description="", pass_context=True)
