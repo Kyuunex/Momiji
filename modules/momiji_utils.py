@@ -288,6 +288,47 @@ async def print_role(ctx, role_name):
     else:
         await ctx.send("Role not found")
 
+
+async def about_member(ctx, user_id):
+    if user_id:
+        member = ctx.guild.get_member(int(user_id))
+    else:
+        member = ctx.author
+    output = "name: %s\n" % (str(member.name))
+    output = "display_name: %s\n" % (str(member.display_name))
+    output += "joined_at: %s\n" % (str(member.joined_at))
+    output += "premium_since: %s\n" % (str(member.premium_since))
+    output += "mobile_status: %s\n" % (str(member.mobile_status))
+    output += "desktop_status: %s\n" % (str(member.desktop_status))
+    output += "web_status: %s\n" % (str(member.web_status))
+    output += "created_at: %s\n" % (str(member.created_at))
+    # profile = member.profile()
+    # output += "nitro: %s\n" % (str(profile.nitro))
+    # output += "staff: %s\n" % (str(profile.staff))
+    # output += "partner: %s\n" % (str(profile.partner))
+    # output += "bug_hunter: %s\n" % (str(profile.bug_hunter))
+    # output += "early_supporter: %s\n" % (str(profile.early_supporter))
+    # output += "hypesquad: %s\n" % (str(profile.hypesquad))
+
+    await ctx.send(output)
+
+
+async def about_guild(ctx):
+    guild = ctx.guild
+    output = "name: %s\n" % (str(guild.name))
+    output = "region: %s\n" % (str(guild.region))
+    output += "id: %s\n" % (str(guild.id))
+    output += "owner_id: %s\n" % (str(guild.owner_id))
+    output += "max_presences: %s\n" % (str(guild.max_presences))
+    output += "max_members: %s\n" % (str(guild.max_members))
+    output += "verification_level: %s\n" % (str(guild.verification_level))
+    output += "premium_tier: %s\n" % (str(guild.premium_tier))
+    output += "premium_subscription_count: %s\n" % (str(guild.premium_subscription_count))
+    output += "filesize_limit: %s\n" % (str(guild.filesize_limit))
+    output += "created_at: %s\n" % (str(guild.created_at))
+    await ctx.send(output)
+
+
 async def regulars(ctx):
     # TODO: Make this more efficient, only apply changes, don't clear the role.
     guild_regular_role = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_regular_role", str(ctx.guild.id)]])

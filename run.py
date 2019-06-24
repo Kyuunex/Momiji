@@ -217,6 +217,16 @@ async def userstats(ctx, where: str = "server", arg: str = None, allchannels = N
     await momiji_utils.userstats(client, ctx, where, arg, allchannels)
 
 
+@client.command(name="member", brief="", description="", pass_context=True)
+async def about_member(ctx, user_id=None):
+    await momiji_utils.about_member(ctx, user_id)
+
+
+@client.command(name="guild", brief="", description="", pass_context=True)
+async def about_guild(ctx):
+    await momiji_utils.about_guild(ctx)
+
+
 @client.command(name="regular", brief="Make regulars", description="", pass_context=True)
 async def regular(ctx, action = "Update", rolename = "Regular", amount = "10"):
     if await permissions.check(ctx.message.author.id):
