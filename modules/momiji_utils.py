@@ -384,3 +384,7 @@ async def regulars_role_management(ctx, action, rolename, amount):
 
 async def on_message_delete(client, message):
     await dbhandler.query(["DELETE FROM message_logs WHERE message_id = ?", [str(message.id)]])
+
+
+async def on_message_edit(client, before, after):
+    await dbhandler.query(["UPDATE message_logs SET contents = ? WHERE message_id = ?", [str(after.content), str(after.id)]])

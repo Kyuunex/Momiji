@@ -408,6 +408,7 @@ async def on_message_delete(message):
 @client.event
 async def on_message_edit(before, after):
     await logging.on_message_edit(client, before, after)
+    await momiji_utils.on_message_edit(client, before, after)
 
 
 @client.event
