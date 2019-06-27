@@ -380,3 +380,7 @@ async def regulars_role_management(ctx, action, rolename, amount):
             await ctx.send("%s is no longer the regulars role" % (role.name))
         else:
             await regulars(ctx)
+
+
+async def on_message_delete(client, message):
+    await dbhandler.query(["DELETE FROM message_logs WHERE message_id = ?", [str(message.id)]])

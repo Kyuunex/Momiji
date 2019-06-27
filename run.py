@@ -33,7 +33,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190624"
+appversion = "b20190627"
 
 
 @client.event
@@ -402,6 +402,7 @@ async def on_raw_reaction_add(raw_reaction):
 async def on_message_delete(message):
     await logging.on_message_delete(client, message)
     await cr_pair.on_message_delete(client, message)
+    await momiji_utils.on_message_delete(client, message)
 
 
 @client.event
