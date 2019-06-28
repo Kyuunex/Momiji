@@ -33,7 +33,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190627"
+appversion = "b20190628"
 
 
 @client.event
@@ -340,6 +340,17 @@ async def vr(ctx, action, rolename):
 async def ar(ctx, action = None, role_name = None):
     if await permissions.check(ctx.message.author.id):
         await assignable_roles.role_management(ctx, action, role_name)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="ping", brief="", description="", pass_context=True)
+async def ping(ctx, *, role_name):
+    if await permissions.check(ctx.message.author.id):
+        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        await role.edit(mentionable=True)
+        await ctx.send(role.mention)
+        await role.edit(mentionable=False)
     else:
         await ctx.send(embed=await permissions.error())
 
