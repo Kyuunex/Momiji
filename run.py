@@ -12,6 +12,7 @@ import importlib
 from modules import permissions
 from modules import dbhandler
 from modules import logging
+from modules import moderation
 from modules import welcome
 from modules import voice_roles
 from modules import assignable_roles
@@ -33,7 +34,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190628"
+appversion = "b20190702"
 
 
 @client.event
@@ -50,6 +51,7 @@ async def on_ready():
         await dbhandler.query("CREATE TABLE pinned_messages (message_id)")
         await dbhandler.query("CREATE TABLE pin_channel_blacklist (channel_id)")
         await dbhandler.query("CREATE TABLE word_blacklist (word)")
+        await dbhandler.query("CREATE TABLE word_blacklist_instant_delete (word)")
         await dbhandler.query("CREATE TABLE stats_channel_blacklist (channel_id)")
         await dbhandler.query("CREATE TABLE user_birthdays (user_id, date)")
         await dbhandler.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
@@ -401,6 +403,7 @@ async def on_message(message):
         print(time.strftime('%X %x %Z'))
         print("in on_message")
         print(e)
+    await moderation.on_message(client, message)
     await client.process_commands(message)
 
 
