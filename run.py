@@ -12,6 +12,7 @@ import importlib
 from modules import permissions
 from modules import dbhandler
 from modules import logging
+from modules import logembeds
 from modules import moderation
 from modules import welcome
 from modules import voice_roles
@@ -34,7 +35,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190702"
+appversion = "b20190705"
 
 
 @client.event
@@ -117,6 +118,15 @@ async def echo(ctx, *, string):
     if await permissions.check(ctx.message.author.id):
         await ctx.message.delete()
         await ctx.send(string)
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="banappeal", brief="Make a ban appeal embed", description="", pass_context=True)
+async def ban_appeal(ctx, author, message_test):
+    if await permissions.check(ctx.message.author.id):
+        await ctx.message.delete()
+        await ctx.send(embed=await logembeds.ban_appeal(author, message_test))
     else:
         await ctx.send(embed=await permissions.error())
 

@@ -1,6 +1,20 @@
 import discord
 import asyncio
 
+async def ban_appeal(author, message_text):
+    embed = discord.Embed(
+        description=message_text,
+        color=0xAD6F49
+    )
+    embed.set_author(
+        name="%s" % (author)
+    )
+    embed.set_footer(
+        text="Ban appeal request"
+    )
+    return embed
+
+
 async def message_delete(message):
     if message:
         embed = discord.Embed(
