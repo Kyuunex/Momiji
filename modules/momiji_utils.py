@@ -206,7 +206,7 @@ async def userstats(client, ctx, where, arg, allchannels):
                     user_info = await dbhandler.query(["SELECT user_info FROM message_logs WHERE user_id = ?;", [str(onemember[0][0])]])
                     memberobject = json_to_user(user_info[0][0])
 
-                if not memberobject.bot:
+                if not memberobject.bot and not memberobject.name == "Deleted User":
 
                     rank += 1
                     contents += "**[%s]**" % (rank)

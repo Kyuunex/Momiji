@@ -169,6 +169,16 @@ async def logchannel(ctx, action = "add"):
         await ctx.send(embed=await permissions.error())
 
 
+@client.command(name="nostats", brief="", description="", pass_context=True)
+async def no_stats(ctx):
+    if await permissions.check(ctx.message.author.id):
+        channel_list = await dbhandler.query("SELECT channel_id FROM stats_channel_blacklist")
+        for one_channel_id in channel_list:
+            await ctx.send("<#%s>" % (one_channel_id[0]))
+    else:
+        await ctx.send(embed=await permissions.error())
+
+
 @client.command(name="welcome", brief="", description="", pass_context=True)
 async def welcome_message(ctx, *, welcome_message):
     if await permissions.check(ctx.message.author.id):
