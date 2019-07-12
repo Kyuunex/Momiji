@@ -36,7 +36,7 @@ async def join(ctx, role_name):
             if str(role.id) == str(check[0][0]):
                 try:
                     await ctx.author.add_roles(role)
-                    await ctx.send("done")
+                    await ctx.send("%s you now have the %s role" % (ctx.author.mention, role.name))
                 except Exception as e:
                     await ctx.send(e)
         else:
@@ -53,7 +53,7 @@ async def leave(ctx, role_name):
             if str(role.id) == str(check[0][0]):
                 try:
                     await ctx.author.remove_roles(role)
-                    await ctx.send("done")
+                    await ctx.send("%s you no longer have the %s role" % (ctx.author.mention, role.name))
                 except Exception as e:
                     await ctx.send(e)
         else:
