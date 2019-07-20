@@ -35,7 +35,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190712"
+appversion = "b20190720"
 
 
 @client.event
@@ -263,6 +263,22 @@ async def print_role(ctx, *, role_name):
         await momiji_utils.print_role(ctx, role_name)
     else:
         await ctx.send(embed=await permissions.error())
+
+
+@client.command(name="purge", brief="", description="", pass_context=True)
+async def purge(ctx, amount, user = None):
+    if (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
+        await moderation.purge(client, ctx, int(amount))
+    else:
+        await ctx.send("lol no")
+
+
+@client.command(name="prune", brief="", description="", pass_context=True)
+async def prune(ctx, amount, user = None):
+    if (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
+        await moderation.purge(client, ctx, int(amount))
+    else:
+        await ctx.send("lol no")
 
 
 @client.command(name="sql", brief="Execute an SQL query", description="", pass_context=True)
