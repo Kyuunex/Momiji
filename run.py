@@ -35,7 +35,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190720"
+appversion = "b20190728"
 
 
 @client.event
@@ -332,7 +332,7 @@ async def gis(ctx, *, searchquery):
     await img.gis(ctx, searchquery)
 
 
-@client.command(name="vc", brief="test", description="", pass_context=True)
+@client.command(name="vc", brief="", description="", pass_context=True)
 async def vc(ctx, action: str):
     if await permissions.check(ctx.message.author.id):
         await music.vc(ctx, action)
@@ -340,12 +340,24 @@ async def vc(ctx, action: str):
         await ctx.send(embed=await permissions.error())
 
 
-@client.command(name="music", brief="test", description="", pass_context=True)
+@client.command(name="music", brief="", description="", pass_context=True)
 async def musicplayer(ctx, action: str):
     if await permissions.check(ctx.message.author.id):
         await music.music(ctx, action)
     else:
         await ctx.send(embed=await permissions.error())
+    
+
+@client.command(name="ss", brief="", description="", pass_context=True)
+async def screenshare_link(ctx):
+    try:
+        voicechannel = ctx.author.voice.channel
+    except:
+        voicechannel = None
+    if voicechannel:
+        await ctx.send("Screenshare link for `%s`: <https://discordapp.com/channels/%s/%s/>" % (str(voicechannel.name), str(ctx.guild.id), str(voicechannel.id)))
+    else:
+        await ctx.send("%s you are not in a voice channel right now" % (ctx.author.mention))
 
 
 @client.command(name="roll", brief="a very complicated roll command", description="", pass_context=True)

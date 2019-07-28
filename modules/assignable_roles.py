@@ -10,12 +10,12 @@ async def role_management(ctx, action, role_name):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
             await dbhandler.query(["INSERT INTO assignable_roles VALUES (?,?)", [str(ctx.guild.id), str(role.id)]])
-            await ctx.send("%s role is now self-assignable" % (role.name))
+            await ctx.send("`%s` role is now self-assignable" % (role.name))
     elif action == "remove":
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
             await dbhandler.query(["DELETE FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
-            await ctx.send("%s role is no longer self-assignable" % (role.name))
+            await ctx.send("`%s` role is no longer self-assignable" % (role.name))
     else:
         all_roles = await dbhandler.query(["SELECT role_id FROM assignable_roles WHERE guild_id = ?", [str(ctx.guild.id)]])
         output = "Self-assignable roles:\n"
@@ -36,7 +36,7 @@ async def join(ctx, role_name):
             if str(role.id) == str(check[0][0]):
                 try:
                     await ctx.author.add_roles(role)
-                    await ctx.send("%s you now have the %s role" % (ctx.author.mention, role.name))
+                    await ctx.send("%s you now have the `%s` role" % (ctx.author.mention, role.name))
                 except Exception as e:
                     await ctx.send(e)
         else:
@@ -53,7 +53,7 @@ async def leave(ctx, role_name):
             if str(role.id) == str(check[0][0]):
                 try:
                     await ctx.author.remove_roles(role)
-                    await ctx.send("%s you no longer have the %s role" % (ctx.author.mention, role.name))
+                    await ctx.send("%s you no longer have the `%s` role" % (ctx.author.mention, role.name))
                 except Exception as e:
                     await ctx.send(e)
         else:
