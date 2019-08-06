@@ -1,6 +1,6 @@
 @echo off
 title Momiji
 :loop
-python run.py
+python momiji.py
 goto loop
 pause

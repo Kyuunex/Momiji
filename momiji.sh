@@ -1,5 +1,5 @@
 #!/bin/bash
 for (( ; ; ))
 do
-	python3 run.py
+	python3 momiji.py
 done
