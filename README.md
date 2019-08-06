@@ -16,12 +16,11 @@ I am sorry, but this happens when you want to add new features and accounting fo
 
 ## Installation Instructions
 
-1. Install `git` if you don't already have it.
-2. Clone this repo using this command `git clone https://github.com/Kyuunex/Momiji.git`
-3. Install `Python 3.5.3` or newer if you don't have it
-4. Install `discord.py` using this command `python -m pip install -U discord.py[voice]` for Windows and `python3 -m pip install -U discord.py[voice]` for Linux.
-5. Create a folder called `data` and create `token.txt` in it. Then put your bot token in the file.
-6. To start the bot, run `momiji.bat` if you are on windows or `momiji.sh` if you are on linux. Alternatively, you can manually run `run.py` file but I recommend using the included launchers because it starts the bot in a loop which is required by the `;restart` and `;update` commands.
+1. Install `git` and `Python 3.5.3` (or newer) if you don't already have them.
+2. Clone this repository using this command `git clone https://github.com/Kyuunex/Momiji.git`
+3. Install `discord.py` using this command `python3 -m pip install -U discord.py[voice]`.
+4. Create a folder named `data`, then create `token.txt` inside it. Then put your bot token in it. 
+5. To start the bot, run `momiji.bat` if you are on windows or `momiji.sh` if you are on linux. Alternatively, you can manually run `momiji.py` file but I recommend using the included launchers because it starts the bot in a loop which is required by the `;restart` and `;update` commands.
 
 ---
 
