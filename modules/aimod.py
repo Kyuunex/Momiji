@@ -18,7 +18,7 @@ async def request(url):
 
 async def image_filter_process(bytes, delete_list):
     current_hash = imagehash.average_hash(Image.open(BytesIO(bytes)))
-    if (any((current_hash - imagehash.hex_to_hash(c[0])) < 30 for c in delete_list)):
+    if (any((current_hash - imagehash.hex_to_hash(c[0])) < 10 for c in delete_list)):
         return True
     else:
         return False
