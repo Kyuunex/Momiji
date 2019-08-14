@@ -154,6 +154,19 @@ async def blacklist(ctx, *, string):
     else:
         await ctx.send(embed=await permissions.error())
 
+    
+@client.command(name="blacklistinstant", brief="Add a word to instant delte blacklist", description="Blacklists a word", pass_context=True)
+async def blacklistinstant(ctx, *, string):
+    if await permissions.check(ctx.message.author.id):
+        try:
+            await ctx.message.delete()
+        except Exception as e:
+            print(e)
+        await dbhandler.query(["INSERT INTO word_blacklist_instant_delete VALUES (?)", [str(string)]])
+        await ctx.send(":ok_hand:", delete_after=3)
+    else:
+        await ctx.send(embed=await permissions.error())
+
 
 @client.command(name="logchannel", brief="", description="", pass_context=True)
 async def logchannel(ctx, action = "add"):
