@@ -13,6 +13,7 @@ from modules import permissions
 from modules import dbhandler
 from modules import logging
 from modules import logembeds
+from modules import aimod
 from modules import moderation
 from modules import welcome
 from modules import voice_roles
@@ -35,7 +36,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190806"
+appversion = "b20190814"
 
 
 @client.event
@@ -451,7 +452,7 @@ async def on_message(message):
         print(time.strftime('%X %x %Z'))
         print("in on_message")
         print(e)
-    await moderation.on_message(client, message)
+    await aimod.main(client, message)
     await client.process_commands(message)
 
 
@@ -471,6 +472,7 @@ async def on_message_delete(message):
 async def on_message_edit(before, after):
     await logging.on_message_edit(client, before, after)
     await momiji_utils.on_message_edit(client, before, after)
+    await aimod.main(client, after)
 
 
 @client.event
