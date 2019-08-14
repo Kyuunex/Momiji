@@ -1,4 +1,4 @@
-from modules import dbhandler
+from modules import db
 
 
 async def purge(client, ctx, amount):

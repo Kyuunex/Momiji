@@ -1,4 +1,4 @@
-from modules import dbhandler
+from modules import db
 
 import time
 import discord
@@ -9,15 +9,15 @@ async def role_management(ctx, action, role_name):
     if action == "add":
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
-            await dbhandler.query(["INSERT INTO assignable_roles VALUES (?,?)", [str(ctx.guild.id), str(role.id)]])
+            db.query(["INSERT INTO assignable_roles VALUES (?,?)", [str(ctx.guild.id), str(role.id)]])
             await ctx.send("`%s` role is now self-assignable" % (role.name))
     elif action == "remove":
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
-            await dbhandler.query(["DELETE FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
+            db.query(["DELETE FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
             await ctx.send("`%s` role is no longer self-assignable" % (role.name))
     else:
-        all_roles = await dbhandler.query(["SELECT role_id FROM assignable_roles WHERE guild_id = ?", [str(ctx.guild.id)]])
+        all_roles = db.query(["SELECT role_id FROM assignable_roles WHERE guild_id = ?", [str(ctx.guild.id)]])
         output = "Self-assignable roles:\n"
         for one_role_db in all_roles:
             role = discord.utils.get(ctx.guild.roles, id=int(one_role_db[0]))
@@ -31,7 +31,7 @@ async def role_management(ctx, action, role_name):
 async def join(ctx, role_name):
     role = discord.utils.get(ctx.guild.roles, name=role_name)
     if role:
-        check = await dbhandler.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
+        check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
         if check:
             if str(role.id) == str(check[0][0]):
                 try:
@@ -48,7 +48,7 @@ async def join(ctx, role_name):
 async def leave(ctx, role_name):
     role = discord.utils.get(ctx.guild.roles, name=role_name)
     if role:
-        check = await dbhandler.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
+        check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
         if check:
             if str(role.id) == str(check[0][0]):
                 try:

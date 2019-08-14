@@ -8,7 +8,7 @@ import os
 import random
 import imghdr
 import json
-from modules import dbhandler
+from modules import db
 from modules import cooldown
 
 
@@ -53,8 +53,8 @@ async def gis(ctx, searchquery): #TODO: fix
         if ctx.channel.is_nsfw():
             if await cooldown.check(str(ctx.author.id), 'lastimgtime', 40):
                 if len(searchquery) > 0:
-                    google_api_key = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["google_api_key"]]))
-                    google_search_engine_id = (await dbhandler.query(["SELECT value FROM config WHERE setting = ?", ["google_search_engine_id"]]))
+                    google_api_key = (db.query(["SELECT value FROM config WHERE setting = ?", ["google_api_key"]]))
+                    google_search_engine_id = (db.query(["SELECT value FROM config WHERE setting = ?", ["google_search_engine_id"]]))
                     if google_api_key:
                         query = {
                             'q': str(searchquery),

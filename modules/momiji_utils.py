@@ -5,7 +5,7 @@ import asyncio
 from collections import Counter
 import operator
 from modules import cooldown
-from modules import dbhandler
+from modules import db
 
 
 async def timeconv(seconds): 
@@ -136,7 +136,7 @@ async def import_channel(ctx, channel):
                     ]
                 ]
             )
-        await dbhandler.massquery(whattocommit)
+        db.mass_query(whattocommit)
         endtime = time.time()
         importfinished = "Finished importing %s messages from %s. This took %s." % (logcounter, channel.mention, await measuretime(starttime, endtime))
         await ctx.send(importfinished)
@@ -146,9 +146,9 @@ async def import_channel(ctx, channel):
 
 async def bridge(client, ctx, bridgetype, value):
     if len(value) > 0:
-        bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channel_id = ?", [str(ctx.message.channel.id)]])
+        bridgedchannel = db.query(["SELECT value FROM bridges WHERE channel_id = ?", [str(ctx.message.channel.id)]])
         if not bridgedchannel:
-            await dbhandler.query(["INSERT INTO bridges VALUES (?, ?, ?)", [str(ctx.message.channel.id), str(bridgetype), str(value)]])
+            db.query(["INSERT INTO bridges VALUES (?, ?, ?)", [str(ctx.message.channel.id), str(bridgetype), str(value)]])
             await ctx.send("`The bridge was created`")
         else:
             await ctx.send("`This channel is already bridged`")
@@ -187,12 +187,12 @@ async def userstats(client, ctx, where, arg, allchannels):
                 query = ["SELECT user_id FROM message_logs WHERE %s = ?" % (wherekey), (wherevalue,)]
                 
             if not allchannels:
-                no_xp_channel_list = await dbhandler.query("SELECT * FROM stats_channel_blacklist")
+                no_xp_channel_list = db.query("SELECT * FROM stats_channel_blacklist")
                 if no_xp_channel_list:
                     for one_no_xp_channel in no_xp_channel_list:
                         query[0] += " AND channel_id != '%s'" % (str(one_no_xp_channel[0]))
 
-            messages = await dbhandler.query(query)
+            messages = db.query(query)
 
             stats = await messagecounter(messages)
             totalamount = len(messages)
@@ -203,7 +203,7 @@ async def userstats(client, ctx, where, arg, allchannels):
             for onemember in stats:
                 memberobject = ctx.guild.get_member(int(onemember[0][0]))
                 if not memberobject:
-                    user_info = await dbhandler.query(["SELECT user_info FROM message_logs WHERE user_id = ?;", [str(onemember[0][0])]])
+                    user_info = db.query(["SELECT user_info FROM message_logs WHERE user_id = ?;", [str(onemember[0][0])]])
                     memberobject = json_to_user(user_info[0][0])
 
                 if not memberobject.bot and not memberobject.name == "Deleted User":
@@ -239,7 +239,7 @@ async def wordstats(client, ctx, arg = None):
     if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
         async with ctx.channel.typing():
             title = "Here are 40 most used words in server all time:"
-            messages = await dbhandler.query(["SELECT contents FROM message_logs WHERE guild_id = ?;", [str(ctx.guild.id),]])
+            messages = db.query(["SELECT contents FROM message_logs WHERE guild_id = ?;", [str(ctx.guild.id),]])
 
             individualwords = []
             for message in messages:
@@ -331,7 +331,7 @@ async def about_guild(ctx):
 
 async def regulars(ctx):
     # TODO: Make this more efficient, only apply changes, don't clear the role.
-    guild_regular_role = await dbhandler.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_regular_role", str(ctx.guild.id)]])
+    guild_regular_role = db.query(["SELECT value, flag FROM config WHERE setting = ? AND parent = ?", ["guild_regular_role", str(ctx.guild.id)]])
     if guild_regular_role:
         async with ctx.channel.typing():
             regularsrole = discord.utils.get(
@@ -343,12 +343,12 @@ async def regulars(ctx):
             after = int(time.time()) - 2592000
             query = ["SELECT user_id FROM message_logs WHERE guild_id = ? AND timestamp > ?", (str(ctx.guild.id), str(after))]
 
-            no_xp_channel_list = await dbhandler.query("SELECT * FROM stats_channel_blacklist")
+            no_xp_channel_list = db.query("SELECT * FROM stats_channel_blacklist")
             if no_xp_channel_list:
                 for one_no_xp_channel in no_xp_channel_list:
                     query[0] += " AND channel_id != '%s'" % (str(one_no_xp_channel[0]))
 
-            messages = await dbhandler.query(query)
+            messages = db.query(query)
 
             stats = await messagecounter(messages)
 
@@ -373,18 +373,18 @@ async def regulars_role_management(ctx, action, rolename, amount):
     role = discord.utils.get(ctx.guild.roles, name=rolename)
     if role:
         if action == "add":
-            await dbhandler.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_regular_role", str(ctx.guild.id), str(role.id), str(amount)]])
+            db.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_regular_role", str(ctx.guild.id), str(role.id), str(amount)]])
             await ctx.send("%s role is now regulars role with top %s getting the role" % (role.name, amount))
         elif action == "remove":
-            await dbhandler.query(["DELETE FROM config WHERE guild_id = ? AND setting = ? AND role_id = ?", [str(ctx.guild.id), "guild_regular_role", str(role.id)]])
+            db.query(["DELETE FROM config WHERE guild_id = ? AND setting = ? AND role_id = ?", [str(ctx.guild.id), "guild_regular_role", str(role.id)]])
             await ctx.send("%s is no longer the regulars role" % (role.name))
         else:
             await regulars(ctx)
 
 
 async def on_message_delete(client, message):
-    await dbhandler.query(["DELETE FROM message_logs WHERE message_id = ?", [str(message.id)]])
+    db.query(["DELETE FROM message_logs WHERE message_id = ?", [str(message.id)]])
 
 
 async def on_message_edit(client, before, after):
-    await dbhandler.query(["UPDATE message_logs SET contents = ? WHERE message_id = ?", [str(after.content), str(after.id)]])
+    db.query(["UPDATE message_logs SET contents = ? WHERE message_id = ?", [str(after.content), str(after.id)]])

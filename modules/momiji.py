@@ -3,7 +3,7 @@ import discord
 import asyncio
 import time
 import json
-from modules import dbhandler
+from modules import db
 from modules import cr_pair
 
 
@@ -16,7 +16,7 @@ async def isntbotcheck(user_info):
 
 
 async def bridgecheck(channel_id):
-    bridgedchannel = await dbhandler.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [str(channel_id), "channel"]])
+    bridgedchannel = db.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [str(channel_id), "channel"]])
     if bridgedchannel:
         return str(bridgedchannel[0][0])
     else:
@@ -29,7 +29,7 @@ async def msgfilter(message, isobject):
     else:
         contents = message
     if len(contents) > 0:
-        blacklist = await dbhandler.query("SELECT word FROM word_blacklist")
+        blacklist = db.query("SELECT word FROM word_blacklist")
         if not (any(c[0] in contents.lower() for c in blacklist)):
             if not (any(contents.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-"))):
                 if isobject:
@@ -46,7 +46,7 @@ async def msgfilter(message, isobject):
 
 
 async def pickmessage(channel_id):
-    dbrequest = await dbhandler.query(["SELECT user_info, contents FROM message_logs WHERE channel_id = ?", (str(channel_id),)])
+    dbrequest = db.query(["SELECT user_info, contents FROM message_logs WHERE channel_id = ?", (str(channel_id),)])
     # TODO: break the loops with return instead
     loop = True
     counter = 0
@@ -103,7 +103,7 @@ async def logmessage(message):
         'avatar': str(message.author.avatar),
         'bot': bool(message.author.bot),
     },
-    await dbhandler.query(
+    db.query(
         [
             "INSERT INTO message_logs VALUES (?,?,?,?,?,?,?)",
             [

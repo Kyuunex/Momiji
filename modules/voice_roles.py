@@ -1,4 +1,4 @@
-from modules import dbhandler
+from modules import db
 
 import time
 import discord
@@ -8,19 +8,19 @@ async def on_voice_state_update(client, member, before, after):
     try:
         if not before.channel == after.channel:
             if before.channel == None:  # Member joined a channel
-                role_id = await dbhandler.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(after.channel.id)]])
+                role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(after.channel.id)]])
                 if role_id:
                     role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
                     await member.add_roles(role)
             else:
                 if after.channel == None:  # Member left channel
-                    role_id = await dbhandler.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(before.channel.id)]])
+                    role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(before.channel.id)]])
                     if role_id:
                         role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
                         await member.remove_roles(role)
                 else:  # Member switched channel
-                    role_id = await dbhandler.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(before.channel.id)]])
-                    role_idafter = await dbhandler.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(after.channel.id)]])
+                    role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(before.channel.id)]])
+                    role_idafter = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(after.channel.id)]])
                     if role_id != role_idafter:
                         if role_id:
                             role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
@@ -42,10 +42,10 @@ async def role_management(ctx, action, rolename):
     if voicechannel:
         if role:
             if action == "add":
-                await dbhandler.query(["INSERT INTO voice_roles VALUES (?,?,?)", [str(ctx.guild.id), str(voicechannel.id), str(role.id)]])
+                db.query(["INSERT INTO voice_roles VALUES (?,?,?)", [str(ctx.guild.id), str(voicechannel.id), str(role.id)]])
                 await ctx.send("Tied %s channel to %s role" % (voicechannel.mention, role.name))
             elif action == "remove":
-                await dbhandler.query(["DELETE FROM voice_roles WHERE guild_id = ? AND channel_id = ? AND role_id = ?", [str(ctx.guild.id), str(voicechannel.id), str(role.id)]])
+                db.query(["DELETE FROM voice_roles WHERE guild_id = ? AND channel_id = ? AND role_id = ?", [str(ctx.guild.id), str(voicechannel.id), str(role.id)]])
                 await ctx.send("Untied %s channel from %s role" % (voicechannel.mention, role.name))
         else:
             await ctx.send("Can't find a role with that name")

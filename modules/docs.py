@@ -2,7 +2,7 @@ import discord
 import asyncio
 import time
 
-from modules import dbhandler
+from modules import db
 from modules import permissions
 from modules import momiji_utils
 
@@ -16,10 +16,10 @@ script_start_time = time.time()
 
 async def main(ctx, subhelp, client, appversion, commandprefix):
     if subhelp == "admin":
-        if await permissions.check(ctx.message.author.id):
+        if permissions.check(ctx.message.author.id):
             await ctx.send(embed=await admin(appversion, commandprefix))
         else:
-            await ctx.send(embed=await permissions.error())
+            await ctx.send(embed=permissions.error())
     elif subhelp == "info":
         await ctx.send(embed=await info(client, appversion, commandprefix))
     elif subhelp == "stats":
