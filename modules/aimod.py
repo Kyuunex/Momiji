@@ -17,11 +17,15 @@ async def request(url):
 
 
 async def image_filter_process(bytes, delete_list):
-    current_hash = imagehash.average_hash(Image.open(BytesIO(bytes)))
-    if (any((current_hash - imagehash.hex_to_hash(c[0])) < 10 for c in delete_list)):
-        return True
-    else:
-        return False
+    try:
+        current_hash = imagehash.average_hash(Image.open(BytesIO(bytes)))
+        if (any((current_hash - imagehash.hex_to_hash(c[0])) < 10 for c in delete_list)):
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(e)
+        return None
 
 
 async def content_filter(message):
