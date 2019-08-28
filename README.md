@@ -1,7 +1,7 @@
 # Momiji
 The only Discord bot you'll ever need. Built using discord.py and uses sqlite3 database.
 
-Momiji is a Discord bot that actually learns from the messages it can see and responds you with the knowledge it obtained when it is triggered. Each channel has it's own personality, this is to prevent leaking stuff between channels and servers. Basically, if a channel has a personality, Momiji would be it. How cancerous Momiji is in a given channel really depends on the messages sent in that channel.
+Momiji is a fake AI Discord bot that actually learns from the messages it can see and responds you with the knowledge it obtained from that channel, when it is triggered. Basically, if a channel has a personality, Momiji would be it. How cancerous Momiji is in a given channel really depends on the messages sent in that channel.
 
 ---
 
@@ -26,7 +26,7 @@ I am sorry, but this happens when you want to add new features and accounting fo
 ---
 
 ## Configuration
-To configure momiji, you are mostly gonna need to use sql commands. Everything in the database is stored as a string.
+To configure momiji, you are mostly gonna need to use sql commands. Everything in the database is stored as a string. There are more config settings out there, I just don't have time to document all of them.
 
 ### config
 In this table, various configs are stored. 
