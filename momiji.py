@@ -38,7 +38,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190814"
+appversion = "b20190829"
 
 
 if not os.path.exists(database_file):
@@ -373,6 +373,14 @@ async def vc(ctx, action: str):
 async def musicplayer(ctx, action: str):
     if permissions.check(ctx.message.author.id):
         await music.music(ctx, action)
+    else:
+        await ctx.send(embed=permissions.error())
+
+
+@client.command(name="ban_image", brief="", description="", pass_context=True)
+async def ban_image(ctx, message_id):
+    if permissions.check(ctx.message.author.id):
+        await aimod.ban_image(ctx, message_id)
     else:
         await ctx.send(embed=permissions.error())
 

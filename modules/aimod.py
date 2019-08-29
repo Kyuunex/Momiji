@@ -56,3 +56,26 @@ async def attachment_image_hash_filter(message):
 async def main(client, message):
     await content_filter(message)
     await attachment_image_hash_filter(message)
+
+
+
+async def ban_image(ctx, message_id):
+    message = ctx.channel.fetch_message(int(message_id))
+    for embed in message.embeds:
+        if embed.type == "image":
+            try:
+                current_hash = imagehash.average_hash(Image.open(BytesIO(await request(embed.url))))
+                db.query(["INSERT INTO image_hash_blacklist_instant_delete VALUES (?)", [str(current_hash)]])
+            except Exception as e:
+                print(e)
+    for attachment in message.attachments:
+        try:
+            current_hash = imagehash.average_hash(Image.open(BytesIO(await attachment.read())))
+            db.query(["INSERT INTO image_hash_blacklist_instant_delete VALUES (?)", [str(current_hash)]])
+        except Exception as e:
+            print(e)
+    try:
+        await message.delete()
+    except Exception as e:
+        print(e)
+    await ctx.send(":ok_hand:", delete_after=3)
