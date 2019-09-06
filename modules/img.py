@@ -33,7 +33,7 @@ async def art(ctx):
 
 async def neko(ctx):
     try:
-        if await cooldown.check(str(ctx.author.id), 'lastarttime', 1):
+        if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
             url = 'https://www.nekos.life/api/v2/img/neko'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as jsonresponse:
