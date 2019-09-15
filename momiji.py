@@ -38,7 +38,7 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 client.remove_command('help')
-appversion = "b20190829"
+appversion = "b20190916"
 
 
 if not os.path.exists(database_file):
@@ -54,7 +54,7 @@ if not os.path.exists(database_file):
     db.query("CREATE TABLE user_birthdays (user_id, date)")
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
-    db.query("CREATE TABLE private_channels (guild_id, channel_id)")
+    db.query("CREATE TABLE private_areas (type, id)")
     db.query("CREATE TABLE cr_pair (command_id, response_id)")
     db.query("CREATE TABLE admins (user_id, permissions)")
     db.query(["INSERT INTO word_blacklist VALUES (?)", ["@", ]])
@@ -476,15 +476,15 @@ async def birthday(ctx, month: int, day: int, timezone: int):
 @client.event
 async def on_message(message):
     try:
-        if message.author.id != client.user.id:
-            bridgedchannel = db.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [
-                                      str(message.channel.id), "module"]])
-            if bridgedchannel:
-                module = importlib.import_module(
-                    "usermodules.%s" % (bridgedchannel[0][0]))
-            else:
-                module = importlib.import_module('modules.momiji')
-            await module.on_message(client, message)
+        if (not db.query(["SELECT * FROM private_areas WHERE id = ?", [str(message.guild.id)]])) and (not db.query(["SELECT * FROM private_areas WHERE id = ?", [str(message.channel.id)]]))):
+            if message.author.id != client.user.id:
+                bridgedchannel = db.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [str(message.channel.id), "module"]])
+                if bridgedchannel:
+                    module = importlib.import_module(
+                        "usermodules.%s" % (bridgedchannel[0][0]))
+                else:
+                    module = importlib.import_module('modules.momiji')
+                await module.on_message(client, message)
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_message")
