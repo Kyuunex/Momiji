@@ -476,7 +476,7 @@ async def birthday(ctx, month: int, day: int, timezone: int):
 @client.event
 async def on_message(message):
     try:
-        if (not db.query(["SELECT * FROM private_areas WHERE id = ?", [str(message.guild.id)]])) and (not db.query(["SELECT * FROM private_areas WHERE id = ?", [str(message.channel.id)]]))):
+        if (not db.query(["SELECT * FROM private_areas WHERE id = ?", [str(message.guild.id)]])) and (not db.query(["SELECT * FROM private_areas WHERE id = ?", [str(message.channel.id)]])):
             if message.author.id != client.user.id:
                 bridgedchannel = db.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [str(message.channel.id), "module"]])
                 if bridgedchannel:
