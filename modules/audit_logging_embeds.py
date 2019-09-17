@@ -1,18 +1,4 @@
 import discord
-import asyncio
-
-async def ban_appeal(author, message_text):
-    embed = discord.Embed(
-        description=message_text,
-        color=0xAD6F49
-    )
-    embed.set_author(
-        name="%s" % (author)
-    )
-    embed.set_footer(
-        text="Ban appeal request"
-    )
-    return embed
 
 
 async def message_delete(message):
@@ -80,30 +66,6 @@ async def member_remove(member):
         )
         embed.set_footer(
             text="User left or got kicked"
-        )
-        embed.set_thumbnail(url=member.avatar_url)
-        return embed
-    else:
-        return None
-
-
-async def member_voice_join_left(member, channel, action):
-    if member:
-        embed = discord.Embed(
-            color=0x419400,
-            description="%s\nhas %s\n**%s**" % (member.mention, action, channel.name)
-        )
-        embed.set_thumbnail(url=member.avatar_url)
-        return embed
-    else:
-        return None
-
-
-async def member_voice_switch(member, beforechannel, afterchannel):
-    if member:
-        embed = discord.Embed(
-            color=0x419400,
-            description="%s\nhas switched\nfrom **%s**\nto **%s**" % (member.mention, beforechannel.name, afterchannel.name)
         )
         embed.set_thumbnail(url=member.avatar_url)
         return embed

@@ -1,37 +1,29 @@
-import time
 import discord
-import asyncio
 from modules import db
 
 async def on_raw_reaction_add(client, raw_reaction):
-    try:
-        guildpinchannel = db.query(["SELECT value,flag FROM config WHERE setting = ? AND parent = ?", ["guild_pin_channel", str(raw_reaction.guild_id)]])
-        if guildpinchannel:
-            if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
-                channell = client.get_channel(raw_reaction.channel_id)
-                if not channell.is_nsfw():
-                    message = await channell.fetch_message(raw_reaction.message_id)
-                    blacklist = db.query("SELECT word FROM word_blacklist")
-                    if not (any(c[0] in message.content.lower() for c in blacklist)):
-                        reactions = message.reactions
-                        for reaction in reactions:
-                            # onereact = {
-                            # 	'count': int(reaction.count),
-                            # 	'emoji': str(reaction.emoji),
-                            # }
-                            if reaction.count >= int((guildpinchannel)[0][1]):
-                                if not (db.query(["SELECT channel_id FROM pin_channel_blacklist WHERE channel_id = ?", [str(raw_reaction.channel_id)]])):
-                                    if not (db.query(["SELECT message_id FROM pinned_messages WHERE message_id = ?", [str(raw_reaction.message_id)]])):
-                                        db.query(["INSERT INTO pinned_messages VALUES (?)", [str(raw_reaction.message_id)]])
-                                        pin_channel_object = client.get_channel(int((guildpinchannel)[0][0]))
-                                        await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await messageembed(message))
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_raw_reaction_add")
-        print(e)
+    guildpinchannel = db.query(["SELECT value,flag FROM config WHERE setting = ? AND parent = ?", ["guild_pin_channel", str(raw_reaction.guild_id)]])
+    if guildpinchannel:
+        if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
+            channell = client.get_channel(raw_reaction.channel_id)
+            if not channell.is_nsfw():
+                message = await channell.fetch_message(raw_reaction.message_id)
+                blacklist = db.query("SELECT word FROM mmj_word_blacklist")
+                if not (any(c[0] in message.content.lower() for c in blacklist)):
+                    reactions = message.reactions
+                    for reaction in reactions:
+                        # onereact = {
+                        # 	'count': int(reaction.count),
+                        # 	'emoji': str(reaction.emoji),
+                        # }
+                        if reaction.count >= int((guildpinchannel)[0][1]):
+                            if not (db.query(["SELECT channel_id FROM pinning_channel_blacklist WHERE channel_id = ?", [str(raw_reaction.channel_id)]])):
+                                if not (db.query(["SELECT message_id FROM pinning_history WHERE message_id = ?", [str(raw_reaction.message_id)]])):
+                                    db.query(["INSERT INTO pinning_history VALUES (?)", [str(raw_reaction.message_id)]])
+                                    pin_channel_object = client.get_channel(int((guildpinchannel)[0][0]))
+                                    await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await pin_embed(message))
 
-
-async def messageembed(message):
+async def pin_embed(message):
     if message:
         if message.embeds:
             embed = message.embeds[0]

@@ -1,8 +1,5 @@
 from modules import db
-
-import time
 import discord
-import asyncio
 
 
 async def role_management(ctx, action, role_name):

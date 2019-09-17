@@ -2,7 +2,6 @@ from modules import db
 
 import time
 import discord
-import asyncio
 
 async def on_voice_state_update(client, member, before, after):
     try:
@@ -32,6 +31,7 @@ async def on_voice_state_update(client, member, before, after):
         print(time.strftime('%X %x %Z'))
         print("in voice_roles.on_voice_state_update")
         print(e)
+
 
 async def role_management(ctx, action, rolename):
     try:

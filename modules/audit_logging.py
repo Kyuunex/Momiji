@@ -1,26 +1,6 @@
-from modules import logembeds
+from modules import audit_logging_embeds
 from modules import db
 import time
-
-
-async def on_voice_state_update(client, member, before, after):
-    try:
-        guild_voice_log_channel_id = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_voice_log_channel", str(member.guild.id)]])
-        if guild_voice_log_channel_id:
-            voicelogchannel = client.get_channel(
-                int(guild_voice_log_channel_id[0][0]))
-            if not before.channel == after.channel:
-                if before.channel == None:  # Member joined a channel
-                    await voicelogchannel.send(embed=await logembeds.member_voice_join_left(member, after.channel, "joined"), delete_after=600)
-                else:
-                    if after.channel == None:  # Member left channel
-                        await voicelogchannel.send(embed=await logembeds.member_voice_join_left(member, before.channel, "left"), delete_after=600)
-                    else:  # Member switched channel
-                        await voicelogchannel.send(embed=await logembeds.member_voice_switch(member, before.channel, after.channel), delete_after=600)
-    except Exception as e:
-        print(time.strftime('%X %x %Z'))
-        print("in on_voice_state_update")
-        print(e)
 
 
 async def on_member_remove(client, member):
@@ -28,7 +8,7 @@ async def on_member_remove(client, member):
         guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(member.guild.id)]])
         if guild_audit_log_channel:
             channell = client.get_channel(int(guild_audit_log_channel[0][0]))
-            await channell.send(embed=await logembeds.member_remove(member))
+            await channell.send(embed=await audit_logging_embeds.member_remove(member))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_member_remove")
@@ -40,7 +20,7 @@ async def on_member_join(client, member):
         guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(member.guild.id)]])
         if guild_audit_log_channel:
             channell = client.get_channel(int(guild_audit_log_channel[0][0]))
-            await channell.send(embed=await logembeds.member_join(member))
+            await channell.send(embed=await audit_logging_embeds.member_join(member))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_member_join")
@@ -54,7 +34,7 @@ async def on_message_edit(client, before, after):
                 guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(before.guild.id)]])
                 if guild_audit_log_channel:
                     channell = client.get_channel(int(guild_audit_log_channel[0][0]))
-                    await channell.send(embed=await logembeds.message_edit(before, after))
+                    await channell.send(embed=await audit_logging_embeds.message_edit(before, after))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_message_edit")
@@ -67,7 +47,7 @@ async def on_message_delete(client, message):
             guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(message.guild.id)]])
             if guild_audit_log_channel:
                 channell = client.get_channel(int(guild_audit_log_channel[0][0]))
-                await channell.send(embed=await logembeds.message_delete(message))
+                await channell.send(embed=await audit_logging_embeds.message_delete(message))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_message_delete")
@@ -107,7 +87,7 @@ async def on_member_update(client, before, after):
                 regularsrole = db.query(["SELECT value FROM config WHERE setting = ? AND value = ?", ["guild_regular_role", str(role.id)]])
                 if (not voicerole) and (not regularsrole): ## TODO: fix
                     channell = client.get_channel(int(guild_audit_log_channel[0][0]))
-                    await channell.send(embed=await logembeds.role_change(after, text % (role.name)))
+                    await channell.send(embed=await audit_logging_embeds.role_change(after, text % (role.name)))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_member_update")
@@ -123,7 +103,7 @@ async def on_user_update(client, before, after):
                 if guild:
                     if guild.get_member(after.id):
                         channell = client.get_channel(int(guild_audit_log_channel[1]))
-                        await channell.send(embed=await logembeds.on_user_update(before, after))
+                        await channell.send(embed=await audit_logging_embeds.on_user_update(before, after))
     except Exception as e:
         print(time.strftime('%X %x %Z'))
         print("in on_user_update")

@@ -2,85 +2,13 @@ import random
 import discord
 import asyncio
 import time
+import importlib
 import json
 from modules import db
 from modules import cr_pair
 
 
-async def isntbotcheck(user_info):
-    jsondict = json.loads(user_info)
-    if jsondict[0]['bot'] == True:
-        return False
-    elif jsondict[0]['bot'] == False:
-        return True
-
-
-async def bridgecheck(channel_id):
-    bridgedchannel = db.query(["SELECT value FROM bridges WHERE channel_id = ? AND type = ?", [str(channel_id), "channel"]])
-    if bridgedchannel:
-        return str(bridgedchannel[0][0])
-    else:
-        return str(channel_id)
-
-
-async def msgfilter(message, isobject):
-    if isobject:
-        contents = message.content
-    else:
-        contents = message
-    if len(contents) > 0:
-        blacklist = db.query("SELECT word FROM word_blacklist")
-        if not (any(c[0] in contents.lower() for c in blacklist)):
-            if not (any(contents.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-"))):
-                if isobject:
-                    if not message.author.bot:
-                        return contents
-                    else:
-                        return None
-                else:
-                    return contents
-            else:
-                return None
-        else:
-            return None
-
-
-async def pickmessage(channel_id):
-    dbrequest = db.query(["SELECT user_info, contents FROM message_logs WHERE channel_id = ?", (str(channel_id),)])
-    # TODO: break the loops with return instead
-    loop = True
-    counter = 0
-    while loop:
-        if counter > 100:
-            print("something is wrong. VERY WRONG")
-            loop = False
-            return None
-        counter += 1
-        if dbrequest:
-            message = random.choice(dbrequest)
-            if (await msgfilter(message[1], False) != None) and (await isntbotcheck(message[0])):
-                loop = False
-                return message[1]
-        else:
-            print("no messages in specified channel, counted %s times" % (str(counter)))
-            loop = False
-            return None
-
-
-async def momijispeak(message):
-    channel = message.channel
-    channeltouse = int(await bridgecheck(channel.id))
-    async with channel.typing():
-        messagetosend = await pickmessage(channeltouse)
-    if messagetosend:
-        responsemsg = await channel.send(messagetosend)
-        await cr_pair.pair(message.id, responsemsg.id)
-        return True
-    else:
-        return None
-
-
-async def spammessage(message):
+async def join_spam_train(message):
     counter = 0
     async for previous_message in message.channel.history(limit=2+random.randint(1, 4)):
         if (message.content == previous_message.content) and (message.author.id != previous_message.author.id):
@@ -89,78 +17,139 @@ async def spammessage(message):
             else:
                 counter += 1
     if counter == 3:
-        filtered = await msgfilter(message.content, False)
-        if filtered != None:
-            await message.channel.send(filtered)
+        if await check_message_contents(message.content):
+            await message.channel.send(message.content)
 
 
-async def logmessage(message):
-    # Please use the data logged through this responsibly
-    messageauthorjson = {
-        'id': str(message.author.id),
-        'username': str(message.author.name),
-        'discriminator': str(message.author.discriminator),
-        'avatar': str(message.author.avatar),
-        'bot': bool(message.author.bot),
-    },
+async def check_privacy(message):
+    if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
+        # Not a private channel
+        return False
+    else:
+        # Private channel
+        return True
+
+
+async def bridge_check(channel_id):
+    bridged_channel = db.query(["SELECT depended_channel_id FROM mmj_channel_bridges WHERE channel_id = ?", [str(channel_id)]])
+    if bridged_channel:
+        return str(bridged_channel[0][0])
+    else:
+        return str(channel_id)
+
+
+async def check_message_contents(string):
+    if len(string) > 0:
+        blacklist = db.query("SELECT word FROM mmj_word_blacklist")
+        if not (any(str(c[0]) in str(string.lower()) for c in blacklist)):
+            if not (any(string.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-", "t!", "t@"))):
+                return True
+    return False
+
+
+async def pick_message(client, message, depended_channel_id):
+    all_potential_messages = db.query(["SELECT * FROM mmj_message_logs WHERE channel_id = ? AND bot = ?", [str(depended_channel_id), "0"]])
+    if all_potential_messages:
+        counter = 0
+        while True:
+            if counter > 50:
+                print("I looked over 50 random messages to send but nothing passed the check.")
+                return False
+            counter += 1
+            message_from_db = random.choice(all_potential_messages)
+            if await check_privacy(message):
+                client.get_channel(int(depended_channel_id))
+                picked_message = await message.channel.fetch_message(message_from_db[3])
+                content_to_send = picked_message.content
+            else:
+                content_to_send = str(message_from_db[6])
+            if (await check_message_contents(content_to_send)):
+                return content_to_send
+    else:
+        print("The query returned nothing")
+        return False
+
+
+async def momiji_speak(client, message):
+    channel = message.channel
+
+    depended_channel_id = await bridge_check(channel.id)
+
+    async with channel.typing():
+        message_contents_to_send = await pick_message(client, message, depended_channel_id)
+
+    if message_contents_to_send:
+        sent_message = await channel.send(message_contents_to_send)
+        await cr_pair.pair(message.id, sent_message.id)
+        return True
+    else:
+        return False
+
+
+async def store_message(message):
+    if await check_privacy(message):
+        content = None
+    else:
+        content = str(message.content)
     db.query(
         [
-            "INSERT INTO message_logs VALUES (?,?,?,?,?,?,?)",
+            "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
             [
-                str(message.guild.id), # for userstats
-                str(message.channel.id), # for userstats and so the message can be randomly picked with channel id
-                str(message.author.id), # to identify message author when doing userstats
-                str(json.dumps(messageauthorjson)), # to identify easily who wrote the message and whether it was a bot or not if the user left the guild
-                str(message.id), # maybe in future we can auto delete messages from DB when they are deleted on discord or update them when they are edited
-                str(message.content), # duh. Yes, we can get away by just logging message ID, however I actually need contents for what I have planned in future update
-                str(int(time.mktime(message.created_at.timetuple()))) # to make userstats day/week/month command to work as intended and not send 1000000 api requests
+                str(message.guild.id),
+                str(message.channel.id), 
+                str(message.author.id), 
+                str(message.id),
+                str(message.author.name),
+                str(int(message.author.bot)),
+                content,
+                str(int(time.mktime(message.created_at.timetuple()))) 
             ]
         ]
     )
 
 
-async def on_message(client, message):
+async def main(client, message):
     if not message.author.bot:
         msg = message.content.lower()
         if '@everyone' in msg:
             await message.channel.send(file=discord.File('res/pinged.gif'))
         else:
-            if 'momiji' in msg:
-                await momijispeak(message)
+            if 'momiji' in msg or client.user.mention in message.content:
+                await momiji_speak(client, message)
             else:
-                await spammessage(message)
+                await join_spam_train(message)
 
-                if (
-                        (client.user.mention in message.content) or
-                        (msg.startswith('...')) or
-                        (msg.startswith('omg')) or
-                        (msg.startswith('wut')) or
-                        (msg.startswith('wat')) or
-                        (message.content.isupper() and len(message.content) > 1 and random.randint(0, 20) == 1)
-                ):
-                    await momijispeak(message)
+                if ((message.content.isupper() and len(message.content) > 1 and random.randint(0, 20) == 1)):
+                    await momiji_speak(client, message)
 
-                # TODO: grab these from db, allow searching by guild
-                responsedb = [
-                    ["^", "I agree!"],
-                    ["gtg", "nooooo don\'t leaveeeee!"],
-                    ["kakushi", "kotoga"],
-                    ["kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU"],
-                    ["giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE"],
-                    ["awoo", "awoooooooooooooooooooooooooo"],
-                    ["cya", "nooooo don\'t leaveeeee!"],
-                    ["bad bot", ";w;"],
-                    ["stupid bot", ";w;"],
-                    ["good bot", "^w^"],
-                    ["sentient", "yes ^w^"],
-                    ["it is self aware", "yes"],
-                ]
+                momiji_responses = db.query("SELECT * FROM mmj_responses")
 
-                for oneresponse in responsedb:
-                    if msg.startswith(oneresponse[0]):
-                        responsemsg = await message.channel.send(oneresponse[1])
-                        await cr_pair.pair(message.id, responsemsg.id)
+                for one_response in momiji_responses:
+                    # TODO: implement in and is
+                    if msg.startswith(one_response[0]):
+                        if len(one_response[1]) > 0:
+                            responsemsg = await message.channel.send(one_response[1])
+                            await cr_pair.pair(message.id, responsemsg.id)
+                        else:
+                            await momiji_speak(client, message)
+    await store_message(message)
 
-                #if ("birthday" in msg or "i turn" in msg) and "today" in msg and "my" in msg:
-                #    await message.channel.send('Happy Birthday %s!' % (message.author.mention))
-    await logmessage(message)
+
+async def on_message(client, message):
+    if message.author.id != client.user.id:
+        bridged_module = db.query(["SELECT module_name FROM module_bridges WHERE channel_id = ?", [str(message.channel.id)]])
+        if bridged_module:
+            module = importlib.import_module("usermodules.%s" % (bridged_module[0][0]))
+            await module.on_message(client, message)
+        else:
+            await main(client, message)
+
+
+
+async def on_message_delete(client, message):
+    db.query(["DELETE FROM mmj_message_logs WHERE message_id = ?", [str(message.id)]])
+
+
+async def on_message_edit(client, before, after):
+    if not await check_privacy(after):
+        db.query(["UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?", [str(after.content), str(after.id)]])
