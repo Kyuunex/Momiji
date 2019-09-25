@@ -15,20 +15,16 @@ from modules import momiji_channel_importing
 from modules import momiji_stats
 from modules import momiji_commands
 from modules import regulars_role
-from modules import pinning
 from modules import permissions
 from modules import cr_pair
-from modules import welcome
 from modules import momiji
-from modules import moderation
 from modules import aimod
 from modules import db
 from modules import audit_logging
 from modules import voice_logging
-from modules import voice_roles
 
 commandprefix = ';'
-appversion = "a20190917-experimental"
+appversion = "a20190926-very-very-experimental"
 client = commands.Bot(command_prefix=commandprefix, description='Momiji %s' % (appversion))
 if not os.path.exists('data'):
     print("Please configure this bot according to readme file.")
@@ -36,6 +32,24 @@ if not os.path.exists('data'):
 if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 #client.remove_command('help')
+
+initial_extensions = [
+    'cogs.BotManagement', 
+    'cogs.Img', 
+    'cogs.InspiroBot', 
+    'cogs.Moderation', 
+    'cogs.Music', 
+    'cogs.Pinning', 
+    'cogs.VoiceRoles', 
+    'cogs.Welcome', 
+]
+
+if __name__ == '__main__':
+    for extension in initial_extensions:
+        try:
+            client.load_extension(extension)
+        except Exception as e:
+            print(e)
 
 
 if not os.path.exists(database_file):
@@ -93,61 +107,6 @@ async def on_ready():
         db.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
         print("Added %s to admin list" % (appinfo.owner.name))
 
-
-@client.command(name="adminlist", brief="Show bot admin list", description="", pass_context=True)
-async def adminlist(ctx):
-    await ctx.send(embed=permissions.get_admin_list())
-
-
-@client.command(name="makeadmin", brief="Make a user bot admin", description="", pass_context=True, hidden=True)
-async def makeadmin(ctx, user_id: str):
-    if permissions.check_owner(ctx.message.author.id):
-        db.query(["INSERT INTO admins VALUES (?, ?)", [str(user_id), "0"]])
-        await ctx.send(":ok_hand:")
-    else:
-        await ctx.send(embed=permissions.error_owner())
-
-
-@client.command(name="restart", brief="Restart the bot", description="", pass_context=True, hidden=True)
-async def restart(ctx):
-    if permissions.check(ctx.message.author.id):
-        await ctx.send("Restarting")
-        quit()
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="update", brief="Update the bot", description="it just does git pull", pass_context=True, hidden=True)
-async def update(ctx):
-    if permissions.check(ctx.message.author.id):
-        await ctx.send("Updating.")
-        os.system('git pull')
-        quit()
-        # exit()
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="leaveguild", brief="Leave the current guild.", description="", pass_context=True, hidden=True)
-async def leaveguild(ctx):
-    if permissions.check_owner(ctx.message.author.id):
-        try:
-            await ctx.guild.leave()
-        except Exception as e:
-            await ctx.send(e)
-    else:
-        await ctx.send(embed=permissions.error_owner())
-
-
-@client.command(name="echo", brief="Echo a string", description="", pass_context=True, hidden=True)
-async def echo(ctx, *, string):
-    if permissions.check(ctx.message.author.id):
-        await ctx.message.delete()
-        await ctx.send(string)
-    else:
-        await ctx.send(embed=permissions.error())
-
-
 @client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True, hidden=True)
 async def exportjson(ctx, channel_id: int = None, amount: int = 999999999):
     if permissions.check(ctx.message.author.id):
@@ -204,32 +163,6 @@ async def user_stats(ctx, where: str = "server", arg: str = None, allchannels=No
 async def wordstats(ctx, arg=None):
     if permissions.check_owner(ctx.message.author.id):
         await momiji_stats.word_stats(client, ctx, arg)
-    else:
-        await ctx.send(embed=permissions.error_owner())
-
-
-@client.command(name="purge", brief="Purge X amount of messages", description="", pass_context=True)
-async def purge(ctx, amount, author=None):
-    if (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
-        await moderation.purge(client, ctx, int(amount))
-    else:
-        await ctx.send("lol no")
-
-
-@client.command(name="prune", brief="Purge X amount of messages", description="", pass_context=True)
-async def prune(ctx, amount, author=None):
-    if (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
-        await moderation.purge(client, ctx, int(amount))
-    else:
-        await ctx.send("lol no")
-
-
-@client.command(name="sql", brief="Execute an SQL query", description="", pass_context=True, hidden=True)
-async def sql(ctx, *, query):
-    if permissions.check_owner(ctx.message.author.id):
-        if len(query) > 0:
-            response = db.query(query)
-            await ctx.send(response)
     else:
         await ctx.send(embed=permissions.error_owner())
 
@@ -300,14 +233,6 @@ async def regular(ctx, action, rolename="Regular", amount="10"):
         await ctx.send(embed=permissions.error())
 
 
-@client.command(name="vr", brief="Voice role settings", description="", pass_context=True, hidden=True)
-async def vr(ctx, action, rolename):
-    if permissions.check(ctx.message.author.id):
-        await voice_roles.role_management(ctx, action, rolename)
-    else:
-        await ctx.send(embed=permissions.error())
-
-
 @client.command(name="ar", brief="Assignable role settings", description="", pass_context=True, hidden=True)
 async def ar(ctx, action=None, role_name=None):
     if permissions.check(ctx.message.author.id):
@@ -338,11 +263,6 @@ async def on_message(message):
 
 
 @client.event
-async def on_raw_reaction_add(raw_reaction):
-    await pinning.on_raw_reaction_add(client, raw_reaction)
-
-
-@client.event
 async def on_message_delete(message):
     await audit_logging.on_message_delete(client, message)
     await cr_pair.on_message_delete(client, message)
@@ -359,13 +279,11 @@ async def on_message_edit(before, after):
 @client.event
 async def on_member_join(member):
     await audit_logging.on_member_join(client, member)
-    await welcome.on_member_join(client, member)
 
 
 @client.event
 async def on_member_remove(member):
     await audit_logging.on_member_remove(client, member)
-    await welcome.on_member_remove(client, member)
 
 
 @client.event
@@ -381,6 +299,5 @@ async def on_user_update(before, after):
 @client.event
 async def on_voice_state_update(member, before, after):
     await voice_logging.on_voice_state_update(client, member, before, after)
-    await voice_roles.on_voice_state_update(client, member, before, after)
 
 client.run(bot_token)
