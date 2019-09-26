@@ -6,11 +6,11 @@ import discord
 from discord.ext import commands
 
 
-class VoiceRoles(commands.Cog, name=""):
+class VoiceRoles(commands.Cog, name="VoiceRoles"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="vr", brief="Voice role settings", description="", pass_context=True, hidden=True)
+    @commands.command(name="vr", brief="Voice role settings", description="", pass_context=True)
     async def vr(self, ctx, action, rolename):
         if permissions.check(ctx.message.author.id):
             await self.role_management(ctx, action, rolename)

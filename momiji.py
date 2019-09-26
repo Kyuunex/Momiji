@@ -8,7 +8,6 @@ import sys
 import os
 import random
 
-from modules import assignable_roles
 from modules import stats_builder
 from modules import channel_exporting
 from modules import momiji_channel_importing
@@ -21,7 +20,6 @@ from modules import momiji
 from modules import aimod
 from modules import db
 from modules import audit_logging
-from modules import voice_logging
 
 commandprefix = ';'
 appversion = "a20190926-very-very-experimental"
@@ -40,6 +38,8 @@ initial_extensions = [
     'cogs.Moderation', 
     'cogs.Music', 
     'cogs.Pinning', 
+    'cogs.SelfAssignableRoles', 
+    'cogs.VoiceLogging', 
     'cogs.VoiceRoles', 
     'cogs.Welcome', 
 ]
@@ -107,7 +107,7 @@ async def on_ready():
         db.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
         print("Added %s to admin list" % (appinfo.owner.name))
 
-@client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True, hidden=True)
+@client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
 async def exportjson(ctx, channel_id: int = None, amount: int = 999999999):
     if permissions.check(ctx.message.author.id):
         await channel_exporting.export(client, ctx, channel_id, amount)
@@ -115,7 +115,7 @@ async def exportjson(ctx, channel_id: int = None, amount: int = 999999999):
         await ctx.send(embed=permissions.error())
 
 
-@client.command(name="init", brief="Initialize in this guild", description="", pass_context=True, hidden=True)
+@client.command(name="init", brief="Initialize in this guild", description="", pass_context=True)
 async def init_server(ctx):
     if permissions.check(ctx.message.author.id):
         await momiji_channel_importing.import_messages(client, ctx, ["server"])
@@ -138,7 +138,7 @@ async def about_bot(ctx):
     await stats_builder.about_bot(client, ctx, appversion)
 
 
-@client.command(name="import", brief="Import the chat", description="Imports stuff", pass_context=True, hidden=True)
+@client.command(name="import", brief="Import the chat", description="Imports stuff", pass_context=True)
 async def import_messages(ctx, *channel_ids):
     if permissions.check(ctx.message.author.id):
         await momiji_channel_importing.import_messages(client, ctx, channel_ids)
@@ -146,7 +146,7 @@ async def import_messages(ctx, *channel_ids):
         await ctx.send(embed=permissions.error())
 
 
-@client.command(name="bridge", brief="Bridge the channel", description="", pass_context=True, hidden=True)
+@client.command(name="bridge", brief="Bridge the channel", description="", pass_context=True)
 async def bridge(ctx, bridge_type: str, value: str):
     if permissions.check(ctx.message.author.id):
         await momiji_commands.create_bridge(client, ctx, bridge_type, value)
@@ -159,7 +159,7 @@ async def user_stats(ctx, where: str = "server", arg: str = None, allchannels=No
     await momiji_stats.user_stats(client, ctx, where, arg, allchannels)
 
 
-@client.command(name="wordstats", brief="Word statistics", description="", pass_context=True, hidden=True)
+@client.command(name="wordstats", brief="Word statistics", description="", pass_context=True)
 async def wordstats(ctx, arg=None):
     if permissions.check_owner(ctx.message.author.id):
         await momiji_stats.word_stats(client, ctx, arg)
@@ -196,7 +196,7 @@ async def roll(ctx, maax=None):
     await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), randomnumber, point))
 
 
-@client.command(name="ping", brief="Ping a role", description="", pass_context=True, hidden=True)
+@client.command(name="ping", brief="Ping a role", description="", pass_context=True)
 async def ping(ctx, *, role_name):
     if permissions.check(ctx.message.author.id):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
@@ -206,18 +206,7 @@ async def ping(ctx, *, role_name):
     else:
         await ctx.send(embed=permissions.error())
 
-
-@client.command(name="join", brief="Get a role", description="", pass_context=True)
-async def join(ctx, *, role_name):
-    await assignable_roles.join(ctx, role_name)
-
-
-@client.command(name="leave", brief="Remove a role", description="", pass_context=True)
-async def leave(ctx, *, role_name):
-    await assignable_roles.leave(ctx, role_name)
-
-
-@client.command(name="reassign_regulars_role", brief="Reassign regulars role", description="", pass_context=True, hidden=True)
+@client.command(name="reassign_regulars_role", brief="Reassign regulars role", description="", pass_context=True)
 async def reassign_regulars_role(ctx):
     if (ctx.channel.permissions_for(ctx.message.author)).manage_guild:
         await regulars_role.reassign_regulars_role(ctx)
@@ -225,23 +214,14 @@ async def reassign_regulars_role(ctx):
         await ctx.send("lol no")
 
 
-@client.command(name="rr", brief="Manage the regulars role", description="", pass_context=True, hidden=True)
+@client.command(name="rr", brief="Manage the regulars role", description="", pass_context=True)
 async def regular(ctx, action, rolename="Regular", amount="10"):
     if permissions.check(ctx.message.author.id):
         await regulars_role.role_management(ctx, action, rolename, amount)
     else:
         await ctx.send(embed=permissions.error())
 
-
-@client.command(name="ar", brief="Assignable role settings", description="", pass_context=True, hidden=True)
-async def ar(ctx, action=None, role_name=None):
-    if permissions.check(ctx.message.author.id):
-        await assignable_roles.role_management(ctx, action, role_name)
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="massnick", brief="Nickname every user", description="", pass_context=True, hidden=True)
+@client.command(name="massnick", brief="Nickname every user", description="", pass_context=True)
 async def massnick(ctx, nickname=None):
     if permissions.check(ctx.message.author.id):
         for member in ctx.guild.members:
@@ -295,9 +275,5 @@ async def on_member_update(before, after):
 async def on_user_update(before, after):
     await audit_logging.on_user_update(client, before, after)
 
-
-@client.event
-async def on_voice_state_update(member, before, after):
-    await voice_logging.on_voice_state_update(client, member, before, after)
 
 client.run(bot_token)
