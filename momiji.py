@@ -8,12 +8,10 @@ import sys
 import os
 import random
 
-from modules import stats_builder
 from modules import channel_exporting
 from modules import momiji_channel_importing
 from modules import momiji_stats
 from modules import momiji_commands
-from modules import regulars_role
 from modules import permissions
 from modules import cr_pair
 from modules import momiji
@@ -22,7 +20,7 @@ from modules import db
 from modules import audit_logging
 
 commandprefix = ';'
-appversion = "a20190926-very-very-experimental"
+appversion = "a20190928-very-very-experimental"
 client = commands.Bot(command_prefix=commandprefix, description='Momiji %s' % (appversion))
 if not os.path.exists('data'):
     print("Please configure this bot according to readme file.")
@@ -38,7 +36,9 @@ initial_extensions = [
     'cogs.Moderation', 
     'cogs.Music', 
     'cogs.Pinning', 
+    'cogs.RegularsRole', 
     'cogs.SelfAssignableRoles', 
+    'cogs.StatsBuilder', 
     'cogs.VoiceLogging', 
     'cogs.VoiceRoles', 
     'cogs.Welcome', 
@@ -123,21 +123,6 @@ async def init_server(ctx):
         await ctx.send(embed=permissions.error())
 
 
-@client.command(name="member", brief="Show some info about a user", description="", pass_context=True)
-async def about_member(ctx, user_id=None):
-    await stats_builder.about_member(ctx, user_id)
-
-
-@client.command(name="guild", brief="About this guild", description="", pass_context=True)
-async def about_guild(ctx):
-    await stats_builder.about_guild(ctx)
-
-
-@client.command(name="about", brief="About this bot", description="", pass_context=True)
-async def about_bot(ctx):
-    await stats_builder.about_bot(client, ctx, appversion)
-
-
 @client.command(name="import", brief="Import the chat", description="Imports stuff", pass_context=True)
 async def import_messages(ctx, *channel_ids):
     if permissions.check(ctx.message.author.id):
@@ -206,20 +191,6 @@ async def ping(ctx, *, role_name):
     else:
         await ctx.send(embed=permissions.error())
 
-@client.command(name="reassign_regulars_role", brief="Reassign regulars role", description="", pass_context=True)
-async def reassign_regulars_role(ctx):
-    if (ctx.channel.permissions_for(ctx.message.author)).manage_guild:
-        await regulars_role.reassign_regulars_role(ctx)
-    else:
-        await ctx.send("lol no")
-
-
-@client.command(name="rr", brief="Manage the regulars role", description="", pass_context=True)
-async def regular(ctx, action, rolename="Regular", amount="10"):
-    if permissions.check(ctx.message.author.id):
-        await regulars_role.role_management(ctx, action, rolename, amount)
-    else:
-        await ctx.send(embed=permissions.error())
 
 @client.command(name="massnick", brief="Nickname every user", description="", pass_context=True)
 async def massnick(ctx, nickname=None):
