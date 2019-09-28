@@ -1,9 +1,10 @@
 from modules import db
 from modules import permissions
-from modules.momiji_stats import list_sorter
 import discord
 from discord.ext import commands
 import time
+from collections import Counter
+import operator
 
 
 class RegularsRole(commands.Cog, name="RegularsRole"):
@@ -33,7 +34,7 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
 
                     messages = db.query(query)
 
-                    stats = await list_sorter(messages)
+                    stats = await self.list_sorter(messages)
 
                     rank = 0
                     for onemember in stats:
@@ -72,6 +73,10 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
                 await ctx.send("%s is no longer the regulars role" % (role.name))
         else:
             await ctx.send(embed=permissions.error())
+
+    async def list_sorter(self, a_list):
+        results = dict(Counter(a_list))
+        return reversed(sorted(results.items(), key=operator.itemgetter(1)))
 
 
 def setup(bot):
