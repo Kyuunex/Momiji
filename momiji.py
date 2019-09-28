@@ -6,18 +6,13 @@ import discord
 from discord.ext import commands
 import sys
 import os
-import random
 
-from modules import channel_exporting
-from modules import momiji_channel_importing
-from modules import momiji_stats
-from modules import momiji_commands
+
 from modules import permissions
 from modules import cr_pair
 from modules import momiji
 from modules import aimod
 from modules import db
-from modules import audit_logging
 
 commandprefix = ';'
 appversion = "a20190928-very-very-experimental"
@@ -30,10 +25,16 @@ if not os.path.exists('usermodules'):
 #client.remove_command('help')
 
 initial_extensions = [
+    'cogs.AuditLogging', 
     'cogs.BotManagement', 
+    'cogs.ChannelExporting', 
     'cogs.Img', 
     'cogs.InspiroBot', 
+    'cogs.MessageStats', 
+    'cogs.Misc', 
     'cogs.Moderation', 
+    'cogs.MomijiChannelImporting', 
+    'cogs.MomijiCommands', 
     'cogs.Music', 
     'cogs.Pinning', 
     'cogs.RegularsRole', 
@@ -107,104 +108,6 @@ async def on_ready():
         db.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
         print("Added %s to admin list" % (appinfo.owner.name))
 
-@client.command(name="export", brief="Export the chat", description="Exports the chat to json format.", pass_context=True)
-async def exportjson(ctx, channel_id: int = None, amount: int = 999999999):
-    if permissions.check(ctx.message.author.id):
-        await channel_exporting.export(client, ctx, channel_id, amount)
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="init", brief="Initialize in this guild", description="", pass_context=True)
-async def init_server(ctx):
-    if permissions.check(ctx.message.author.id):
-        await momiji_channel_importing.import_messages(client, ctx, ["server"])
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="import", brief="Import the chat", description="Imports stuff", pass_context=True)
-async def import_messages(ctx, *channel_ids):
-    if permissions.check(ctx.message.author.id):
-        await momiji_channel_importing.import_messages(client, ctx, channel_ids)
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="bridge", brief="Bridge the channel", description="", pass_context=True)
-async def bridge(ctx, bridge_type: str, value: str):
-    if permissions.check(ctx.message.author.id):
-        await momiji_commands.create_bridge(client, ctx, bridge_type, value)
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="userstats", brief="Show user stats", description="", pass_context=True)
-async def user_stats(ctx, where: str = "server", arg: str = None, allchannels=None):
-    await momiji_stats.user_stats(client, ctx, where, arg, allchannels)
-
-
-@client.command(name="wordstats", brief="Word statistics", description="", pass_context=True)
-async def wordstats(ctx, arg=None):
-    if permissions.check_owner(ctx.message.author.id):
-        await momiji_stats.word_stats(client, ctx, arg)
-    else:
-        await ctx.send(embed=permissions.error_owner())
-
-@client.command(name="ss", brief="Generate a screenshare link", description="", pass_context=True)
-async def screenshare_link(ctx):
-    try:
-        voicechannel = ctx.author.voice.channel
-    except:
-        voicechannel = None
-    if voicechannel:
-        await ctx.send("Screenshare link for `%s`: <https://discordapp.com/channels/%s/%s/>" % (str(voicechannel.name), str(ctx.guild.id), str(voicechannel.id)))
-    else:
-        await ctx.send("%s you are not in a voice channel right now" % (ctx.author.mention))
-
-
-@client.command(name="roll", brief="A very complicated roll command", description="", pass_context=True)
-async def roll(ctx, maax=None):
-    who = ctx.message.author.display_name
-    try:
-        maax = int(maax)
-    except:
-        maax = 100
-    if maax < 0:
-        randomnumber = random.randint(maax, 0)
-    else:
-        randomnumber = random.randint(0, maax)
-    if randomnumber == 1:
-        point = "point"
-    else:
-        point = "points"
-    await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), randomnumber, point))
-
-
-@client.command(name="ping", brief="Ping a role", description="", pass_context=True)
-async def ping(ctx, *, role_name):
-    if permissions.check(ctx.message.author.id):
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
-        await role.edit(mentionable=True)
-        await ctx.send(role.mention)
-        await role.edit(mentionable=False)
-    else:
-        await ctx.send(embed=permissions.error())
-
-
-@client.command(name="massnick", brief="Nickname every user", description="", pass_context=True)
-async def massnick(ctx, nickname=None):
-    if permissions.check(ctx.message.author.id):
-        for member in ctx.guild.members:
-            try:
-                await member.edit(nick=nickname)
-            except Exception as e:
-                await ctx.send(member.name)
-                await ctx.send(e)
-        await ctx.send("Done")
-    else:
-        await ctx.send(embed=permissions.error())
-
 
 @client.event
 async def on_message(message):
@@ -215,36 +118,14 @@ async def on_message(message):
 
 @client.event
 async def on_message_delete(message):
-    await audit_logging.on_message_delete(client, message)
     await cr_pair.on_message_delete(client, message)
     await momiji.on_message_delete(client, message)
 
 
 @client.event
 async def on_message_edit(before, after):
-    await audit_logging.on_message_edit(client, before, after)
     await momiji.on_message_edit(client, before, after)
     await aimod.on_message(client, after)
-
-
-@client.event
-async def on_member_join(member):
-    await audit_logging.on_member_join(client, member)
-
-
-@client.event
-async def on_member_remove(member):
-    await audit_logging.on_member_remove(client, member)
-
-
-@client.event
-async def on_member_update(before, after):
-    await audit_logging.on_member_update(client, before, after)
-
-
-@client.event
-async def on_user_update(before, after):
-    await audit_logging.on_user_update(client, before, after)
 
 
 client.run(bot_token)
