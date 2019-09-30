@@ -1,4 +1,4 @@
-from modules import audit_logging_embeds
+from embeds import AuditLoggingEmbeds
 from modules import db
 import time
 import discord
@@ -15,7 +15,7 @@ class AuditLogging(commands.Cog, name="AuditLogging"):
             guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(member.guild.id)]])
             if guild_audit_log_channel:
                 channell = self.bot.get_channel(int(guild_audit_log_channel[0][0]))
-                await channell.send(embed=await audit_logging_embeds.member_remove(member))
+                await channell.send(embed=await AuditLoggingEmbeds.member_remove(member))
         except Exception as e:
             print(time.strftime('%X %x %Z'))
             print("in on_member_remove")
@@ -27,7 +27,7 @@ class AuditLogging(commands.Cog, name="AuditLogging"):
             guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(member.guild.id)]])
             if guild_audit_log_channel:
                 channell = self.bot.get_channel(int(guild_audit_log_channel[0][0]))
-                await channell.send(embed=await audit_logging_embeds.member_join(member))
+                await channell.send(embed=await AuditLoggingEmbeds.member_join(member))
         except Exception as e:
             print(time.strftime('%X %x %Z'))
             print("in on_member_join")
@@ -41,7 +41,7 @@ class AuditLogging(commands.Cog, name="AuditLogging"):
                     guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(before.guild.id)]])
                     if guild_audit_log_channel:
                         channell = self.bot.get_channel(int(guild_audit_log_channel[0][0]))
-                        await channell.send(embed=await audit_logging_embeds.message_edit(before, after))
+                        await channell.send(embed=await AuditLoggingEmbeds.message_edit(before, after))
         except Exception as e:
             print(time.strftime('%X %x %Z'))
             print("in on_message_edit")
@@ -54,7 +54,7 @@ class AuditLogging(commands.Cog, name="AuditLogging"):
                 guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(message.guild.id)]])
                 if guild_audit_log_channel:
                     channell = self.bot.get_channel(int(guild_audit_log_channel[0][0]))
-                    await channell.send(embed=await audit_logging_embeds.message_delete(message))
+                    await channell.send(embed=await AuditLoggingEmbeds.message_delete(message))
         except Exception as e:
             print(time.strftime('%X %x %Z'))
             print("in on_message_delete")
@@ -80,7 +80,7 @@ class AuditLogging(commands.Cog, name="AuditLogging"):
                     regularsrole = db.query(["SELECT value FROM config WHERE setting = ? AND value = ?", ["guild_regular_role", str(role.id)]])
                     if (not voicerole) and (not regularsrole): ## TODO: fix
                         channell = self.bot.get_channel(int(guild_audit_log_channel[0][0]))
-                        await channell.send(embed=await audit_logging_embeds.role_change(after, text % (role.name)))
+                        await channell.send(embed=await AuditLoggingEmbeds.role_change(after, text % (role.name)))
         except Exception as e:
             print(time.strftime('%X %x %Z'))
             print("in on_member_update")
@@ -96,7 +96,7 @@ class AuditLogging(commands.Cog, name="AuditLogging"):
                     if guild:
                         if guild.get_member(after.id):
                             channell = self.bot.get_channel(int(guild_audit_log_channel[1]))
-                            await channell.send(embed=await audit_logging_embeds.on_user_update(before, after))
+                            await channell.send(embed=await AuditLoggingEmbeds.on_user_update(before, after))
         except Exception as e:
             print(time.strftime('%X %x %Z'))
             print("in on_user_update")

@@ -7,15 +7,10 @@ from discord.ext import commands
 import sys
 import os
 
-
-from modules import permissions
-from modules import cr_pair
-from modules import momiji
-from modules import aimod
 from modules import db
 
 commandprefix = ';'
-appversion = "a20190928-very-very-experimental"
+appversion = "a20191001-very-very-experimental"
 client = commands.Bot(command_prefix=commandprefix, description='Momiji %s' % (appversion))
 if not os.path.exists('data'):
     print("Please configure this bot according to readme file.")
@@ -28,6 +23,7 @@ initial_extensions = [
     'cogs.AuditLogging', 
     'cogs.BotManagement', 
     'cogs.ChannelExporting', 
+    'cogs.CRPair', 
     'cogs.Img', 
     'cogs.InspiroBot', 
     'cogs.MessageStats', 
@@ -35,6 +31,7 @@ initial_extensions = [
     'cogs.Moderation', 
     'cogs.MomijiChannelImporting', 
     'cogs.MomijiCommands', 
+    'cogs.MomijiSpeak', 
     'cogs.Music', 
     'cogs.Pinning', 
     'cogs.RegularsRole', 
@@ -107,25 +104,5 @@ async def on_ready():
         appinfo = await client.application_info()
         db.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
         print("Added %s to admin list" % (appinfo.owner.name))
-
-
-@client.event
-async def on_message(message):
-    await momiji.on_message(client, message)
-    await aimod.on_message(client, message)
-    await client.process_commands(message)
-
-
-@client.event
-async def on_message_delete(message):
-    await cr_pair.on_message_delete(client, message)
-    await momiji.on_message_delete(client, message)
-
-
-@client.event
-async def on_message_edit(before, after):
-    await momiji.on_message_edit(client, before, after)
-    await aimod.on_message(client, after)
-
 
 client.run(bot_token)

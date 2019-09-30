@@ -3,8 +3,6 @@ from modules import permissions
 import discord
 from discord.ext import commands
 import time
-from modules.momiji import check_privacy
-
 
 class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
     def __init__(self, bot):
@@ -41,7 +39,7 @@ class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
             #starttime = time.time()
             log_instance = channel.history(limit=999999999)
             #logcounter = 0
-            if await check_privacy(ctx):
+            if await self.check_privacy(ctx):
                 private_area = True
             else:
                 private_area = False
@@ -73,6 +71,14 @@ class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
             #await ctx.send(importfinished)
         except Exception as e:
             print(e)
+
+    async def check_privacy(self, message):
+        if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
+            # Not a private channel
+            return False
+        else:
+            # Private channel
+            return True
 
 
 def setup(bot):
