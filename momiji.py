@@ -19,37 +19,6 @@ if not os.path.exists('usermodules'):
     os.makedirs('usermodules')
 #client.remove_command('help')
 
-initial_extensions = [
-    'cogs.AuditLogging', 
-    'cogs.BotManagement', 
-    'cogs.ChannelExporting', 
-    'cogs.CRPair', 
-    'cogs.Img', 
-    'cogs.InspiroBot', 
-    'cogs.MessageStats', 
-    'cogs.Misc', 
-    'cogs.Moderation', 
-    'cogs.MomijiChannelImporting', 
-    'cogs.MomijiCommands', 
-    'cogs.MomijiSpeak', 
-    'cogs.Music', 
-    'cogs.Pinning', 
-    'cogs.RegularsRole', 
-    'cogs.SelfAssignableRoles', 
-    'cogs.StatsBuilder', 
-    'cogs.VoiceLogging', 
-    'cogs.VoiceRoles', 
-    'cogs.Welcome', 
-]
-
-if __name__ == '__main__':
-    for extension in initial_extensions:
-        try:
-            client.load_extension(extension)
-        except Exception as e:
-            print(e)
-
-
 if not os.path.exists(database_file):
     db.query("CREATE TABLE config (setting, parent, value, flag)")
     db.query("CREATE TABLE admins (user_id, permissions)")
@@ -92,6 +61,36 @@ if not os.path.exists(database_file):
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?)", ["omg", "", "startswith"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?)", ["wut", "", "startswith"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?)", ["wat", "", "startswith"]])
+
+initial_extensions = [
+    'cogs.AuditLogging', 
+    'cogs.BotManagement', 
+    'cogs.ChannelExporting', 
+    'cogs.CRPair', 
+    'cogs.Img', 
+    'cogs.InspiroBot', 
+    'cogs.MessageStats', 
+    'cogs.Misc', 
+    'cogs.Moderation', 
+    'cogs.MomijiChannelImporting', 
+    'cogs.MomijiCommands', 
+    'cogs.MomijiSpeak', 
+    'cogs.Music', 
+    'cogs.Pinning', 
+    'cogs.RegularsRole', 
+    'cogs.SelfAssignableRoles', 
+    'cogs.StatsBuilder', 
+    'cogs.VoiceLogging', 
+    'cogs.VoiceRoles', 
+    'cogs.Welcome', 
+]
+
+if __name__ == '__main__':
+    for extension in initial_extensions:
+        try:
+            client.load_extension(extension)
+        except Exception as e:
+            print(e)
 
 
 @client.event
