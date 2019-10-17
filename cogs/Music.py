@@ -4,11 +4,13 @@ import asyncio
 import os
 import random
 from modules import permissions
+from mutagen.easyid3 import EasyID3
 
 
 class Music(commands.Cog, name="Music commands"):
     def __init__(self, bot):
         self.bot = bot
+        self.audio_storage = "data/audio/"
         self.voice_sessions = {}
         self.stop_queue = {}
 
@@ -44,33 +46,45 @@ class Music(commands.Cog, name="Music commands"):
                     return None
             self.voice_sessions[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
             await ctx.send("Momiji reporting for duty")
-            
+
         if ctx.message.guild.id in self.voice_sessions:
             if self.voice_sessions[ctx.message.guild.id].is_playing():
                 await ctx.send("already playing in this guild.")
             else:
                 self.stop_queue[ctx.message.guild.id] = None
-                audiodir = "data/audio/"
-                if os.path.exists(audiodir):
-                    musiclist = os.listdir(audiodir)
-                    random.shuffle(musiclist)
-                    totalmusic = len(musiclist)
-                    await ctx.send("Total amount of tracks in the playlist: %s" % (totalmusic))
+                if os.path.exists(self.audio_storage):
+                    file_list = os.listdir(self.audio_storage)
+                    random.shuffle(file_list)
+                    playlist_size = len(file_list)
+                    await ctx.send("Total amount of tracks in the playlist: %s" % (playlist_size))
                     counter = 0
-                    for audio in musiclist:
+                    for audio_file in file_list:
                         while True:
                             if ctx.message.guild.id in self.voice_sessions:
                                 if self.voice_sessions[ctx.message.guild.id].is_playing():
                                     await asyncio.sleep(3)
                                 else:
                                     if not self.stop_queue[ctx.message.guild.id]:
-                                        if (audio.split("."))[-1] == "mp3" or (audio.split("."))[-1] == "ogg" or (audio.split("."))[-1] == "flac":
+                                        if (audio_file.split("."))[-1] == "mp3" or (audio_file.split("."))[-1] == "ogg" or (audio_file.split("."))[-1] == "flac":
                                             counter += 1
+                                            audio_file_location = self.audio_storage+audio_file
                                             try:
-                                                self.voice_sessions[ctx.message.guild.id].play(discord.FFmpegPCMAudio(audiodir+audio), after=lambda e: print('done', e))
+                                                self.voice_sessions[ctx.message.guild.id].play(discord.FFmpegPCMAudio(audio_file_location))
                                             except Exception as e:
                                                 await ctx.send(e)
-                                            await ctx.send(embed=await self.currently_playing_embed(audio, totalmusic, counter), delete_after=600)
+                                            try:
+                                                audio_tags = EasyID3(audio_file_location)
+                                            except Exception as e:
+                                                audio_tags = {
+                                                    "title": [""],
+                                                    "artist": [""],
+                                                    "album": [""],
+                                                }
+                                                print(e)
+                                            try:
+                                                await ctx.send(embed=await self.currently_playing_embed(audio_file, playlist_size, counter, audio_tags), delete_after=600)
+                                            except Exception as e:
+                                                print(e)
                                     break
     
     @commands.command(name="m_next", brief="Next track", description="", pass_context=True)
@@ -90,16 +104,17 @@ class Music(commands.Cog, name="Music commands"):
                 self.voice_sessions[ctx.message.guild.id].stop()
                 await ctx.send("Stopped playing music")
 
-    async def currently_playing_embed(self, filename, amount, counter):
+    async def currently_playing_embed(self, filename, amount, counter, audio_tags):
         embed = discord.Embed(
-            description=filename,
+            title=str(audio_tags['title'][0]),
+            description=str(audio_tags['album'][0]),
             color=0xFFFF00
         )
         embed.set_author(
-            name="Currently Playing"
+            name=str(audio_tags['artist'][0])
         )
         embed.set_footer(
-            text="Song %s/%s" % (counter, amount)
+            text="%s/%s : %s" % (counter, amount, filename)
         )
         return embed
 
