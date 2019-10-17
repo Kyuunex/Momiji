@@ -15,6 +15,10 @@ class Music(commands.Cog, name="Music commands"):
     @commands.command(name="vc_join", brief="Join voice channel", description="", pass_context=True)
     @commands.check(permissions.is_admin)
     async def vc_join(self, ctx):
+        for voice_client in self.bot.voice_clients:
+            if voice_client.guild.id == ctx.message.guild.id:
+                await ctx.send("already playing in this guild")
+                return None
         self.voice_sessions[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
         await ctx.send("Momiji reporting for duty")
 
@@ -32,6 +36,15 @@ class Music(commands.Cog, name="Music commands"):
     @commands.command(name="m_play", brief="Play music", description="", pass_context=True)
     @commands.check(permissions.is_admin)
     async def m_play(self, ctx):
+        if not ctx.message.guild.id in self.voice_sessions:
+            # await self.vc_join(ctx) # this does not work so I'll just copy and paste
+            for voice_client in self.bot.voice_clients:
+                if voice_client.guild.id == ctx.message.guild.id:
+                    await ctx.send("already playing in this guild")
+                    return None
+            self.voice_sessions[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
+            await ctx.send("Momiji reporting for duty")
+            
         if ctx.message.guild.id in self.voice_sessions:
             if self.voice_sessions[ctx.message.guild.id].is_playing():
                 await ctx.send("already playing in this guild.")
@@ -59,9 +72,6 @@ class Music(commands.Cog, name="Music commands"):
                                                 await ctx.send(e)
                                             await ctx.send(embed=await self.currently_playing_embed(audio, totalmusic, counter), delete_after=600)
                                     break
-        else:
-            self.voice_sessions[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
-            await ctx.send("Momiji reporting for duty")
     
     @commands.command(name="m_next", brief="Next track", description="", pass_context=True)
     @commands.check(permissions.is_admin)
