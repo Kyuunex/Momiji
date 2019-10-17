@@ -39,28 +39,24 @@ class Misc(commands.Cog, name="Misc"):
 
 
     @commands.command(name="ping", brief="Ping a role", description="", pass_context=True)
+    @commands.check(permissions.is_admin)
     async def ping(self, ctx, *, role_name):
-        if permissions.check(ctx.message.author.id):
-            role = discord.utils.get(ctx.guild.roles, name=role_name)
-            await role.edit(mentionable=True)
-            await ctx.send(role.mention)
-            await role.edit(mentionable=False)
-        else:
-            await ctx.send(embed=permissions.error())
+        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        await role.edit(mentionable=True)
+        await ctx.send(role.mention)
+        await role.edit(mentionable=False)
 
 
     @commands.command(name="massnick", brief="Nickname every user", description="", pass_context=True)
+    @commands.check(permissions.is_admin)
     async def massnick(self, ctx, nickname=None):
-        if permissions.check(ctx.message.author.id):
-            for member in ctx.guild.members:
-                try:
-                    await member.edit(nick=nickname)
-                except Exception as e:
-                    await ctx.send(member.name)
-                    await ctx.send(e)
-            await ctx.send("Done")
-        else:
-            await ctx.send(embed=permissions.error())
+        for member in ctx.guild.members:
+            try:
+                await member.edit(nick=nickname)
+            except Exception as e:
+                await ctx.send(member.name)
+                await ctx.send(e)
+        await ctx.send("Done")
 
 def setup(bot):
     bot.add_cog(Misc(bot))

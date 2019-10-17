@@ -1,40 +1,28 @@
 import discord
 from modules import db
 
+admin_list = []
+for admin_id in db.query("SELECT user_id FROM admins"):
+    admin_list.append(admin_id[0])
 
-def check(id):
-    if db.query(["SELECT user_id FROM admins WHERE user_id = ?", [str(id)]]):
-        return True
-    else:
-        return False
+owner_list = []
+for owner_id in db.query(["SELECT user_id FROM admins WHERE permissions = ?", [str(1)]]):
+    owner_list.append(owner_id[0])
 
+async def is_admin(ctx):
+    return str(ctx.author.id) in admin_list
 
-def check_owner(id):
-    if db.query(["SELECT user_id FROM admins WHERE user_id = ? AND permissions = ?", [str(id), str(1)]]):
-        return True
-    else:
-        return False
-
-
-def error():
-    embed = discord.Embed(title="This command is reserved for bot admins only", description="Ask <@%s>" % (get_bot_owner_id()), color=0xffffff)
-    embed.set_author(name="Lack of permissions")
-    return embed
-
-
-def error_owner():
-    embed = discord.Embed(title="This command is only for", description="<@%s>" % (get_bot_owner_id()), color=0xffffff)
-    embed.set_author(name="Lack of permissions")
-    return embed
-
-
-def get_bot_owner_id():
-    owner = db.query(["SELECT user_id FROM admins WHERE permissions = ?", [str(1)]])
-    return owner[0][0]
-
+async def is_owner(ctx):
+    return str(ctx.author.id) in owner_list
 
 def get_admin_list():
     contents = ""
-    for user_id in db.query("SELECT user_id FROM admins"):
-        contents += "<@%s>\n" % (user_id)
+    for admin_id in admin_list:
+        contents += "<@%s>\n" % (admin_id)
     return discord.Embed(title="Bot admin list", description=contents, color=0xffffff)
+
+def check_admin(id):
+    return str(id) in admin_list
+
+def check_owner(id):
+    return str(id) in owner_list

@@ -55,24 +55,20 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
             await ctx.send("lol no")
 
     @commands.command(name="regulars_add", brief="Manage the regulars role", description="", pass_context=True)
+    @commands.check(permissions.is_admin)
     async def regulars_add(self, ctx, rolename="Regular", amount="10"):
-        if permissions.check(ctx.message.author.id):
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-            if role:
-                db.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_regular_role", str(ctx.guild.id), str(role.id), str(amount)]])
-                await ctx.send("%s role is now regulars role with top %s getting the role" % (role.name, amount))
-        else:
-            await ctx.send(embed=permissions.error())
+        role = discord.utils.get(ctx.guild.roles, name=rolename)
+        if role:
+            db.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_regular_role", str(ctx.guild.id), str(role.id), str(amount)]])
+            await ctx.send("%s role is now regulars role with top %s getting the role" % (role.name, amount))
 
     @commands.command(name="regulars_remove", brief="Manage the regulars role", description="", pass_context=True)
+    @commands.check(permissions.is_admin)
     async def regulars_remove(self, ctx, rolename="Regular"):
-        if permissions.check(ctx.message.author.id):
-            role = discord.utils.get(ctx.guild.roles, name=rolename)
-            if role:
-                db.query(["DELETE FROM config WHERE guild_id = ? AND setting = ? AND role_id = ?", [str(ctx.guild.id), "guild_regular_role", str(role.id)]])
-                await ctx.send("%s is no longer the regulars role" % (role.name))
-        else:
-            await ctx.send(embed=permissions.error())
+        role = discord.utils.get(ctx.guild.roles, name=rolename)
+        if role:
+            db.query(["DELETE FROM config WHERE guild_id = ? AND setting = ? AND role_id = ?", [str(ctx.guild.id), "guild_regular_role", str(role.id)]])
+            await ctx.send("%s is no longer the regulars role" % (role.name))
 
     async def list_sorter(self, a_list):
         results = dict(Counter(a_list))

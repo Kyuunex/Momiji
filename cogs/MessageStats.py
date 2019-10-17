@@ -99,45 +99,43 @@ class MessageStats(commands.Cog, name="MessageStats"):
 
 
     @commands.command(name="wordstats", brief="Word statistics", description="", pass_context=True)
+    @commands.check(permissions.is_owner)
     async def wordstats(self, ctx, arg=None):
-        if permissions.check_owner(ctx.message.author.id):
-            if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
-                if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(ctx.guild.id)]])):
-                    async with ctx.channel.typing():
-                        title = "Here are 40 most used words in server all time:"
-                        messages = db.query(["SELECT contents FROM mmj_message_logs WHERE guild_id = ?;", [str(ctx.guild.id),]])
+        if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
+            if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(ctx.guild.id)]])):
+                async with ctx.channel.typing():
+                    title = "Here are 40 most used words in server all time:"
+                    messages = db.query(["SELECT contents FROM mmj_message_logs WHERE guild_id = ?;", [str(ctx.guild.id),]])
 
-                        individualwords = []
-                        for message in messages:
-                            for oneword in (message[0]).split(" "):
-                                individualwords.append(oneword.replace("`","").lower())
+                    individualwords = []
+                    for message in messages:
+                        for oneword in (message[0]).split(" "):
+                            individualwords.append(oneword.replace("`","").lower())
 
-                        stats = await self.list_sorter(individualwords)
+                    stats = await self.list_sorter(individualwords)
 
-                        rank = 0
-                        contents = title + "\n\n"
-                        blacklist = [
-                            "",
-                        ]
+                    rank = 0
+                    contents = title + "\n\n"
+                    blacklist = [
+                        "",
+                    ]
 
-                        for wordstat in stats:
-                            if not (any(c == wordstat[0] for c in blacklist)):
-                                rank += 1
-                                amount = str(wordstat[1])+" times"
-                                contents += "**[%s]** : `%s` : %s\n" % (rank, wordstat[0], amount)
-                                if rank == 40:
-                                    break
+                    for wordstat in stats:
+                        if not (any(c == wordstat[0] for c in blacklist)):
+                            rank += 1
+                            amount = str(wordstat[1])+" times"
+                            contents += "**[%s]** : `%s` : %s\n" % (rank, wordstat[0], amount)
+                            if rank == 40:
+                                break
 
-                        statsembed = discord.Embed(description=contents, color=0xffffff)
-                        statsembed.set_author(name="Word stats")
-                        statsembed.set_footer(text="Momiji is best wolf.")
-                    await ctx.send(embed=statsembed)
-                else:
-                    await ctx.send('impossible to do this in this guild because this is a private area and I don\'t store messages from here')
+                    statsembed = discord.Embed(description=contents, color=0xffffff)
+                    statsembed.set_author(name="Word stats")
+                    statsembed.set_footer(text="Momiji is best wolf.")
+                await ctx.send(embed=statsembed)
             else:
-                await ctx.send('slow down bruh')
+                await ctx.send('impossible to do this in this guild because this is a private area and I don\'t store messages from here')
         else:
-            await ctx.send(embed=permissions.error_owner())
+            await ctx.send('slow down bruh')
 
 
 def setup(bot):

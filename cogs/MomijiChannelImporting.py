@@ -9,30 +9,26 @@ class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
         self.bot = bot
 
     @commands.command(name="init", brief="Initialize in this guild", description="", pass_context=True)
+    @commands.check(permissions.is_admin)
     async def init_server(self, ctx):
-        if permissions.check(ctx.message.author.id):
-            for channel in ctx.guild.channels:
-                if type(channel) is discord.TextChannel:
-                    await self.import_one_channel(ctx, channel)
-            await ctx.send(":ok_hand:")
-        else:
-            await ctx.send(embed=permissions.error())
+        for channel in ctx.guild.channels:
+            if type(channel) is discord.TextChannel:
+                await self.import_one_channel(ctx, channel)
+        await ctx.send(":ok_hand:")
 
     @commands.command(name="import", brief="Import the chat", description="Imports stuff", pass_context=True)
+    @commands.check(permissions.is_admin)
     async def import_messages(self, ctx, *channel_id_list):
-        if permissions.check(ctx.message.author.id):
-            for channel_id in channel_id_list:
-                if channel_id == "this":
-                    await self.import_one_channel(ctx, ctx.message.channel)
-                elif channel_id == "server":
-                    for channel in ctx.guild.channels:
-                        if type(channel) is discord.TextChannel:
-                            await self.import_one_channel(ctx, channel)
-                    await ctx.send(":ok_hand:")
-                else:
-                    await self.import_one_channel(ctx, self.bot.get_channel(int(channel_id)))
-        else:
-            await ctx.send(embed=permissions.error())
+        for channel_id in channel_id_list:
+            if channel_id == "this":
+                await self.import_one_channel(ctx, ctx.message.channel)
+            elif channel_id == "server":
+                for channel in ctx.guild.channels:
+                    if type(channel) is discord.TextChannel:
+                        await self.import_one_channel(ctx, channel)
+                await ctx.send(":ok_hand:")
+            else:
+                await self.import_one_channel(ctx, self.bot.get_channel(int(channel_id)))
 
     async def import_one_channel(self, ctx, channel):
         try:
