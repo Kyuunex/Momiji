@@ -10,6 +10,31 @@ class AuditLogging(commands.Cog, name="AuditLogging"):
         self.bot = bot
 
     @commands.Cog.listener()
+    async def on_member_ban(self, guild, member):
+        try:
+            guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(guild.id)]])
+            if guild_audit_log_channel:
+                channell = self.bot.get_channel(int(guild_audit_log_channel[0][0]))
+                about_this_ban = await guild.fetch_ban(member)
+                await channell.send(embed=await AuditLoggingEmbeds.member_ban(member, about_this_ban.reason))
+        except Exception as e:
+            print(time.strftime('%X %x %Z'))
+            print("in on_member_remove")
+            print(e)
+
+    @commands.Cog.listener()
+    async def on_member_unban(self, guild, user):
+        try:
+            guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(guild.id)]])
+            if guild_audit_log_channel:
+                channell = self.bot.get_channel(int(guild_audit_log_channel[0][0]))
+                await channell.send(embed=await AuditLoggingEmbeds.member_unban(user))
+        except Exception as e:
+            print(time.strftime('%X %x %Z'))
+            print("in on_member_remove")
+            print(e)
+
+    @commands.Cog.listener()
     async def on_member_remove(self, member):
         try:
             guild_audit_log_channel = db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["guild_audit_log_channel", str(member.guild.id)]])

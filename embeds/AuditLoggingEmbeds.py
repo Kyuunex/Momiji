@@ -73,6 +73,45 @@ async def member_remove(member):
         return None
 
 
+async def member_ban(member, reason):
+    if member:
+        text = "%s" % (member.mention)
+        text += "\n%s" % (str(member.id))
+        text += "\n%s" % (str(reason))
+        embed = discord.Embed(
+            description=text,
+            color=0x800000
+        )
+        embed.set_author(
+            name="%s#%s" % (member.name, member.discriminator)
+        )
+        embed.set_footer(
+            text="Member banned"
+        )
+        embed.set_thumbnail(url=member.avatar_url)
+        return embed
+    else:
+        return None
+
+
+async def member_unban(member):
+    if member:
+        embed = discord.Embed(
+            description="%s\n%s" % (member.mention, str(member.id)),
+            color=0x00ff00
+        )
+        embed.set_author(
+            name="%s#%s" % (member.name, member.discriminator)
+        )
+        embed.set_footer(
+            text="Member unbanned"
+        )
+        embed.set_thumbnail(url=member.avatar_url)
+        return embed
+    else:
+        return None
+
+
 async def role_change(member, desc):
     if member:
         embed = discord.Embed(
