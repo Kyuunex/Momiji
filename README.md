@@ -18,7 +18,7 @@ I am sorry, but this happens when you want to add new features and accounting fo
 
 1. Install `git` and `Python 3.5.3` (or newer) if you don't already have them.
 2. Clone this repository using this command `git clone https://github.com/Kyuunex/Momiji.git`
-3. Install `discord.py` using this command `python3 -m pip install -U discord.py[voice]`. Dev version recommended though `pip3 install -U git+https://github.com/Rapptz/discord.py@master#egg=discord.py[voice]`
+3. Install `discord.py` using this command `python3 -m pip install -U discord.py[voice]`.
 4. `pip3 install imagehash mutagen`.
 5. Create a folder named `data`, then create `token.txt` inside it. Then put your bot token in it. 
 6. To start the bot, run `momiji.bat` if you are on windows or `momiji.sh` if you are on linux. Alternatively, you can manually run `momiji.py` file but I recommend using the included launchers because it starts the bot in a loop which is required by the `;restart` and `;update` commands.
