@@ -6,29 +6,28 @@ from discord.ext import commands
 import os
 import random
 import imghdr
-import json
 from modules import db
 from modules import cooldown
 
 class Img(commands.Cog, name="Picture related commands"):
     def __init__(self, bot):
         self.bot = bot
+        self.art_dir = "data/art/"
 
-    @commands.command(name="art", brief="", description="", pass_context=True)
+    @commands.command(name="art", brief="Post random art", description="Upload a random image from ./data/art/ folder", pass_context=True)
     async def art(self, ctx):
         if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
-            artdir = "data/art/"
-            if os.path.exists(artdir):
+            if os.path.exists(self.art_dir):
                 a = True
                 while a:
-                    randompicture = random.choice(os.listdir(artdir))
+                    randompicture = random.choice(os.listdir(self.art_dir))
                     if (randompicture.split("."))[-1] == "png" or (randompicture.split("."))[-1] == "jpg":
                         a = False
-                await ctx.send(file=discord.File(artdir+randompicture))
+                await ctx.send(file=discord.File(self.art_dir+randompicture))
         else:
             await ctx.send('slow down bruh')
 
-    @commands.command(name="neko", brief="", description="", pass_context=True)
+    @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life", pass_context=True)
     async def neko(self, ctx):
         if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
             url = 'https://www.nekos.life/api/v2/img/neko'
@@ -40,7 +39,7 @@ class Img(commands.Cog, name="Picture related commands"):
         else:
             await ctx.send('slow down bruh')
 
-    @commands.command(name="gis", brief="", description="", pass_context=True)
+    @commands.command(name="gis", brief="Google image search", description="Search for a phrase on Google images and post a random result", pass_context=True)
     async def gis(self, ctx, searchquery):
         if ctx.channel.is_nsfw():
             if await cooldown.check(str(ctx.author.id), 'lastimgtime', 40):
