@@ -10,8 +10,10 @@ import os
 from modules import db
 
 commandprefix = ';'
-appversion = "a20191001-very-very-experimental"
-client = commands.Bot(command_prefix=commandprefix, description='Momiji %s' % (appversion))
+appversion = "a20191001.2-very-very-experimental"
+client = commands.Bot(command_prefix=commandprefix,
+                      description='Momiji %s' % (appversion),
+                      activity=discord.Game("Version %s" % appversion))
 if not os.path.exists('data'):
     print("Please configure this bot according to readme file.")
     sys.exit("data folder and it's contents are missing")

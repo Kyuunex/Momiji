@@ -9,6 +9,7 @@ from modules.connections import database_file as database_file
 class BotManagement(commands.Cog, name="Bot Management commands"):
     def __init__(self, bot):
         self.bot = bot
+        self.db_dump_channel_list = db.query(["SELECT value FROM config WHERE setting = ?", ["db_dump_channel"]])
 
     @commands.command(name="admin_list", brief="Show bot admin list", description="", pass_context=True)
     async def admin_list(self, ctx):
@@ -16,7 +17,7 @@ class BotManagement(commands.Cog, name="Bot Management commands"):
 
     @commands.command(name="make_admin", brief="Add a user to bot admin list", description="", pass_context=True)
     @commands.check(permissions.is_owner)
-    async def make_admin(self, ctx, user_id: str, perms = str("0")):
+    async def make_admin(self, ctx, user_id: str, perms=str("0")):
         db.query(["INSERT INTO admins VALUES (?, ?)", [str(user_id), str(perms)]])
         await ctx.send(":ok_hand:")
 
@@ -33,7 +34,7 @@ class BotManagement(commands.Cog, name="Bot Management commands"):
         os.system('git pull')
         quit()
 
-    @commands.command(name="sql", brief="Executre an SQL query", description="", pass_context=True)
+    @commands.command(name="sql", brief="Execute an SQL query", description="", pass_context=True)
     @commands.check(permissions.is_owner)
     async def sql(self, ctx, *, query):
         if len(query) > 0:
@@ -54,16 +55,22 @@ class BotManagement(commands.Cog, name="Bot Management commands"):
         await ctx.message.delete()
         await ctx.send(string)
 
+    @commands.command(name="set_activity", brief="Set an activity", description="", pass_context=True)
+    @commands.check(permissions.is_owner)
+    async def set_activity(self, ctx, *, string):
+        activity = discord.Game(string)
+        await self.bot.change_presence(activity=activity)
+
     @commands.command(name="config", brief="Insert a config in db", description="", pass_context=True)
     @commands.check(permissions.is_owner)
-    async def config(self, ctx, setting, parent, value, flag = "0"):
+    async def config(self, ctx, setting, parent, value, flag="0"):
         db.query(["INSERT INTO config VALUES (?, ?, ?, ?)", [str(setting), str(parent), str(value), str(flag)]])
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="dbdump", brief="Perform a database dump", description="", pass_context=True)
+    @commands.command(name="db_dump", brief="Perform a database dump", description="", pass_context=True)
     @commands.check(permissions.is_admin)
-    async def dbdump(self, ctx):
-        if ctx.message.channel.id == int((db.query(["SELECT value FROM config WHERE setting = ? AND parent = ?", ["db_dump_channel", str(ctx.guild.id)]]))[0][0]):
+    async def db_dump(self, ctx):
+        if (str(ctx.channel.id),) in self.db_dump_channel_list:
             await ctx.send(file=discord.File(database_file))
 
 
