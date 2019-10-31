@@ -16,7 +16,7 @@ class InspiroBot(commands.Cog, name="InspiroBot commands"):
         self.voice_sessions = {}
         self.stop_queue = {}
 
-    @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot", description="", pass_context=True)
+    @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot", description="")
     async def mindfulness(self, ctx, action="start"):
         if ctx.message.guild.id in self.voice_sessions:
             if self.voice_sessions[ctx.message.guild.id].is_playing():
@@ -53,7 +53,7 @@ class InspiroBot(commands.Cog, name="InspiroBot commands"):
                                         else:
                                             await asyncio.sleep(5)
 
-    @commands.command(name="inspire", brief="When you crave some inspiration in your life", description="", pass_context=True)
+    @commands.command(name="inspire", brief="When you crave some inspiration in your life", description="")
     async def inspire(self, ctx):
         try:
             if await cooldown.check(str(ctx.author.id), 'lastinspiretime', 40):

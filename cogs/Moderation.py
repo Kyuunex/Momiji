@@ -5,7 +5,7 @@ class Moderation(commands.Cog, name="Moderation commands"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="purge", brief="Purge X amount of messages", description="", pass_context=True)
+    @commands.command(name="purge", brief="Purge X amount of messages", description="")
     async def purge(self, ctx, amount, author = None):
         if (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
             try:

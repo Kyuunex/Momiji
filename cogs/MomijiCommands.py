@@ -7,7 +7,7 @@ class MomijiCommands(commands.Cog, name="MomijiCommands"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="bridge", brief="Bridge the channel", description="", pass_context=True)
+    @commands.command(name="bridge", brief="Bridge the channel", description="")
     @commands.check(permissions.is_admin)
     async def bridge(self, ctx, bridge_type: str, value: str):
         if bridge_type == "channel":

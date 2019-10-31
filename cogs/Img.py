@@ -14,7 +14,7 @@ class Img(commands.Cog, name="Picture related commands"):
         self.bot = bot
         self.art_dir = "data/art/"
 
-    @commands.command(name="art", brief="Post random art", description="Upload a random image from ./data/art/ folder", pass_context=True)
+    @commands.command(name="art", brief="Post random art", description="Upload a random image from ./data/art/ folder")
     async def art(self, ctx):
         if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
             if os.path.exists(self.art_dir):
@@ -27,7 +27,7 @@ class Img(commands.Cog, name="Picture related commands"):
         else:
             await ctx.send('slow down bruh')
 
-    @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life", pass_context=True)
+    @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life")
     async def neko(self, ctx):
         if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
             url = 'https://www.nekos.life/api/v2/img/neko'
@@ -39,7 +39,7 @@ class Img(commands.Cog, name="Picture related commands"):
         else:
             await ctx.send('slow down bruh')
 
-    @commands.command(name="gis", brief="Google image search", description="Search for a phrase on Google images and post a random result", pass_context=True)
+    @commands.command(name="gis", brief="Google image search", description="Search for a phrase on Google images and post a random result")
     async def gis(self, ctx, searchquery):
         if ctx.channel.is_nsfw():
             if await cooldown.check(str(ctx.author.id), 'lastimgtime', 40):

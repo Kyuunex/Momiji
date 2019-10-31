@@ -9,7 +9,7 @@ class ChannelExporting(commands.Cog, name="ChannelExporting"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="export", brief="Export the chat", description="Exports the chat to json format", pass_context=True)
+    @commands.command(name="export", brief="Export the chat", description="Exports the chat to json format")
     @commands.check(permissions.is_admin)
     async def exportjson(self, ctx, channel_id: int = None, amount: int = 999999999):
         async with ctx.channel.typing():

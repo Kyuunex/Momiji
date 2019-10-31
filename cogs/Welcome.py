@@ -10,7 +10,7 @@ class Welcome(commands.Cog, name="Welcome"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="set_welcome_message", brief="", description="", pass_context=True)
+    @commands.command(name="set_welcome_message", brief="", description="")
     @commands.check(permissions.is_admin)
     async def set_welcome_message(self, ctx, *, welcome_message):
         try:
@@ -20,7 +20,7 @@ class Welcome(commands.Cog, name="Welcome"):
         db.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_welcome_settings", str(ctx.message.guild.id), str(ctx.message.channel.id), str(welcome_message)]])
         await ctx.send(":ok_hand:", delete_after=3)
 
-    @commands.command(name="set_goodbye_message", brief="", description="", pass_context=True)
+    @commands.command(name="set_goodbye_message", brief="", description="")
     @commands.check(permissions.is_admin)
     async def set_goodbye_message(self, ctx, *, goodbye_message):
         try:

@@ -8,7 +8,7 @@ class StatsBuilder(commands.Cog, name="StatsBuilder"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="member", brief="Show some info about a user", description="", pass_context=True)
+    @commands.command(name="member", brief="Show some info about a user", description="")
     async def about_member(self, ctx, user_id=None):
         if user_id:
             member = ctx.guild.get_member(int(user_id))
@@ -31,7 +31,7 @@ class StatsBuilder(commands.Cog, name="StatsBuilder"):
         # output += "hypesquad: %s\n" % (str(profile.hypesquad))
         await ctx.send(output)
 
-    @commands.command(name="guild", brief="About this guild", description="", pass_context=True)
+    @commands.command(name="guild", brief="About this guild", description="")
     async def about_guild(self, ctx):
         guild = ctx.guild
         output = "name: %s\n" % (str(guild.name))
@@ -47,7 +47,7 @@ class StatsBuilder(commands.Cog, name="StatsBuilder"):
         output += "created_at: %s\n" % (str(guild.created_at))
         await ctx.send(output)
 
-    @commands.command(name="about", brief="About this bot", description="", pass_context=True)
+    @commands.command(name="about", brief="About this bot", description="")
     async def about_bot(self, ctx):
         appinfo = await self.bot.application_info()
         guildamount = len(self.bot.guilds)

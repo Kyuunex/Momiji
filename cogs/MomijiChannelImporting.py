@@ -8,7 +8,7 @@ class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="init", brief="Initialize in this guild", description="", pass_context=True)
+    @commands.command(name="init", brief="Initialize in this guild", description="")
     @commands.check(permissions.is_admin)
     async def init_server(self, ctx):
         for channel in ctx.guild.channels:
@@ -16,7 +16,7 @@ class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
                 await self.import_one_channel(ctx, channel)
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="import", brief="Import the chat", description="Imports stuff", pass_context=True)
+    @commands.command(name="import", brief="Import the chat", description="Imports stuff")
     @commands.check(permissions.is_admin)
     async def import_messages(self, ctx, *channel_id_list):
         for channel_id in channel_id_list:

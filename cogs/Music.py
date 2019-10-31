@@ -14,7 +14,7 @@ class Music(commands.Cog, name="Music commands"):
         self.voice_sessions = {}
         self.stop_queue = {}
 
-    @commands.command(name="vc_join", brief="Join voice channel", description="", pass_context=True)
+    @commands.command(name="vc_join", brief="Join voice channel", description="")
     @commands.check(permissions.is_admin)
     async def vc_join(self, ctx):
         for voice_client in self.bot.voice_clients:
@@ -24,7 +24,7 @@ class Music(commands.Cog, name="Music commands"):
         self.voice_sessions[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
         await ctx.send("Momiji reporting for duty")
 
-    @commands.command(name="vc_leave", brief="Leave voice channel", description="", pass_context=True)
+    @commands.command(name="vc_leave", brief="Leave voice channel", description="")
     @commands.check(permissions.is_admin)
     async def vc_leave(self, ctx):
         if ctx.message.guild.id in self.voice_sessions:
@@ -35,7 +35,7 @@ class Music(commands.Cog, name="Music commands"):
             del self.voice_sessions[ctx.message.guild.id]
             await ctx.send("if you dislike me this much, fine, i'll leave")
 
-    @commands.command(name="m_play", brief="Play music", description="", pass_context=True)
+    @commands.command(name="m_play", brief="Play music", description="")
     @commands.check(permissions.is_admin)
     async def m_play(self, ctx):
         if not ctx.message.guild.id in self.voice_sessions:
@@ -87,7 +87,7 @@ class Music(commands.Cog, name="Music commands"):
                                                 print(e)
                                     break
     
-    @commands.command(name="m_next", brief="Next track", description="", pass_context=True)
+    @commands.command(name="m_next", brief="Next track", description="")
     @commands.check(permissions.is_admin)
     async def m_next(self, ctx):
         if ctx.message.guild.id in self.voice_sessions:
@@ -95,7 +95,7 @@ class Music(commands.Cog, name="Music commands"):
                 self.voice_sessions[ctx.message.guild.id].stop()
                 await ctx.send("Next track")
 
-    @commands.command(name="m_stop", brief="Stop music", description="", pass_context=True)
+    @commands.command(name="m_stop", brief="Stop music", description="")
     @commands.check(permissions.is_admin)
     async def m_stop(self, ctx):
         if ctx.message.guild.id in self.voice_sessions:

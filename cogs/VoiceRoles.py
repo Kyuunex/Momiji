@@ -10,7 +10,7 @@ class VoiceRoles(commands.Cog, name="VoiceRoles"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="vr_add", brief="Voice role settings", description="", pass_context=True)
+    @commands.command(name="vr_add", brief="Voice role settings", description="")
     @commands.check(permissions.is_admin)
     async def vr_add(self, ctx, role_name):
         try:
@@ -27,7 +27,7 @@ class VoiceRoles(commands.Cog, name="VoiceRoles"):
         else:
             await ctx.send("you are not in a voice channel")
 
-    @commands.command(name="vr_remove", brief="Voice role settings", description="", pass_context=True)
+    @commands.command(name="vr_remove", brief="Voice role settings", description="")
     @commands.check(permissions.is_admin)
     async def vr_remove(self, ctx, role_name):
         try:

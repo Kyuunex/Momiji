@@ -12,7 +12,7 @@ class MessageStats(commands.Cog, name="MessageStats"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="userstats", brief="Show user stats", description="", pass_context=True)
+    @commands.command(name="userstats", brief="Show user stats", description="")
     async def user_stats(self, ctx, where: str = "server", arg: str = None, allchannels=None):
         if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
             async with ctx.channel.typing():
@@ -98,7 +98,7 @@ class MessageStats(commands.Cog, name="MessageStats"):
         return reversed(sorted(results.items(), key=operator.itemgetter(1)))
 
 
-    @commands.command(name="wordstats", brief="Word statistics", description="", pass_context=True)
+    @commands.command(name="wordstats", brief="Word statistics", description="")
     @commands.check(permissions.is_owner)
     async def wordstats(self, ctx, arg=None):
         if await cooldown.check(str(ctx.author.id), 'laststattime', 40):

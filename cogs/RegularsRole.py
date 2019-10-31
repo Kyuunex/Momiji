@@ -11,7 +11,7 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="regulars_reassign", brief="Reassign regulars role", description="", pass_context=True)
+    @commands.command(name="regulars_reassign", brief="Reassign regulars role", description="")
     async def regulars_reassign(self, ctx):
         if (ctx.channel.permissions_for(ctx.message.author)).manage_guild:
             # TODO: Make this more efficient, only apply changes, don't clear the role.
@@ -54,7 +54,7 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
         else:
             await ctx.send("lol no")
 
-    @commands.command(name="regulars_add", brief="Manage the regulars role", description="", pass_context=True)
+    @commands.command(name="regulars_add", brief="Manage the regulars role", description="")
     @commands.check(permissions.is_admin)
     async def regulars_add(self, ctx, rolename="Regular", amount="10"):
         role = discord.utils.get(ctx.guild.roles, name=rolename)
@@ -62,7 +62,7 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
             db.query(["INSERT INTO config VALUES (?,?,?,?)", ["guild_regular_role", str(ctx.guild.id), str(role.id), str(amount)]])
             await ctx.send("%s role is now regulars role with top %s getting the role" % (role.name, amount))
 
-    @commands.command(name="regulars_remove", brief="Manage the regulars role", description="", pass_context=True)
+    @commands.command(name="regulars_remove", brief="Manage the regulars role", description="")
     @commands.check(permissions.is_admin)
     async def regulars_remove(self, ctx, rolename="Regular"):
         role = discord.utils.get(ctx.guild.roles, name=rolename)
