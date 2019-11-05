@@ -60,6 +60,7 @@ class BotManagement(commands.Cog, name="Bot Management commands"):
     async def set_activity(self, ctx, *, string):
         activity = discord.Game(string)
         await self.bot.change_presence(activity=activity)
+        await ctx.send(":ok_hand:")
 
     @commands.command(name="config", brief="Insert a config in db", description="")
     @commands.check(permissions.is_owner)

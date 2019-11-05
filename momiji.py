@@ -9,16 +9,16 @@ import os
 
 from modules import db
 
-commandprefix = ';'
-appversion = "a20191001.3-very-very-experimental"
-client = commands.Bot(command_prefix=commandprefix,
-                      description='Momiji %s' % (appversion))
+command_prefix = ';'
+app_version = "b20191105"
+client = commands.Bot(command_prefix=command_prefix,
+                      description='Momiji %s' % app_version)
 if not os.path.exists('data'):
     print("Please configure this bot according to readme file.")
     sys.exit("data folder and it's contents are missing")
-if not os.path.exists('usermodules'):
-    os.makedirs('usermodules')
-#client.remove_command('help')
+if not os.path.exists('user_modules'):
+    os.makedirs('user_modules')
+# client.remove_command('help')
 
 if not os.path.exists(database_file):
     db.query("CREATE TABLE config (setting, parent, value, flag)")
@@ -28,7 +28,7 @@ if not os.path.exists(database_file):
     db.query("CREATE TABLE pinning_history (message_id)")
     db.query("CREATE TABLE pinning_channel_blacklist (channel_id)")
 
-    db.query("CREATE TABLE aimod_word_blacklist_instant_delete (word)")
+    db.query("CREATE TABLE aimod_blacklist (word)")
 
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
@@ -101,8 +101,8 @@ async def on_ready():
     print(client.user.id)
     print('------')
     if not db.query("SELECT * FROM admins"):
-        appinfo = await client.application_info()
-        db.query(["INSERT INTO admins VALUES (?, ?)", [str(appinfo.owner.id), "1"]])
-        print("Added %s to admin list" % (appinfo.owner.name))
+        app_info = await client.application_info()
+        db.query(["INSERT INTO admins VALUES (?, ?)", [str(app_info.owner.id), "1"]])
+        print("Added %s to admin list" % app_info.owner.name)
 
 client.run(bot_token)
