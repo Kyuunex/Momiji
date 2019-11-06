@@ -10,7 +10,7 @@ import os
 from modules import db
 
 command_prefix = ';'
-app_version = "b20191105"
+app_version = "b20191106"
 client = commands.Bot(command_prefix=command_prefix,
                       description='Momiji %s' % app_version)
 if not os.path.exists('data'):
@@ -64,8 +64,9 @@ if not os.path.exists(database_file):
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?)", ["wat", "", "startswith"]])
 
 initial_extensions = [
-    'cogs.AuditLogging', 
-    'cogs.BotManagement', 
+    'cogs.AIMod',
+    'cogs.AuditLogging',
+    'cogs.BotManagement',
     'cogs.ChannelExporting', 
     'cogs.CRPair', 
     'cogs.Img', 
