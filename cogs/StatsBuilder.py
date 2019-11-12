@@ -9,6 +9,7 @@ class StatsBuilder(commands.Cog, name="StatsBuilder"):
         self.bot = bot
 
     @commands.command(name="member", brief="Show some info about a user", description="")
+    @commands.guild_only()
     async def about_member(self, ctx, user_id=None):
         if user_id:
             member = ctx.guild.get_member(int(user_id))
@@ -32,6 +33,7 @@ class StatsBuilder(commands.Cog, name="StatsBuilder"):
         await ctx.send(output)
 
     @commands.command(name="guild", brief="About this guild", description="")
+    @commands.guild_only()
     async def about_guild(self, ctx):
         guild = ctx.guild
         output = "name: %s\n" % (str(guild.name))

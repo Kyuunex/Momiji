@@ -10,6 +10,7 @@ class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
 
     @commands.command(name="init", brief="Initialize in this guild", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def init_server(self, ctx):
         for channel in ctx.guild.channels:
             if type(channel) is discord.TextChannel:

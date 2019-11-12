@@ -12,6 +12,7 @@ class VoiceRoles(commands.Cog, name="VoiceRoles"):
 
     @commands.command(name="vr_add", brief="Voice role settings", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def vr_add(self, ctx, role_name):
         try:
             voicechannel = ctx.author.voice.channel
@@ -29,6 +30,7 @@ class VoiceRoles(commands.Cog, name="VoiceRoles"):
 
     @commands.command(name="vr_remove", brief="Voice role settings", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def vr_remove(self, ctx, role_name):
         try:
             voicechannel = ctx.author.voice.channel

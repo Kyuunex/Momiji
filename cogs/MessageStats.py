@@ -13,6 +13,7 @@ class MessageStats(commands.Cog, name="MessageStats"):
         self.bot = bot
 
     @commands.command(name="userstats", brief="Show user stats", description="")
+    @commands.guild_only()
     async def user_stats(self, ctx, where: str = "server", arg: str = None, allchannels=None):
         if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
             async with ctx.channel.typing():
@@ -100,6 +101,7 @@ class MessageStats(commands.Cog, name="MessageStats"):
 
     @commands.command(name="wordstats", brief="Word statistics", description="")
     @commands.check(permissions.is_owner)
+    @commands.guild_only()
     async def wordstats(self, ctx, arg=None):
         if await cooldown.check(str(ctx.author.id), 'laststattime', 40):
             if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(ctx.guild.id)]])):

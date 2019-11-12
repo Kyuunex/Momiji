@@ -84,7 +84,8 @@ initial_extensions = [
     'cogs.StatsBuilder', 
     'cogs.VoiceLogging', 
     'cogs.VoiceRoles', 
-    'cogs.Welcome', 
+    'cogs.Waifu',
+    'cogs.Welcome',
 ]
 
 if __name__ == '__main__':

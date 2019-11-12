@@ -11,6 +11,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
 
     @commands.command(name="sar_add", brief="Add a self assignable role ", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def sar_add(self, ctx, *, role_name):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
@@ -19,6 +20,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
 
     @commands.command(name="sar_remove", brief="Remove a self assignable role", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def sar_remove(self, ctx, *, role_name):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
@@ -27,6 +29,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
 
     @commands.command(name="sar_list", brief="List all self assignable roles in this server", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def sar_list(self, ctx):
         all_roles = db.query(["SELECT role_id FROM assignable_roles WHERE guild_id = ?", [str(ctx.guild.id)]])
         output = "Self-assignable roles:\n"
@@ -39,6 +42,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
         await ctx.send(output)
 
     @commands.command(name="join", brief="Get a role", description="")
+    @commands.guild_only()
     async def join(self, ctx, *, role_name):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
@@ -56,6 +60,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
             await ctx.send("bruh, this role does not exist. also, roles are case-sensetive.")
 
     @commands.command(name="leave", brief="Remove a role", description="")
+    @commands.guild_only()
     async def leave(self, ctx, *, role_name):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:

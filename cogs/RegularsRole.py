@@ -12,6 +12,7 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
         self.bot = bot
 
     @commands.command(name="regulars_reassign", brief="Reassign regulars role", description="")
+    @commands.guild_only()
     async def regulars_reassign(self, ctx):
         if (ctx.channel.permissions_for(ctx.message.author)).manage_guild:
             # TODO: Make this more efficient, only apply changes, don't clear the role.
@@ -56,6 +57,7 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
 
     @commands.command(name="regulars_add", brief="Manage the regulars role", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def regulars_add(self, ctx, rolename="Regular", amount="10"):
         role = discord.utils.get(ctx.guild.roles, name=rolename)
         if role:
@@ -64,6 +66,7 @@ class RegularsRole(commands.Cog, name="RegularsRole"):
 
     @commands.command(name="regulars_remove", brief="Manage the regulars role", description="")
     @commands.check(permissions.is_admin)
+    @commands.guild_only()
     async def regulars_remove(self, ctx, rolename="Regular"):
         role = discord.utils.get(ctx.guild.roles, name=rolename)
         if role:

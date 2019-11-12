@@ -6,6 +6,7 @@ class Moderation(commands.Cog, name="Moderation commands"):
         self.bot = bot
 
     @commands.command(name="purge", brief="Purge X amount of messages", description="")
+    @commands.guild_only()
     async def purge(self, ctx, amount, author = None):
         if (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
             try:
