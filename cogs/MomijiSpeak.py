@@ -144,6 +144,7 @@ class MomijiSpeak(commands.Cog, name="MomijiSpeak"):
 
                     for one_response in self.momiji_responses:
                         # TODO: implement in and is
+                        # TODO: implement chances, like store number X in db where chances are 1/X
                         if msg.startswith(one_response[0]):
                             if len(one_response[1]) > 0:
                                 responsemsg = await message.channel.send(one_response[1])

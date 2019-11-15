@@ -8,7 +8,6 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
     def __init__(self, bot):
         self.bot = bot
 
-
     @commands.command(name="sar_add", brief="Add a self assignable role ", description="")
     @commands.check(permissions.is_admin)
     @commands.guild_only()
@@ -16,7 +15,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
             db.query(["INSERT INTO assignable_roles VALUES (?,?)", [str(ctx.guild.id), str(role.id)]])
-            await ctx.send("`%s` role is now self-assignable" % (role.name))
+            await ctx.send("`%s` role is now self-assignable" % role.name)
 
     @commands.command(name="sar_remove", brief="Remove a self assignable role", description="")
     @commands.check(permissions.is_admin)
@@ -25,7 +24,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
             db.query(["DELETE FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
-            await ctx.send("`%s` role is no longer self-assignable" % (role.name))
+            await ctx.send("`%s` role is no longer self-assignable" % role.name)
 
     @commands.command(name="sar_list", brief="List all self assignable roles in this server", description="")
     @commands.check(permissions.is_admin)
@@ -36,7 +35,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
         for one_role_db in all_roles:
             role = discord.utils.get(ctx.guild.roles, id=int(one_role_db[0]))
             if role:
-                output += "%s\n" % (role.name)
+                output += "%s\n" % role.name
             else:
                 output += "%s\n" % (one_role_db[0])
         await ctx.send(output)
@@ -57,7 +56,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
             else:
                 await ctx.send("bruh, this role is not self assignable")
         else:
-            await ctx.send("bruh, this role does not exist. also, roles are case-sensetive.")
+            await ctx.send("bruh, this role does not exist. also, roles are case-sensitive.")
 
     @commands.command(name="leave", brief="Remove a role", description="")
     @commands.guild_only()
@@ -75,7 +74,7 @@ class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
             else:
                 await ctx.send("bruh, this role is not self assignable or removable")
         else:
-            await ctx.send("bruh, this role does not exist. also, roles are case-sensetive.")
+            await ctx.send("bruh, this role does not exist. also, roles are case-sensitive.")
 
 
 def setup(bot):
