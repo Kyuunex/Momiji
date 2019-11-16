@@ -8,7 +8,7 @@ import json
 from modules import db
 
 
-class MomijiSpeak(commands.Cog, name="MomijiSpeak"):
+class MomijiSpeak(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.module_bridges = db.query("SELECT module_name FROM module_bridges")
@@ -152,6 +152,7 @@ class MomijiSpeak(commands.Cog, name="MomijiSpeak"):
                             else:
                                 await self.momiji_speak(message)
         await self.store_message(message)
+
 
 def setup(bot):
     bot.add_cog(MomijiSpeak(bot))

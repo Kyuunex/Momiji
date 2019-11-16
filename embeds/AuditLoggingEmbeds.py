@@ -12,7 +12,7 @@ async def message_delete(message):
             icon_url=message.author.avatar_url
         )
         embed.set_footer(
-            text="Message deleted in #%s" % (message.channel.name)
+            text="Message deleted in #%s" % message.channel.name
         )
         return embed
     else:
@@ -30,7 +30,7 @@ async def message_edit(before, after):
             icon_url=before.author.avatar_url
         )
         embed.set_footer(
-            text="Message edited in #%s" % (before.channel.name)
+            text="Message edited in #%s" % before.channel.name
         )
         return embed
     else:
@@ -75,7 +75,7 @@ async def member_remove(member):
 
 async def member_ban(member, reason):
     if member:
-        text = "%s" % (member.mention)
+        text = "%s" % member.mention
         text += "\n%s" % (str(member.id))
         text += "\n%s" % (str(reason))
         embed = discord.Embed(

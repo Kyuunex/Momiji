@@ -4,7 +4,8 @@ import time
 
 script_start_time = time.time()
 
-class StatsBuilder(commands.Cog, name="StatsBuilder"):
+
+class StatsBuilder(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -78,6 +79,7 @@ async def timeconv(seconds):
     minutes = seconds // 60
     seconds %= 60
     return "%d:%02d:%02d" % (hour, minutes, seconds) 
+
 
 def setup(bot):
     bot.add_cog(StatsBuilder(bot))

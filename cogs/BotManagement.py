@@ -6,7 +6,7 @@ from modules import db
 from modules.connections import database_file as database_file
 
 
-class BotManagement(commands.Cog, name="Bot Management commands"):
+class BotManagement(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.db_dump_channel_list = db.query(["SELECT value FROM config WHERE setting = ?", ["db_dump_channel"]])

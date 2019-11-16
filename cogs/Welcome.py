@@ -6,7 +6,8 @@ from modules import permissions
 import discord
 from discord.ext import commands
 
-class Welcome(commands.Cog, name="Welcome"):
+
+class Welcome(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -60,6 +61,7 @@ class Welcome(commands.Cog, name="Welcome"):
             print(time.strftime('%X %x %Z'))
             print("in on_member_join")
             print(e)
+
 
 def setup(bot):
     bot.add_cog(Welcome(bot))

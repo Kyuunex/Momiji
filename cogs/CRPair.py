@@ -2,7 +2,8 @@ from modules import db
 import discord
 from discord.ext import commands
 
-class CRPair(commands.Cog, name="CRPair"):
+
+class CRPair(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -15,6 +16,7 @@ class CRPair(commands.Cog, name="CRPair"):
                 await response_message.delete()
             except:
                 print("can't delete")
+
 
 def setup(bot):
     bot.add_cog(CRPair(bot))

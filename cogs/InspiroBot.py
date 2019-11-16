@@ -9,7 +9,7 @@ import json
 import urllib.request
 
 
-class InspiroBot(commands.Cog, name="InspiroBot commands"):
+class InspiroBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.base_url = "http://inspirobot.me/api"
@@ -109,6 +109,7 @@ class InspiroBot(commands.Cog, name="InspiroBot commands"):
             return json.loads(requestobject)
         else:
             return None
+
 
 def setup(bot):
     bot.add_cog(InspiroBot(bot))

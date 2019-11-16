@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 
-class SelfAssignableRoles(commands.Cog, name="Self assignable roles"):
+class SelfAssignableRoles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

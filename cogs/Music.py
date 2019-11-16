@@ -7,7 +7,7 @@ from modules import permissions
 from mutagen.easyid3 import EasyID3
 
 
-class Music(commands.Cog, name="Music commands"):
+class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.audio_storage = "data/audio/"
@@ -117,6 +117,7 @@ class Music(commands.Cog, name="Music commands"):
             text="%s/%s : %s" % (counter, amount, filename)
         )
         return embed
+
 
 def setup(bot):
     bot.add_cog(Music(bot))

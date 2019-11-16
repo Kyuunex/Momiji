@@ -4,7 +4,8 @@ import discord
 from discord.ext import commands
 import random
 
-class Misc(commands.Cog, name="Misc"):
+
+class Misc(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -17,8 +18,7 @@ class Misc(commands.Cog, name="Misc"):
         if voicechannel:
             await ctx.send("Screenshare link for `%s`: <https://discordapp.com/channels/%s/%s/>" % (str(voicechannel.name), str(ctx.guild.id), str(voicechannel.id)))
         else:
-            await ctx.send("%s you are not in a voice channel right now" % (ctx.author.mention))
-
+            await ctx.send("%s you are not in a voice channel right now" % ctx.author.mention)
 
     @commands.command(name="roll", brief="A very complicated roll command", description="")
     async def roll(self, ctx, maax=None):
@@ -37,7 +37,6 @@ class Misc(commands.Cog, name="Misc"):
             point = "points"
         await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), randomnumber, point))
 
-
     @commands.command(name="ping", brief="Ping a role", description="")
     @commands.check(permissions.is_admin)
     async def ping(self, ctx, *, role_name):
@@ -45,7 +44,6 @@ class Misc(commands.Cog, name="Misc"):
         await role.edit(mentionable=True)
         await ctx.send(role.mention)
         await role.edit(mentionable=False)
-
 
     @commands.command(name="massnick", brief="Nickname every user", description="")
     @commands.check(permissions.is_admin)
@@ -57,6 +55,7 @@ class Misc(commands.Cog, name="Misc"):
                 await ctx.send(member.name)
                 await ctx.send(e)
         await ctx.send("Done")
+
 
 def setup(bot):
     bot.add_cog(Misc(bot))

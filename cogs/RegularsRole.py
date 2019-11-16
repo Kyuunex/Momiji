@@ -7,7 +7,7 @@ from collections import Counter
 import operator
 
 
-class RegularsRole(commands.Cog, name="RegularsRole"):
+class RegularsRole(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

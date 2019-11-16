@@ -1,13 +1,14 @@
 import discord
 from discord.ext import commands
 
-class Moderation(commands.Cog, name="Moderation commands"):
+
+class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
     @commands.command(name="purge", brief="Purge X amount of messages", description="")
     @commands.guild_only()
-    async def purge(self, ctx, amount, author = None):
+    async def purge(self, ctx, amount, author=None):
         if (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
             try:
                 if len(ctx.message.mentions) > 0:

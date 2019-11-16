@@ -2,7 +2,7 @@ from modules import db
 from discord.ext import commands
 
 
-class AIMod(commands.Cog, name="AIMod"):
+class AIMod(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.aimod_blacklist = db.query("SELECT word FROM aimod_blacklist")

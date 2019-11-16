@@ -8,7 +8,7 @@ from collections import Counter
 import operator
 
 
-class MessageStats(commands.Cog, name="MessageStats"):
+class MessageStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

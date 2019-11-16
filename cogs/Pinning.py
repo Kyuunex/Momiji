@@ -2,7 +2,8 @@ from modules import db
 import discord
 from discord.ext import commands
 
-class Pinning(commands.Cog, name="Pinning"):
+
+class Pinning(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -41,7 +42,7 @@ class Pinning(commands.Cog, name="Pinning"):
                     color=0xFFFFFF
                 )
                 if message.attachments:
-                    attachment = (message.attachments)[0]
+                    attachment = message.attachments[0]
                     embed.set_image(
                         url=attachment.url
                     )
@@ -52,6 +53,7 @@ class Pinning(commands.Cog, name="Pinning"):
             return embed
         else:
             return None
+
 
 def setup(bot):
     bot.add_cog(Pinning(bot))

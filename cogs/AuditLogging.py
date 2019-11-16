@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 
-class AuditLogging(commands.Cog, name="AuditLogging"):
+class AuditLogging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

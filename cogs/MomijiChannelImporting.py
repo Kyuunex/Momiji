@@ -4,7 +4,8 @@ import discord
 from discord.ext import commands
 import time
 
-class MomijiChannelImporting(commands.Cog, name="MomijiChannelImporting"):
+
+class MomijiChannelImporting(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

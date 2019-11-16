@@ -3,7 +3,8 @@ from modules import permissions
 import discord
 from discord.ext import commands
 
-class MomijiCommands(commands.Cog, name="MomijiCommands"):
+
+class MomijiCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -15,6 +16,7 @@ class MomijiCommands(commands.Cog, name="MomijiCommands"):
         elif bridge_type == "module":
             db.query(["INSERT INTO module_bridges VALUES (?, ?)", [str(ctx.message.channel.id), str(value)]])
         await ctx.send(":ok_hand:")
+
 
 def setup(bot):
     bot.add_cog(MomijiCommands(bot))

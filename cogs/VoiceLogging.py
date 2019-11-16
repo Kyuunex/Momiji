@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 
 
-class VoiceLogging(commands.Cog, name="VoiceLogging"):
+class VoiceLogging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

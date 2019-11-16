@@ -9,7 +9,8 @@ import imghdr
 from modules import db
 from modules import cooldown
 
-class Img(commands.Cog, name="Picture related commands"):
+
+class Img(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.art_dir = "data/art/"
@@ -73,6 +74,7 @@ class Img(commands.Cog, name="Picture related commands"):
                 await ctx.send('slow down bruh')
         else:
             await ctx.send("This command works in NSFW channels only.")
+
 
 def setup(bot):
     bot.add_cog(Img(bot))

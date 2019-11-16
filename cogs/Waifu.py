@@ -3,7 +3,7 @@ from modules import permissions
 from discord.ext import commands
 
 
-class Waifu(commands.Cog, name="Waifu"):
+class Waifu(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 

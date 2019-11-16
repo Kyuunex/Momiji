@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 
-class VoiceRoles(commands.Cog, name="VoiceRoles"):
+class VoiceRoles(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -75,6 +75,7 @@ class VoiceRoles(commands.Cog, name="VoiceRoles"):
             print(time.strftime('%X %x %Z'))
             print("in voice_roles.on_voice_state_update")
             print(e)
+
 
 def setup(bot):
     bot.add_cog(VoiceRoles(bot))
