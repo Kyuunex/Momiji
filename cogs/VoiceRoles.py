@@ -1,7 +1,6 @@
 from modules import db
 from modules import permissions
 
-import time
 import discord
 from discord.ext import commands
 
@@ -15,14 +14,14 @@ class VoiceRoles(commands.Cog):
     @commands.guild_only()
     async def vr_add(self, ctx, role_name):
         try:
-            voicechannel = ctx.author.voice.channel
+            channel = ctx.author.voice.channel
         except:
-            voicechannel = None
+            channel = None
         role = discord.utils.get(ctx.guild.roles, name=role_name)
-        if voicechannel:
+        if channel:
             if role:
-                db.query(["INSERT INTO voice_roles VALUES (?,?,?)", [str(ctx.guild.id), str(voicechannel.id), str(role.id)]])
-                await ctx.send("Tied %s channel to %s role" % (voicechannel.mention, role.name))
+                db.query(["INSERT INTO voice_roles VALUES (?,?,?)", [str(ctx.guild.id), str(channel.id), str(role.id)]])
+                await ctx.send("Tied %s channel to %s role" % (channel.mention, role.name))
             else:
                 await ctx.send("Can't find a role with that name")
         else:
@@ -33,14 +32,15 @@ class VoiceRoles(commands.Cog):
     @commands.guild_only()
     async def vr_remove(self, ctx, role_name):
         try:
-            voicechannel = ctx.author.voice.channel
+            channel = ctx.author.voice.channel
         except:
-            voicechannel = None
+            channel = None
         role = discord.utils.get(ctx.guild.roles, name=role_name)
-        if voicechannel:
+        if channel:
             if role:
-                db.query(["DELETE FROM voice_roles WHERE guild_id = ? AND channel_id = ? AND role_id = ?", [str(ctx.guild.id), str(voicechannel.id), str(role.id)]])
-                await ctx.send("Untied %s channel from %s role" % (voicechannel.mention, role.name))
+                db.query(["DELETE FROM voice_roles WHERE guild_id = ? AND channel_id = ? AND role_id = ?",
+                          [str(ctx.guild.id), str(channel.id), str(role.id)]])
+                await ctx.send("Untied %s channel from %s role" % (channel.mention, role.name))
             else:
                 await ctx.send("Can't find a role with that name")
         else:
@@ -48,33 +48,32 @@ class VoiceRoles(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        try:
-            if not before.channel == after.channel:
-                if before.channel == None:  # Member joined a channel
-                    role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(after.channel.id)]])
+        if not before.channel == after.channel:
+            if not before.channel:  # Member joined a channel
+                role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                    [str(after.channel.id)]])
+                if role_id:
+                    role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
+                    await member.add_roles(role)
+            else:
+                if not after.channel:  # Member left channel
+                    role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                        [str(before.channel.id)]])
                     if role_id:
                         role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
-                        await member.add_roles(role)
-                else:
-                    if after.channel == None:  # Member left channel
-                        role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(before.channel.id)]])
+                        await member.remove_roles(role)
+                else:  # Member switched channel
+                    role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                        [str(before.channel.id)]])
+                    role_id_after = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                              [str(after.channel.id)]])
+                    if role_id != role_id_after:
                         if role_id:
                             role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
                             await member.remove_roles(role)
-                    else:  # Member switched channel
-                        role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(before.channel.id)]])
-                        role_idafter = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?", [str(after.channel.id)]])
-                        if role_id != role_idafter:
-                            if role_id:
-                                role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
-                                await member.remove_roles(role)
-                            if role_idafter:
-                                roleafter = discord.utils.get(member.guild.roles, id=int(role_idafter[0][0]))
-                                await member.add_roles(roleafter)
-        except Exception as e:
-            print(time.strftime('%X %x %Z'))
-            print("in voice_roles.on_voice_state_update")
-            print(e)
+                        if role_id_after:
+                            role_after = discord.utils.get(member.guild.roles, id=int(role_id_after[0][0]))
+                            await member.add_roles(role_after)
 
 
 def setup(bot):

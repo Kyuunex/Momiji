@@ -52,33 +52,33 @@ class StatsBuilder(commands.Cog):
 
     @commands.command(name="about", brief="About this bot", description="")
     async def about_bot(self, ctx):
-        appinfo = await self.bot.application_info()
-        guildamount = len(self.bot.guilds)
-        useramount = len(self.bot.users)
+        app_info = await self.bot.application_info()
+        guild_amount = len(self.bot.guilds)
+        user_amount = len(self.bot.users)
         script_now_time = time.time()
-        uptime = await measuretime(script_start_time, script_now_time)
+        uptime = self.measure_time(script_start_time, script_now_time)
         description = "__**Stats:**__\n"
-        description += "**Bot owner:** <@%s>\n" % (appinfo.owner.id)
-        #description += "**Current version:** %s\n" % (appversion)
-        description += "**Amount of guilds serving:** %s\n" % (guildamount)
-        description += "**Amount of users serving:** %s\n" % (useramount)
+        description += "**Bot owner:** <@%s>\n" % (str(app_info.owner.id))
+        # description += "**Current version:** %s\n" % (app_version)
+        description += "**Amount of guilds serving:** %s\n" % (str(guild_amount))
+        description += "**Amount of users serving:** %s\n" % (str(user_amount))
         description += "**Lib used:** [discord.py](https://github.com/Rapptz/discord.py/)\n"
-        description += "**Uptime:** %s\n" % (uptime)
+        description += "**Uptime:** %s\n" % (str(uptime))
         description += "**Memory usage:** idk how to see this but probably less than 100M\n"
         embed = discord.Embed(title="Momiji is best wolf.", description=description, color=0xe95e62)
         await ctx.send(embed=embed)
 
-async def measuretime(starttime, endtime):
-    timeittook = int(endtime - starttime)
-    return (await timeconv(timeittook))
+    def measure_time(self, start_time, end_time):
+        duration = int(end_time - start_time)
+        return self.seconds_to_hms(duration)
 
-async def timeconv(seconds): 
-    seconds = seconds % (24 * 3600) 
-    hour = seconds // 3600
-    seconds %= 3600
-    minutes = seconds // 60
-    seconds %= 60
-    return "%d:%02d:%02d" % (hour, minutes, seconds) 
+    def seconds_to_hms(self, seconds):
+        seconds = seconds % (24 * 3600)
+        hour = seconds // 3600
+        seconds %= 3600
+        minutes = seconds // 60
+        seconds %= 60
+        return "%d:%02d:%02d" % (hour, minutes, seconds)
 
 
 def setup(bot):

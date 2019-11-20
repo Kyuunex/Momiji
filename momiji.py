@@ -31,6 +31,7 @@ if not os.path.exists(database_file):
 
     db.query("CREATE TABLE aimod_blacklist (word)")
 
+    db.query("CREATE TABLE voice_logging_channels (guild_id, channel_id)")
     db.query("CREATE TABLE wasteland_channels (guild_id, channel_id)")
     db.query("CREATE TABLE regular_roles (guild_id, role_id, threshold)")
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
