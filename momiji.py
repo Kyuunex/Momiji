@@ -32,6 +32,7 @@ if not os.path.exists(database_file):
     db.query("CREATE TABLE aimod_blacklist (word)")
 
     db.query("CREATE TABLE wasteland_channels (guild_id, channel_id)")
+    db.query("CREATE TABLE regular_roles (guild_id, role_id, threshold)")
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
     db.query("CREATE TABLE cr_pair (command_id, response_id)")
@@ -80,7 +81,7 @@ initial_extensions = [
     'cogs.MomijiSpeak', 
     'cogs.Music', 
     'cogs.Pinning', 
-    'cogs.RegularsRole', 
+    'cogs.RegularRole',
     'cogs.SelfAssignableRoles', 
     'cogs.StatsBuilder', 
     'cogs.VoiceLogging', 
