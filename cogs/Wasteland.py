@@ -71,8 +71,7 @@ class Wasteland(commands.Cog):
                         role = removed[0]
 
                     voice_role = db.query(["SELECT role_id FROM voice_roles WHERE role_id = ?", [str(role.id)]])
-                    regulars_role = db.query(["SELECT value FROM config WHERE setting = ? AND value = ?",
-                                             ["guild_regular_role", str(role.id)]])
+                    regulars_role = db.query(["SELECT role_id FROM regular_roles WHERE role_id = ?", [str(role.id)]])
                     if (not voice_role) and (not regulars_role):
                         channel = self.bot.get_channel(int(wasteland_channel[1]))
                         await channel.send(embed=await WastelandEmbeds.role_change(after, text % role.name))
