@@ -30,7 +30,7 @@ if not os.path.exists(database_file):
 
     db.query("CREATE TABLE aimod_blacklist (word)")
 
-    db.query("CREATE TABLE waifu_claims (owner, waifu)")
+    db.query("CREATE TABLE waifu_claims (owner_id, waifu_id)")
 
     db.query("CREATE TABLE welcome_messages (guild_id, channel_id, message)")
     db.query("CREATE TABLE goodbye_messages (guild_id, channel_id, message)")
