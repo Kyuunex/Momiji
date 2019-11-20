@@ -2,7 +2,6 @@
 
 from modules.connections import bot_token as bot_token
 from modules.connections import database_file as database_file
-import discord
 from discord.ext import commands
 import sys
 import os
@@ -31,6 +30,11 @@ if not os.path.exists(database_file):
 
     db.query("CREATE TABLE aimod_blacklist (word)")
 
+    db.query("CREATE TABLE waifu_claims (owner, waifu)")
+
+    db.query("CREATE TABLE welcome_messages (guild_id, channel_id, message)")
+    db.query("CREATE TABLE goodbye_messages (guild_id, channel_id, message)")
+
     db.query("CREATE TABLE voice_logging_channels (guild_id, channel_id)")
     db.query("CREATE TABLE wasteland_channels (guild_id, channel_id)")
     db.query("CREATE TABLE regular_roles (guild_id, role_id, threshold)")
@@ -38,7 +42,8 @@ if not os.path.exists(database_file):
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
     db.query("CREATE TABLE cr_pair (command_id, response_id)")
 
-    db.query("CREATE TABLE mmj_message_logs (guild_id, channel_id, user_id, message_id, username, bot, contents, timestamp)")
+    db.query("CREATE TABLE mmj_message_logs "
+             "(guild_id, channel_id, user_id, message_id, username, bot, contents, timestamp)")
     db.query("CREATE TABLE mmj_channel_bridges (channel_id, depended_channel_id)")
     db.query("CREATE TABLE mmj_stats_channel_blacklist (channel_id)")
     db.query("CREATE TABLE mmj_private_areas (type, id)")
@@ -53,10 +58,14 @@ if not os.path.exists(database_file):
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["^", "I agree!", "startswith", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["gtg", "nooooo don\'t leaveeeee!", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["kakushi", "kotoga", "is", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU", "is", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", "is", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["awoo", "awoooooooooooooooooooooooooo", "startswith", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["cya", "nooooo don\'t leaveeeee!", "is", "1"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+              ["kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU", "is", "1"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+              ["giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", "is", "1"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+              ["awoo", "awoooooooooooooooooooooooooo", "startswith", "1"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+              ["cya", "nooooo don\'t leaveeeee!", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["bad bot", ";w;", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["stupid bot", ";w;", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["good bot", "^w^", "is", "1"]])
