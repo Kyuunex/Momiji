@@ -12,7 +12,7 @@ class RegularRole(commands.Cog):
         self.bot = bot
         self.regular_roles = db.query("SELECT guild_id, role_id, threshold FROM regular_roles")
 
-    @commands.command(name="regular_role_reassign", brief="Reassign regular role", description="")
+    @commands.command(name="regular_role_reassign", brief="Reassign the regular role", description="")
     @commands.guild_only()
     async def regular_role_reassign(self, ctx):
         # TODO: Make this more efficient, only apply changes, don't clear the role.
@@ -21,7 +21,7 @@ class RegularRole(commands.Cog):
             return None
 
         for regular_role in self.regular_roles:
-            if str(regular_role[0]) == str(ctx.guild_id):
+            if str(regular_role[0]) == str(ctx.guild.id):
                 async with ctx.channel.typing():
                     role = discord.utils.get(ctx.guild.roles, id=int(regular_role[1]))
 
