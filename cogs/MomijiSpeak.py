@@ -16,9 +16,10 @@ class MomijiSpeak(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        # TODO: re-implement this
         # if message.author.id != self.bot.user.id:
         #     if message.channel.id in self.module_bridges:
-        #         module = importlib.import_module("usermodules.%s" % (bridged_module[0][0]))
+        #         module = importlib.import_module("user_modules.%s" % (bridged_module[0][0]))
         #         await module.on_message(message)
         #     else:
         #         pass
@@ -31,7 +32,8 @@ class MomijiSpeak(commands.Cog):
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
         if not await self.check_privacy(after):
-            db.query(["UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?", [str(after.content), str(after.id)]])
+            db.query(["UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
+                      [str(after.content), str(after.id)]])
 
     async def join_spam_train(self, message):
         counter = 0
@@ -46,7 +48,8 @@ class MomijiSpeak(commands.Cog):
                 await message.channel.send(message.content)
 
     async def check_privacy(self, message):
-        if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
+        if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and \
+                (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
             # Not a private channel
             return False
         else:
@@ -54,7 +57,8 @@ class MomijiSpeak(commands.Cog):
             return True
 
     async def bridge_check(self, channel_id):
-        bridged_channel = db.query(["SELECT depended_channel_id FROM mmj_channel_bridges WHERE channel_id = ?", [str(channel_id)]])
+        bridged_channel = db.query(["SELECT depended_channel_id FROM mmj_channel_bridges "
+                                    "WHERE channel_id = ?", [str(channel_id)]])
         if bridged_channel:
             return str(bridged_channel[0][0])
         else:
@@ -69,7 +73,8 @@ class MomijiSpeak(commands.Cog):
         return False
 
     async def pick_message(self, message, depended_channel_id):
-        all_potential_messages = db.query(["SELECT * FROM mmj_message_logs WHERE channel_id = ? AND bot = ?", [str(depended_channel_id), "0"]])
+        all_potential_messages = db.query(["SELECT * FROM mmj_message_logs "
+                                           "WHERE channel_id = ? AND bot = ?", [str(depended_channel_id), "0"]])
         if all_potential_messages:
             counter = 0
             while True:
@@ -84,7 +89,7 @@ class MomijiSpeak(commands.Cog):
                     content_to_send = picked_message.content
                 else:
                     content_to_send = str(message_from_db[6])
-                if (await self.check_message_contents(content_to_send)):
+                if await self.check_message_contents(content_to_send):
                     return content_to_send
         else:
             print("The query returned nothing")
@@ -137,18 +142,16 @@ class MomijiSpeak(commands.Cog):
                 else:
                     await self.join_spam_train(message)
 
-                    if ((message.content.isupper() and len(message.content) > 1 and random.randint(0, 20) == 1)):
+                    if message.content.isupper() and len(message.content) > 1 and random.randint(0, 20) == 1:
                         await self.momiji_speak(message)
-
-                    
 
                     for one_response in self.momiji_responses:
                         # TODO: implement in and is
                         # TODO: implement chances, like store number X in db where chances are 1/X
                         if msg.startswith(one_response[0]):
                             if len(one_response[1]) > 0:
-                                responsemsg = await message.channel.send(one_response[1])
-                                db.query(["INSERT INTO cr_pair VALUES (?, ?)", [str(message.id), str(responsemsg.id)]])
+                                response_msg = await message.channel.send(one_response[1])
+                                db.query(["INSERT INTO cr_pair VALUES (?, ?)", [str(message.id), str(response_msg.id)]])
                             else:
                                 await self.momiji_speak(message)
         await self.store_message(message)

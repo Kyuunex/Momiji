@@ -34,21 +34,18 @@ class MomijiChannelImporting(commands.Cog):
 
     async def import_one_channel(self, ctx, channel):
         try:
-            #starttime = time.time()
             log_instance = channel.history(limit=999999999)
-            #logcounter = 0
             if await self.check_privacy(ctx):
                 private_area = True
             else:
                 private_area = False
-            whattocommit = []
+            query_queue = []
             async for message in log_instance:
-                #logcounter += 1
                 if private_area:
                     content = None
                 else:
                     content = str(message.content)
-                whattocommit.append(
+                query_queue.append(
                     [
                         "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                         [
@@ -63,16 +60,13 @@ class MomijiChannelImporting(commands.Cog):
                         ]
                     ]
                 )
-            db.mass_query(whattocommit)
-            # endtime = time.time()
-            # importfinished = "Finished importing %s messages from %s. This took %s." %
-            # (logcounter, channel.mention, await measuretime(starttime, endtime))
-            # await ctx.send(importfinished)
+            db.mass_query(query_queue)
         except Exception as e:
             print(e)
 
     async def check_privacy(self, message):
-        if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
+        if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and \
+                (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
             # Not a private channel
             return False
         else:

@@ -6,39 +6,50 @@ from discord.ext import commands
 class Pinning(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.pinning_channels = db.query("SELECT guild_id, channel_id, threshold FROM pinning_channels")
+        self.pinning_channel_blacklist = db.query("SELECT channel_id FROM pinning_channel_blacklist")
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, raw_reaction):
-        guildpinchannel = db.query(["SELECT value,flag FROM config WHERE setting = ? AND parent = ?", ["guild_pin_channel", str(raw_reaction.guild_id)]])
-        if guildpinchannel:
-            if int((guildpinchannel)[0][0]) != raw_reaction.channel_id:
-                channell = self.bot.get_channel(raw_reaction.channel_id)
-                if not channell.is_nsfw():
-                    message = await channell.fetch_message(raw_reaction.message_id)
-                    blacklist = db.query("SELECT word FROM mmj_word_blacklist")
-                    if not (any(c[0] in message.content.lower() for c in blacklist)):
-                        reactions = message.reactions
-                        for reaction in reactions:
-                            # onereact = {
-                            # 	'count': int(reaction.count),
-                            # 	'emoji': str(reaction.emoji),
-                            # }
-                            if reaction.count >= int((guildpinchannel)[0][1]):
-                                if not (db.query(["SELECT channel_id FROM pinning_channel_blacklist WHERE channel_id = ?", [str(raw_reaction.channel_id)]])):
-                                    if not (db.query(["SELECT message_id FROM pinning_history WHERE message_id = ?", [str(raw_reaction.message_id)]])):
-                                        db.query(["INSERT INTO pinning_history VALUES (?)", [str(raw_reaction.message_id)]])
-                                        pin_channel_object = self.bot.get_channel(int((guildpinchannel)[0][0]))
-                                        await pin_channel_object.send(content="<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji)), embed=await self.pin_embed(message))
+        for pinning_channel in self.pinning_channels:
+            if str(pinning_channel[0]) == str(raw_reaction.guild_id):
+                if int(pinning_channel[1]) == raw_reaction.channel_id:
+                    return None
+
+                channel = self.bot.get_channel(raw_reaction.channel_id)
+                if channel.is_nsfw():
+                    return None
+
+                message = await channel.fetch_message(raw_reaction.message_id)
+                blacklist = db.query("SELECT word FROM mmj_word_blacklist")
+                if any(c[0] in message.content.lower() for c in blacklist):
+                    return None
+
+                reactions = message.reactions
+                for reaction in reactions:
+                    if reaction.count >= int(pinning_channel[2]):
+                        if (str(raw_reaction.channel_id),) in self.pinning_channel_blacklist:
+                            return None
+
+                        if db.query(["SELECT message_id FROM pinning_history WHERE message_id = ?",
+                                     [str(raw_reaction.message_id)]]):
+                            return None
+
+                        db.query(["INSERT INTO pinning_history VALUES (?)", [str(raw_reaction.message_id)]])
+                        pin_channel = self.bot.get_channel(int(pinning_channel[1]))
+                        content = "<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji))
+                        await pin_channel.send(content=content, embed=await self.pin_embed(message))
 
     async def pin_embed(self, message):
         if message:
             if message.embeds:
                 embed = message.embeds[0]
             else:
-                embedcontents = message.content
-                embedcontents += "\n\n[(context)](https://discordapp.com/channels/%s/%s/%s)" % (str(message.guild.id), str(message.channel.id), str(message.id))
+                description = message.content
+                description += "\n\n[(context)](https://discordapp.com/channels/%s/%s/%s)" % \
+                               (str(message.guild.id), str(message.channel.id), str(message.id))
                 embed = discord.Embed(
-                    description=embedcontents,
+                    description=description,
                     color=0xFFFFFF
                 )
                 if message.attachments:

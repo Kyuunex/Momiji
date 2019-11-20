@@ -27,6 +27,7 @@ if not os.path.exists(database_file):
 
     db.query("CREATE TABLE pinning_history (message_id)")
     db.query("CREATE TABLE pinning_channel_blacklist (channel_id)")
+    db.query("CREATE TABLE pinning_channels (guild_id, channel_id, threshold)")
 
     db.query("CREATE TABLE aimod_blacklist (word)")
 

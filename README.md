@@ -40,18 +40,11 @@ The table columns are:
 + `guild_regular_role` - This setting enables "Regulars" functionality in the guild. It enables `;regulars` command. 
     + `parent` column for this setting must contain a guild id. 
     + `value` column for this setting must contain a role id for the regular role.
-    + `flag` column for this setting must contain the amount of members the role can be asigned to. For example, a value of `20` will give top 20 mebers this role.
+    + `flag` column for this setting must contain the amount of members the role can be assigned to. For example, a value of `20` will give top 20 mebers this role.
 + `google_api_key` - This setting stores google api key. It enables `;img` command. You can keep this setting absent if you don't wanna use the `;img` command.
     + `value` column for this setting must contain a google api key.
 + `google_search_engine_id` - This setting stores google search engine id. This setting is required for `;img` command to work.
     + `value` column for this setting must contain a google search engine id.
-+ `guild_pin_channel` - This setting enables pin functionality in the guild. When a message gets 6 of the same reactions, it will be pinned in the pin channel.
-    + `parent` column for this setting must contain a guild id. 
-    + `value` column for this setting must contain a channel id where messages will be posted by the bot.
-    + `flag` column for this setting must contain number indicating the amount of reactions required for pinning.
-+ `guild_audit_log_channel` - This setting enables logging functionality in the guild. When this is enabled, User Leave, User Join, Message Delete, Message Edit notifications will be posted in the specified channel. 
-    + `parent` column for this setting must contain a guild id. 
-    + `value` column for this setting must contain a channel id where the logs go.
 + `guild_voice_log_channel` - This setting enables voice join/leave logging functionality in the guild. When this is enabled, User Join, User Leave, User Switch Voice channel notifications will be posted in the specified channel. 
     + `parent` column for this setting must contain a guild id. 
     + `value` column for this setting must contain a channel id where the logs go.
@@ -67,14 +60,14 @@ Blacklist is used to blacklist words what you never want the bot to respond with
 To blacklist a word, type `;blacklist <whatever you want to blacklist>`
 
 ### Blacklist channels from pinning
-By default, if a `guild_pin_channel` is configured for a guild, every channel the bot sees is eligable to have it's messages pinned in the pin channel. Blacklisting a channel will make messages from that channel unpinnable in the pin channel.
+By default, if a `guild_pin_channel` is configured for a guild, every channel the bot sees is eligible to have it's messages pinned in the pin channel. Blacklisting a channel will make messages from that channel unpinnable in the pin channel.
 To blacklist a channel, type `;sql INSERT INTO pin_channel_blacklist VALUES ("<channel_id>")`
 
 ### Music playback
 Momiji's music functionality is playlist based. In the `data` folder, you create a folder named `audio` and put you `mp3`, `ogg` or `flac` files in. Currently, only bot admins can play music with this bot.
 For music to play, the bot must be in the voice channel, duh.  
-`;vc [join/leave]` - Join/Leave voice chat  
-`;music [play/stop/next]` - Music controls
+`;vc_[join/leave]` - Join/Leave voice chat  
+`;m_[play/stop/next]` - Music controls
 
 ---
 

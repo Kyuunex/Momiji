@@ -1,4 +1,3 @@
-from modules import db
 from modules import cooldown
 import asyncio
 import aiohttp
