@@ -14,66 +14,76 @@ class Img(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.art_dir = "data/art/"
+        self.google_api_key = db.query(["SELECT value FROM config WHERE setting = ?", ["google_api_key"]])
+        self.google_search_engine_id = db.query(["SELECT value FROM config WHERE setting = ?",
+                                                 ["google_search_engine_id"]])
 
-    @commands.command(name="art", brief="Post random art", description="Upload a random image from ./data/art/ folder")
+    @commands.command(name="art", brief="Post a random picture",
+                      description="Upload a random picture from ./data/art/ folder")
     async def art(self, ctx):
-        if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
-            if os.path.exists(self.art_dir):
-                a = True
-                while a:
-                    randompicture = random.choice(os.listdir(self.art_dir))
-                    if (randompicture.split("."))[-1] == "png" or (randompicture.split("."))[-1] == "jpg":
-                        a = False
-                await ctx.send(file=discord.File(self.art_dir+randompicture))
-        else:
-            await ctx.send('slow down bruh')
+        if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
+            await ctx.send("slow down bruh")
+            return None
+
+        if os.path.exists(self.art_dir):
+            while True:
+                random_picture = random.choice(os.listdir(self.art_dir))
+                if (random_picture.split("."))[-1] == "png" or (random_picture.split("."))[-1] == "jpg":
+                    break
+            await ctx.send(file=discord.File(self.art_dir+random_picture))
 
     @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life")
     async def neko(self, ctx):
-        if await cooldown.check(str(ctx.author.id), 'lastarttime', 40):
-            url = 'https://www.nekos.life/api/v2/img/neko'
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as jsonresponse:
-                    imageurl = (await jsonresponse.json())['url']
-                    if (len(imageurl) > 20) and ("https://cdn.nekos.life/" in imageurl):
-                        await ctx.send(imageurl)
-        else:
-            await ctx.send('slow down bruh')
+        if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
+            await ctx.send("slow down bruh")
+            return None
 
-    @commands.command(name="gis", brief="Google image search", description="Search for a phrase on Google images and post a random result")
-    async def gis(self, ctx, searchquery):
-        if ctx.channel.is_nsfw():
-            if await cooldown.check(str(ctx.author.id), 'lastimgtime', 40):
-                if len(searchquery) > 0:
-                    google_api_key = (db.query(["SELECT value FROM config WHERE setting = ?", ["google_api_key"]]))
-                    google_search_engine_id = (db.query(["SELECT value FROM config WHERE setting = ?", ["google_search_engine_id"]]))
-                    if google_api_key:
-                        query = {
-                            'q': str(searchquery),
-                            'key': str(google_api_key[0][0]),
-                            'searchType': 'image',
-                            'cx': str(google_search_engine_id[0][0]),
-                            'start': str(random.randint(1, 21))
-                        }
-                        url = "https://www.googleapis.com/customsearch/v1?" + \
-                            urllib.parse.urlencode(query)
+        url = 'https://www.nekos.life/api/v2/img/neko'
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as json_response:
+                image_url = (await json_response.json())['url']
+                if "https://cdn.nekos.life/" in image_url:
+                    await ctx.send(image_url)
 
-                        async with aiohttp.ClientSession() as session:
-                            async with session.get(url) as jsonresponse:
-                                imageurl = (await jsonresponse.json())['items'][(random.randint(0, 9))]['link']
-                                if len(imageurl) > 1:
-                                    async with aiohttp.ClientSession() as session:
-                                        async with session.get(imageurl) as imageresponse:
-                                            buffer = (await imageresponse.read())
-                                            ext = imghdr.what("", h=buffer)
-                                            # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
-                                            await ctx.send(file=discord.File(buffer, "%s.%s" % (searchquery, ext)))
-                    else:
-                        await ctx.send("This command is not enabled")
-            else:
-                await ctx.send('slow down bruh')
-        else:
+    @commands.command(name="gis", brief="Google image search",
+                      description="Search for a phrase on Google images and post a random result")
+    async def gis(self, ctx, search_query):
+        # This one's for you, UC-sama
+
+        if not self.google_api_key:
+            await ctx.send("This command is not enabled")
+            return None
+
+        if not ctx.channel.is_nsfw():
             await ctx.send("This command works in NSFW channels only.")
+            return None
+
+        if not await cooldown.check(str(ctx.author.id), "last_img_time", 40):
+            await ctx.send("slow down bruh")
+            return None
+
+        if len(search_query) < 1:
+            return None
+
+        query = {
+            "q": str(search_query),
+            "key": str(self.google_api_key[0][0]),
+            "searchType": "image",
+            "cx": str(self.google_search_engine_id[0][0]),
+            "start": str(random.randint(1, 21))
+        }
+        url = "https://www.googleapis.com/customsearch/v1?" + urllib.parse.urlencode(query)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as json_response:
+                image_url = (await json_response.json())['items'][(random.randint(0, 9))]['link']
+                if len(image_url) > 1:
+                    async with aiohttp.ClientSession() as second_session:
+                        async with second_session.get(image_url) as image_response:
+                            buffer = (await image_response.read())
+                            ext = imghdr.what("", h=buffer)
+                            # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
+                            await ctx.send(file=discord.File(buffer, "%s.%s" % (search_query, ext)))
 
 
 def setup(bot):

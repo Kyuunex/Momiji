@@ -10,7 +10,7 @@ import os
 from modules import db
 
 command_prefix = ';'
-app_version = "b20191111.1"
+app_version = "b20191120"
 client = commands.Bot(command_prefix=command_prefix,
                       description='Momiji %s' % app_version)
 if not os.path.exists('data'):
@@ -30,6 +30,7 @@ if not os.path.exists(database_file):
 
     db.query("CREATE TABLE aimod_blacklist (word)")
 
+    db.query("CREATE TABLE wasteland_channels (guild_id, channel_id)")
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
     db.query("CREATE TABLE cr_pair (command_id, response_id)")
@@ -65,7 +66,6 @@ if not os.path.exists(database_file):
 
 initial_extensions = [
     'cogs.AIMod',
-    'cogs.AuditLogging',
     'cogs.BotManagement',
     'cogs.ChannelExporting', 
     'cogs.CRPair', 
@@ -86,6 +86,7 @@ initial_extensions = [
     'cogs.VoiceRoles', 
     'cogs.Waifu',
     'cogs.Welcome',
+    'cogs.Wasteland',
 ]
 
 if __name__ == '__main__':
