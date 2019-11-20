@@ -37,19 +37,12 @@ The table columns are:
 + `flag` - Another value for this config that specifies something else regarding this setting. This column is not always used.
 
 #### `setting` column can be any of these things
-+ `guild_regular_role` - This setting enables "Regulars" functionality in the guild. It enables `;regulars` command. 
-    + `parent` column for this setting must contain a guild id. 
-    + `value` column for this setting must contain a role id for the regular role.
-    + `flag` column for this setting must contain the amount of members the role can be assigned to. For example, a value of `20` will give top 20 mebers this role.
 + `google_api_key` - This setting stores google api key. It enables `;img` command. You can keep this setting absent if you don't wanna use the `;img` command.
     + `value` column for this setting must contain a google api key.
 + `google_search_engine_id` - This setting stores google search engine id. This setting is required for `;img` command to work.
     + `value` column for this setting must contain a google search engine id.
-+ `guild_voice_log_channel` - This setting enables voice join/leave logging functionality in the guild. When this is enabled, User Join, User Leave, User Switch Voice channel notifications will be posted in the specified channel. 
-    + `parent` column for this setting must contain a guild id. 
-    + `value` column for this setting must contain a channel id where the logs go.
 
-To set a config, follow this example command `;sql INSERT INTO config VALUES ("<setting>", "<parent>", "<value>", "<flag>")`. If a setting does not require a specific column, set that column to `0`.
+To set a config, follow this example command `;sql INSERT INTO config VALUES ("<setting>", "<parent>", "<value>", "<flag>")`. If a setting does not require a specific column, set that column to `0`. I moved most things to other tables, I'll get to documenting these or maybe adding commands.
 
 ### Bridging
 Bridging feature ties the specified channel to a module or to another channel. This is used when you wanna grab messages from another channel, or use a custom module to generate custom messages.
