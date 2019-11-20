@@ -36,19 +36,19 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        welcome_messages = db.query(["SELECT channel_id, message FROM welcome_messages WHERE guild_id = ?",
+        goodbye_messages = db.query(["SELECT channel_id, message FROM goodbye_messages WHERE guild_id = ?",
                                      [str(member.guild.id)]])
-        if welcome_messages:
-            right_message = random.choice(welcome_messages)
+        if goodbye_messages:
+            right_message = random.choice(goodbye_messages)
             channel = self.bot.get_channel(int(right_message[0]))
             await channel.send(await self.make_string(right_message[1], member))
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        goodbye_messages = db.query(["SELECT channel_id, message FROM goodbye_messages WHERE guild_id = ?",
+        welcome_messages = db.query(["SELECT channel_id, message FROM welcome_messages WHERE guild_id = ?",
                                      [str(member.guild.id)]])
-        if goodbye_messages:
-            right_message = random.choice(goodbye_messages)
+        if welcome_messages:
+            right_message = random.choice(welcome_messages)
             channel = self.bot.get_channel(int(right_message[0]))
             await channel.send(await self.make_string(right_message[1], member))
 
