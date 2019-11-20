@@ -64,9 +64,10 @@ class MomijiChannelImporting(commands.Cog):
                     ]
                 )
             db.mass_query(whattocommit)
-            #endtime = time.time()
-            #importfinished = "Finished importing %s messages from %s. This took %s." % (logcounter, channel.mention, await measuretime(starttime, endtime))
-            #await ctx.send(importfinished)
+            # endtime = time.time()
+            # importfinished = "Finished importing %s messages from %s. This took %s." %
+            # (logcounter, channel.mention, await measuretime(starttime, endtime))
+            # await ctx.send(importfinished)
         except Exception as e:
             print(e)
 

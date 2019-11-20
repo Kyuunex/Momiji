@@ -14,7 +14,7 @@ class CRPair(commands.Cog):
             try:
                 await response_message.delete()
             except:
-                print("can't delete")
+                pass
 
 
 def setup(bot):

@@ -14,8 +14,8 @@ class ChannelExporting(commands.Cog):
     async def export_channel(self, ctx, channel_id=None, amount=999999999):
         async with ctx.channel.typing():
             if channel_id is None:
-                channel = ctx.message.channel
-                channel_id = ctx.message.channel.id
+                channel = ctx.channel
+                channel_id = ctx.channel.id
             else:
                 channel = self.bot.get_channel(channel_id)
             start_time = time.time()

@@ -1,4 +1,3 @@
-from modules import db
 from modules import permissions
 import discord
 from discord.ext import commands
@@ -12,30 +11,29 @@ class Misc(commands.Cog):
     @commands.command(name="ss", brief="Generate a screenshare link", description="")
     async def screenshare_link(self, ctx):
         try:
-            voicechannel = ctx.author.voice.channel
+            channel = ctx.author.voice.channel
         except:
-            voicechannel = None
-        if voicechannel:
-            await ctx.send("Screenshare link for `%s`: <https://discordapp.com/channels/%s/%s/>" % (str(voicechannel.name), str(ctx.guild.id), str(voicechannel.id)))
-        else:
             await ctx.send("%s you are not in a voice channel right now" % ctx.author.mention)
+            return None
+        await ctx.send("Screenshare link for `%s`: <https://discordapp.com/channels/%s/%s/>" %
+                       (str(channel.name), str(ctx.guild.id), str(channel.id)))
 
     @commands.command(name="roll", brief="A very complicated roll command", description="")
-    async def roll(self, ctx, maax=None):
+    async def roll(self, ctx, maximum=100):
         who = ctx.message.author.display_name
         try:
-            maax = int(maax)
+            maximum = int(maximum)
         except:
-            maax = 100
-        if maax < 0:
-            randomnumber = random.randint(maax, 0)
+            maximum = 100
+        if maximum < 0:
+            random_number = random.randint(maximum, 0)
         else:
-            randomnumber = random.randint(0, maax)
-        if randomnumber == 1:
+            random_number = random.randint(0, maximum)
+        if random_number == 1:
             point = "point"
         else:
             point = "points"
-        await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), randomnumber, point))
+        await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), random_number, point))
 
     @commands.command(name="ping", brief="Ping a role", description="")
     @commands.check(permissions.is_admin)
@@ -45,9 +43,9 @@ class Misc(commands.Cog):
         await ctx.send(role.mention)
         await role.edit(mentionable=False)
 
-    @commands.command(name="massnick", brief="Nickname every user", description="")
+    @commands.command(name="mass_nick", brief="Nickname every user", description="")
     @commands.check(permissions.is_admin)
-    async def massnick(self, ctx, nickname=None):
+    async def mass_nick(self, ctx, nickname=None):
         for member in ctx.guild.members:
             try:
                 await member.edit(nick=nickname)
