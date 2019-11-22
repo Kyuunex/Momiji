@@ -52,6 +52,15 @@ class Misc(commands.Cog):
             except Exception as e:
                 await ctx.send(member.name)
                 await ctx.send(e)
+        await ctx.send("Done")\
+
+    @commands.command(name="prune_role", brief="Remove this role from every member", description="")
+    @commands.check(permissions.is_admin)
+    @commands.guild_only()
+    async def mass_nick(self, ctx, role_name):
+        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        for member in role.members:
+            await member.remove_roles(role, reason="pruned role `%s`" % role_name)
         await ctx.send("Done")
 
 

@@ -9,7 +9,7 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "b20191120.1"
+app_version = "b20191122"
 client = commands.Bot(command_prefix=command_prefix,
                       description="Momiji %s" % app_version)
 if not os.path.exists("data"):
