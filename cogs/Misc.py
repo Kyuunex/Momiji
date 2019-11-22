@@ -59,7 +59,7 @@ class Misc(commands.Cog):
     @commands.command(name="prune_role", brief="Remove this role from every member", description="")
     @commands.check(permissions.is_admin)
     @commands.guild_only()
-    async def mass_nick(self, ctx, role_name):
+    async def prune_role(self, ctx, role_name):
         async with ctx.channel.typing():
             role = discord.utils.get(ctx.guild.roles, name=role_name)
             for member in role.members:
