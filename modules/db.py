@@ -5,7 +5,7 @@ from modules.connections import database_file as database_file
 def mass_query(queries):
     conn = sqlite3.connect(database_file)
     c = conn.cursor()
-    c.execute('BEGIN TRANSACTION')
+    c.execute("BEGIN TRANSACTION")
     for query in queries:
         try:
             c.execute(query[0], query[1])

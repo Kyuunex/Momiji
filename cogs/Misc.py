@@ -19,7 +19,7 @@ class Misc(commands.Cog):
                        (str(channel.name), str(ctx.guild.id), str(channel.id)))
 
     @commands.command(name="roll", brief="A very complicated roll command", description="")
-    async def roll(self, ctx, maximum=100):
+    async def roll(self, ctx, maximum="100"):
         who = ctx.message.author.display_name
         try:
             maximum = int(maximum)

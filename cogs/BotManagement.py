@@ -31,7 +31,7 @@ class BotManagement(commands.Cog):
     @commands.check(permissions.is_owner)
     async def update(self, ctx):
         await ctx.send("Updating.")
-        os.system('git pull')
+        os.system("git pull")
         quit()
 
     @commands.command(name="sql", brief="Execute an SQL query", description="")
