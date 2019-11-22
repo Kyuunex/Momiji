@@ -65,19 +65,19 @@ class InspiroBot(commands.Cog):
 
     async def request(self, query):
         try:
-            url = self.base_url+'?'+urllib.parse.urlencode(query)
+            url = self.base_url+"?"+urllib.parse.urlencode(query)
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as response:
                     return await response.text()
         except Exception as e:
-            print(time.strftime('%X %x %Z'))
+            print(time.strftime("%X %x %Z"))
             print("in request")
             print(e)
             return None
 
     async def get_image(self):
         query = {
-            'generate': 'true',
+            "generate": "true",
         }
         request_object = await self.request(query)
         if request_object:
@@ -87,7 +87,7 @@ class InspiroBot(commands.Cog):
 
     async def get_session(self):
         query = {
-            'getSessionID': '1',
+            "getSessionID": "1",
         }
         request_object = await self.request(query)
         if request_object:

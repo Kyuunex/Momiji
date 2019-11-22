@@ -116,12 +116,12 @@ class Music(commands.Cog):
 
     def currently_playing_embed(self, filename, amount, counter, audio_tags):
         embed = discord.Embed(
-            title=str(audio_tags['title'][0]),
-            description=str(audio_tags['album'][0]),
+            title=str(audio_tags["title"][0]),
+            description=str(audio_tags["album"][0]),
             color=0xFFFF00
         )
         embed.set_author(
-            name=str(audio_tags['artist'][0])
+            name=str(audio_tags["artist"][0])
         )
         embed.set_footer(
             text="%s/%s : %s" % (counter, amount, filename)

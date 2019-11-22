@@ -33,7 +33,7 @@ class Misc(commands.Cog):
             point = "point"
         else:
             point = "points"
-        await ctx.send("**%s** rolls **%s** %s" % (who.replace('@', ''), random_number, point))
+        await ctx.send("**%s** rolls **%s** %s" % (who.replace("@", ""), random_number, point))
 
     @commands.command(name="ping", brief="Ping a role", description="")
     @commands.check(permissions.is_admin)

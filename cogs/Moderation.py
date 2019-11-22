@@ -25,11 +25,11 @@ class Moderation(commands.Cog):
                                 return False
 
                         deleted = await ctx.channel.purge(limit=int(amount), check=is_user)
-                    await ctx.send('Deleted {} message(s) by {}'.format(len(deleted), one_member.display_name))
+                    await ctx.send("Deleted {} message(s) by {}".format(len(deleted), one_member.display_name))
             else:
                 async with ctx.channel.typing():
                     deleted = await ctx.channel.purge(limit=int(amount))
-                await ctx.send('Deleted {} message(s)'.format(len(deleted)))
+                await ctx.send("Deleted {} message(s)".format(len(deleted)))
         except Exception as e:
             await ctx.send(e)
 

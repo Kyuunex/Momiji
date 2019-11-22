@@ -132,10 +132,10 @@ class MomijiSpeak(commands.Cog):
     async def main(self, message):
         if not message.author.bot:
             msg = message.content.lower()
-            if '@everyone' in msg:
-                await message.channel.send(file=discord.File('res/pinged.gif'))
+            if "@everyone" in msg:
+                await message.channel.send(file=discord.File("res/pinged.gif"))
             else:
-                if 'momiji' in msg or self.bot.user.mention in message.content:
+                if "momiji" in msg or self.bot.user.mention in message.content:
                     await self.momiji_speak(message)
                 else:
                     await self.join_spam_train(message)

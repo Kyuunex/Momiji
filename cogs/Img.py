@@ -38,10 +38,10 @@ class Img(commands.Cog):
             await ctx.send("slow down bruh")
             return None
 
-        url = 'https://www.nekos.life/api/v2/img/neko'
+        url = "https://www.nekos.life/api/v2/img/neko"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as json_response:
-                image_url = (await json_response.json())['url']
+                image_url = (await json_response.json())["url"]
                 if "https://cdn.nekos.life/" in image_url:
                     await ctx.send(image_url)
 
@@ -76,7 +76,7 @@ class Img(commands.Cog):
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as json_response:
-                image_url = (await json_response.json())['items'][(random.randint(0, 9))]['link']
+                image_url = (await json_response.json())["items"][(random.randint(0, 9))]["link"]
                 if len(image_url) > 1:
                     async with aiohttp.ClientSession() as second_session:
                         async with second_session.get(image_url) as image_response:

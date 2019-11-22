@@ -37,7 +37,7 @@ class MessageStats(commands.Cog):
                     scope_key = "channel_id"
                     scope_value = str(ctx.channel.id)
                     if ":" in arg:
-                        sub_args = arg.split(':')
+                        sub_args = arg.split(":")
                         scope_value = str(sub_args[1])
 
             query = ["SELECT user_id FROM mmj_message_logs "

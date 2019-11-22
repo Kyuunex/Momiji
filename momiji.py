@@ -8,16 +8,15 @@ import os
 
 from modules import db
 
-command_prefix = ';'
-app_version = "b20191120"
+command_prefix = ";"
+app_version = "b20191120.1"
 client = commands.Bot(command_prefix=command_prefix,
-                      description='Momiji %s' % app_version)
-if not os.path.exists('data'):
+                      description="Momiji %s" % app_version)
+if not os.path.exists("data"):
     print("Please configure this bot according to readme file.")
     sys.exit("data folder and it's contents are missing")
-if not os.path.exists('user_modules'):
-    os.makedirs('user_modules')
-# client.remove_command('help')
+if not os.path.exists("user_modules"):
+    os.makedirs("user_modules")
 
 if not os.path.exists(database_file):
     db.query("CREATE TABLE config (setting, parent, value, flag)")
@@ -77,31 +76,31 @@ if not os.path.exists(database_file):
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["wat", "", "startswith", "1"]])
 
 initial_extensions = [
-    'cogs.AIMod',
-    'cogs.BotManagement',
-    'cogs.ChannelExporting', 
-    'cogs.CRPair', 
-    'cogs.Img', 
-    'cogs.InspiroBot', 
-    'cogs.MessageStats', 
-    'cogs.Misc', 
-    'cogs.Moderation', 
-    'cogs.MomijiChannelImporting', 
-    'cogs.MomijiCommands', 
-    'cogs.MomijiSpeak', 
-    'cogs.Music', 
-    'cogs.Pinning', 
-    'cogs.RegularRole',
-    'cogs.SelfAssignableRoles', 
-    'cogs.StatsBuilder', 
-    'cogs.VoiceLogging', 
-    'cogs.VoiceRoles', 
-    'cogs.Waifu',
-    'cogs.Welcome',
-    'cogs.Wasteland',
+    "cogs.AIMod",
+    "cogs.BotManagement",
+    "cogs.ChannelExporting", 
+    "cogs.CRPair", 
+    "cogs.Img", 
+    "cogs.InspiroBot", 
+    "cogs.MessageStats", 
+    "cogs.Misc", 
+    "cogs.Moderation", 
+    "cogs.MomijiChannelImporting", 
+    "cogs.MomijiCommands", 
+    "cogs.MomijiSpeak", 
+    "cogs.Music", 
+    "cogs.Pinning", 
+    "cogs.RegularRole",
+    "cogs.SelfAssignableRoles", 
+    "cogs.StatsBuilder", 
+    "cogs.VoiceLogging", 
+    "cogs.VoiceRoles", 
+    "cogs.Waifu",
+    "cogs.Welcome",
+    "cogs.Wasteland",
 ]
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     for extension in initial_extensions:
         try:
             client.load_extension(extension)
@@ -111,10 +110,10 @@ if __name__ == '__main__':
 
 @client.event
 async def on_ready():
-    print('Logged in as')
+    print("Logged in as")
     print(client.user.name)
     print(client.user.id)
-    print('------')
+    print("------")
     if not db.query("SELECT * FROM admins"):
         app_info = await client.application_info()
         db.query(["INSERT INTO admins VALUES (?, ?)", [str(app_info.owner.id), "1"]])
