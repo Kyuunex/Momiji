@@ -12,10 +12,13 @@ class StatsBuilder(commands.Cog):
     @commands.command(name="member", brief="Show some info about a user", description="")
     @commands.guild_only()
     async def about_member(self, ctx, user_id=None):
+        member = ctx.author
         if user_id:
-            member = ctx.guild.get_member(int(user_id))
-        else:
-            member = ctx.author
+            if str(user_id).isdigit():
+                member = ctx.guild.get_member(int(user_id))
+            else:
+                if len(ctx.message.mentions) > 0:
+                    member = ctx.message.mentions[0]
         output = "name: %s\n" % (str(member.name))
         output = "display_name: %s\n" % (str(member.display_name))
         output += "joined_at: %s\n" % (str(member.joined_at))
