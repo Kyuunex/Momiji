@@ -10,14 +10,14 @@ from modules import db
 
 command_prefix = ";"
 app_version = "b20191128"
-user_extention_directory = "user_modules"
+user_extension_directory = "user_modules"
 client = commands.Bot(command_prefix=command_prefix,
                       description=f"Momiji {app_version}")
 if not os.path.exists("data"):
     print("Please configure this bot according to readme file.")
     sys.exit("data folder and it's contents are missing")
-if not os.path.exists(user_extention_directory):
-    os.makedirs(user_extention_directory)
+if not os.path.exists(user_extension_directory):
+    os.makedirs(user_extension_directory)
 
 if not os.path.exists(database_file):
     db.query("CREATE TABLE config (setting, parent, value, flag)")
@@ -56,7 +56,7 @@ if not os.path.exists(database_file):
     db.query(["INSERT INTO mmj_word_blacklist VALUES (?)", ["momiji"]])
     db.query(["INSERT INTO mmj_word_blacklist VALUES (?)", [":gw"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["^", "I agree!", "startswith", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["gtg", "nooooo don\'t leaveeeee!", "is", "1"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["gtg", "nooooo don\'t leaveeeee!", "is", "4"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["kakushi", "kotoga", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
               ["kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU", "is", "1"]])
@@ -65,23 +65,24 @@ if not os.path.exists(database_file):
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
               ["awoo", "awoooooooooooooooooooooooooo", "startswith", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
-              ["cya", "nooooo don\'t leaveeeee!", "is", "1"]])
+              ["cya", "nooooo don\'t leaveeeee!", "is", "4"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["bad bot", ";w;", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["stupid bot", ";w;", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["good bot", "^w^", "is", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["sentient", "yes ^w^", "in", "1"]])
     db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["it is self aware", "yes", "is", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["...", "", "startswith", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["omg", "", "startswith", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["wut", "", "startswith", "1"]])
-    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["wat", "", "startswith", "1"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["...", "", "startswith", "10"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["omg", "", "startswith", "10"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["wut", "", "startswith", "10"]])
+    db.query(["INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["wat", "", "startswith", "10"]])
 
 initial_extensions = [
     "cogs.AIMod",
     "cogs.BotManagement",
     "cogs.ChannelExporting", 
     "cogs.CRPair", 
-    "cogs.Img", 
+    "cogs.Fun",
+    "cogs.Img",
     "cogs.InspiroBot", 
     "cogs.MessageStats", 
     "cogs.Misc", 
@@ -94,14 +95,15 @@ initial_extensions = [
     "cogs.RegularRole",
     "cogs.SelfAssignableRoles", 
     "cogs.StatsBuilder", 
-    "cogs.VoiceLogging", 
+    "cogs.Utilities",
+    "cogs.VoiceLogging",
     "cogs.VoiceRoles", 
     "cogs.Waifu",
     "cogs.Welcome",
     "cogs.Wasteland",
 ]
 
-user_extentions = db.query("SELECT module_name FROM module_bridges")
+user_extensions = db.query("SELECT module_name FROM module_bridges")
 
 if __name__ == "__main__":
     for extension in initial_extensions:
@@ -109,9 +111,9 @@ if __name__ == "__main__":
             client.load_extension(extension)
         except Exception as e:
             print(e)
-    for user_extention in user_extentions:
+    for user_extension in user_extensions:
         try:
-            client.load_extension(f"{user_extention_directory}.{user_extention[0]}")
+            client.load_extension(f"{user_extension_directory}.{user_extension[0]}")
         except Exception as e:
             print(e)
 

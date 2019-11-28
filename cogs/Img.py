@@ -29,8 +29,14 @@ class Img(commands.Cog):
             await ctx.send("This command is not enabled")
             return None
 
+        list_of_art = os.listdir(self.art_dir)
+
+        if len(list_of_art) == 0:
+            await ctx.send("This command is not enabled")
+            return None
+
         while True:
-            random_picture = random.choice(os.listdir(self.art_dir))
+            random_picture = random.choice(list_of_art)
             if (random_picture.split("."))[-1] == "png" or (random_picture.split("."))[-1] == "jpg":
                 break
         await ctx.send(file=discord.File(self.art_dir+random_picture))

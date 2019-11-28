@@ -148,15 +148,28 @@ class MomijiSpeak(commands.Cog):
                         await self.momiji_speak(message)
 
                     for one_response in self.momiji_responses:
-                        # TODO: implement in and is
-                        # TODO: implement chances, like store number X in db where chances are 1/X
-                        if msg.startswith(one_response[0]):
-                            if len(one_response[1]) > 0:
-                                response_msg = await message.channel.send(one_response[1])
-                                db.query(["INSERT INTO cr_pair VALUES (?, ?)", [str(message.id), str(response_msg.id)]])
-                            else:
-                                await self.momiji_speak(message)
+                        trigger = one_response[0]
+                        response = one_response[1]
+                        condition = one_response[2]  # type startswith, is, in
+                        one_in = int(one_response[3])  # chances
+
+                        if self.condition_validate(condition, msg, trigger):
+                            if random.randint(1, one_in) == 1:
+                                if len(response) > 0:
+                                    response_msg = await message.channel.send(response)
+                                    db.query(["INSERT INTO cr_pair VALUES (?, ?)",
+                                              [str(message.id), str(response_msg.id)]])
+                                else:
+                                    await self.momiji_speak(message)
         await self.store_message(message)
+
+    def condition_validate(self, condition, msg, trigger):
+        if condition == "startswith":
+            return msg.startswith(trigger)
+        elif condition == "is":
+            return msg == trigger
+        elif condition == "in":
+            return trigger in msg
 
 
 def setup(bot):
