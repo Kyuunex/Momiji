@@ -16,7 +16,7 @@ I am sorry, but this happens when you want to add new features and accounting fo
 
 ## Installation Instructions
 
-1. Install `git` and `Python 3.5.3` (or newer) if you don't already have them.
+1. Install `git` and `Python 3.6` (or newer) if you don't already have them.
 2. Clone this repository using this command `git clone https://github.com/Kyuunex/Momiji.git`
 3. Install `discord.py` using this command `python3 -m pip install -U discord.py[voice]`.
 4. `pip3 install imagehash mutagen`.

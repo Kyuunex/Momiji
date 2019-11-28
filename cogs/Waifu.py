@@ -14,16 +14,16 @@ class Waifu(commands.Cog):
         your_waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ?", [str(ctx.author.id)]])
         new_waifu_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(user_id)]])
         if your_waifu_id:
-            await ctx.send("you already claimed %s as your waifu. you can only claim one at a time")
+            await ctx.send(f"you already claimed {user_id} as your waifu. you can only claim one at a time")
             return None
         if new_waifu_id:
-            await ctx.send("%s is already claimed by %s")
+            await ctx.send(f"{user_id} is already claimed by {new_waifu_id[0]}")
             return None
         db.query(["INSERT INTO waifu_claims VALUES (?,?)", [str(ctx.author.id), str(user_id)]])
         if str(ctx.author.id) == str(user_id):
             await ctx.send("you claimed yourself as your waifu. nice.")
             return None
-        await ctx.send("you claimed %s as your waifu" % user_id)
+        await ctx.send(f"you claimed {user_id} as your waifu")
 
     @commands.command(name="unclaim_waifu", brief="", description="")
     @commands.check(permissions.is_admin)
@@ -34,7 +34,7 @@ class Waifu(commands.Cog):
         if your_waifu_id:
             db.query(["DELETE FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
                       [str(ctx.author.id), str(user_id)]])
-            await ctx.send("you unclaimed %s as your waifu")
+            await ctx.send(f"you unclaimed {user_id} as your waifu")
 
     @commands.command(name="waifu", brief="", description="")
     @commands.check(permissions.is_admin)
@@ -42,11 +42,11 @@ class Waifu(commands.Cog):
     async def waifu(self, ctx):
         your_owner_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(ctx.author.id)]])
         your_waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ?", [str(ctx.author.id)]])
-        contents = "%s\n" % ctx.author.mention
+        contents = f"{ctx.author.mention}\n"
         if your_owner_id:
-            contents += "you are claimed by %s\n" % your_owner_id[0]
+            contents += f"you are claimed by {your_owner_id[0]}\n"
         if your_waifu_id:
-            contents += "you claimed %s as your waifu\n" % your_waifu_id[0]
+            contents += f"you claimed {your_waifu_id[0]} as your waifu\n"
         await ctx.send(contents)
 
 

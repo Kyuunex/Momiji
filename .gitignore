@@ -103,11 +103,11 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# IDE
+.vscode
+.idea
+
 # other
 data
-.vscode
-usermodules
-user_modules
 test.py
-HungerGames.py
-.idea
+user_modules
