@@ -2,33 +2,37 @@ import random
 import discord
 from discord.ext import commands
 import time
-# import importlib
 from modules import db
 
 
 class MomijiSpeak(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.module_bridges = db.query("SELECT module_name FROM module_bridges")
+        self.module_bridges = db.query("SELECT channel_id, module_name FROM module_bridges")
         self.momiji_responses = db.query("SELECT * FROM mmj_responses")
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        # TODO: re-implement this
-        # if message.author.id != self.bot.user.id:
-        #     if message.channel.id in self.module_bridges:
-        #         module = importlib.import_module("user_modules.%s" % (bridged_module[0][0]))
-        #         await module.on_message(message)
-        #     else:
-        #         pass
+        if self.module_bridges:
+            for bridge in self.module_bridges:
+                if str(bridge[0]) == str(message.channel.id):
+                    return None
         await self.main(message)
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
+        if self.module_bridges:
+            for bridge in self.module_bridges:
+                if str(bridge[0]) == str(message.channel.id):
+                    return None
         db.query(["DELETE FROM mmj_message_logs WHERE message_id = ?", [str(message.id)]])
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if self.module_bridges:
+            for bridge in self.module_bridges:
+                if str(bridge[0]) == str(after.channel.id):
+                    return None
         if not await self.check_privacy(after):
             db.query(["UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
                       [str(after.content), str(after.id)]])

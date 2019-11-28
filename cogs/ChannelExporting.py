@@ -20,7 +20,7 @@ class ChannelExporting(commands.Cog):
                 channel = self.bot.get_channel(channel_id)
             start_time = time.time()
             log_instance = channel.history(limit=amount)
-            filename = "data/export.%s.%s.%s.json" % (str(int(time.time())), str(channel_id), str(amount))
+            filename = f"data/export.{int(time.time())}.{channel_id}.{amount}.json"
             message_list = []
             message_count = 0
             async for message in log_instance:

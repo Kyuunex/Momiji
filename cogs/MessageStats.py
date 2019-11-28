@@ -41,14 +41,14 @@ class MessageStats(commands.Cog):
                         scope_value = str(sub_args[1])
 
             query = ["SELECT user_id FROM mmj_message_logs "
-                     "WHERE %s = ? AND bot = ? AND timestamp > ?" % scope_key,
+                     f"WHERE {scope_key} = ? AND bot = ? AND timestamp > ?",
                      [str(scope_value), str("0"), str(after)]]
 
             if "all_channels" not in args:
                 no_xp_channel_list = db.query("SELECT * FROM mmj_stats_channel_blacklist")
                 if no_xp_channel_list:
                     for one_no_xp_channel in no_xp_channel_list:
-                        query[0] += " AND channel_id != '%s'" % (str(one_no_xp_channel[0]))
+                        query[0] += f" AND channel_id != '{one_no_xp_channel[0]}'"
 
             messages = db.query(query)
 
@@ -70,26 +70,26 @@ class MessageStats(commands.Cog):
                 if not str(member_id[0][0]) == "456226577798135808":
 
                     rank += 1
-                    contents += "**[%s]**" % rank
+                    contents += f"**[{rank}]**"
                     contents += " : "
 
-                    contents += "`%s`" % member_name
+                    contents += f"`{member_name}`"
                     contents += " : "
 
                     if member:
                         if member.nick:
                             if member.nick != member_name:
-                                contents += "`%s`" % member.nick
+                                contents += f"`{member.nick}`"
                                 contents += " : "
 
-                    contents += "%s msgs" % (str(member_id[1]))
+                    contents += f"{member_id[1]} msgs"
                     contents += "\n"
                     if rank == 40:
                         break
 
             embed = discord.Embed(description=contents, color=0xffffff)
             embed.set_author(name="User stats")
-            embed.set_footer(text="Total amount of messages sent: %s" % total_amount)
+            embed.set_footer(text=f"Total amount of messages sent: {total_amount}")
         await ctx.send(embed=embed)
 
     @commands.command(name="word_stats", brief="Word statistics", description="")
@@ -122,7 +122,7 @@ class MessageStats(commands.Cog):
                 if not (any(c == word_stat[0] for c in blacklist)):
                     rank += 1
                     amount = str(word_stat[1])+" times"
-                    contents += "**[%s]** : `%s` : %s\n" % (rank, word_stat[0], amount)
+                    contents += f"**[{rank}]** : `{word_stat[0]}` : {amount}\n"
                     if rank == 40:
                         break
 

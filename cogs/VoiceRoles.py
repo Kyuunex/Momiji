@@ -21,7 +21,7 @@ class VoiceRoles(commands.Cog):
         if channel:
             if role:
                 db.query(["INSERT INTO voice_roles VALUES (?,?,?)", [str(ctx.guild.id), str(channel.id), str(role.id)]])
-                await ctx.send("Tied %s channel to %s role" % (channel.mention, role.name))
+                await ctx.send(f"Tied {channel.mention} channel to {role.name} role")
             else:
                 await ctx.send("Can't find a role with that name")
         else:
@@ -40,7 +40,7 @@ class VoiceRoles(commands.Cog):
             if role:
                 db.query(["DELETE FROM voice_roles WHERE guild_id = ? AND channel_id = ? AND role_id = ?",
                           [str(ctx.guild.id), str(channel.id), str(role.id)]])
-                await ctx.send("Untied %s channel from %s role" % (channel.mention, role.name))
+                await ctx.send(f"Untied {channel.mention} channel from {role.name} role")
             else:
                 await ctx.send("Can't find a role with that name")
         else:

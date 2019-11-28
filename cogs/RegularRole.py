@@ -36,7 +36,7 @@ class RegularRole(commands.Cog):
                     no_xp_channel_list = db.query("SELECT * FROM mmj_stats_channel_blacklist")
                     if no_xp_channel_list:
                         for one_no_xp_channel in no_xp_channel_list:
-                            query[0] += " AND channel_id != '%s'" % (str(one_no_xp_channel[0]))
+                            query[0] += f" AND channel_id != '{one_no_xp_channel[0]}'"
 
                     messages = db.query(query)
 
@@ -63,7 +63,7 @@ class RegularRole(commands.Cog):
         if role:
             db.query(["INSERT INTO regular_roles VALUES (?,?,?)",
                       [str(ctx.guild.id), str(role.id), str(threshold)]])
-            await ctx.send("%s role is now regular role with top %s getting the role" % (role.name, threshold))
+            await ctx.send(f"{role.name} role is now regular role with top {threshold} getting the role")
 
     @commands.command(name="regular_role_remove", brief="Manage the regular role", description="")
     @commands.check(permissions.is_admin)
@@ -73,7 +73,7 @@ class RegularRole(commands.Cog):
         if role:
             db.query(["DELETE FROM regular_roles WHERE guild_id = ? AND role_id = ?",
                       [str(ctx.guild.id), str(role.id)]])
-            await ctx.send("%s is no longer the regular role" % role.name)
+            await ctx.send(f"{role.name} is no longer the regular role")
 
     async def list_sorter(self, a_list):
         results = dict(Counter(a_list))

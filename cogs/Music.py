@@ -64,7 +64,7 @@ class Music(commands.Cog):
         file_list = os.listdir(self.audio_storage)
         random.shuffle(file_list)
         playlist_size = len(file_list)
-        await ctx.send("Total amount of tracks in the playlist: %s" % playlist_size)
+        await ctx.send(f"Total amount of tracks in the playlist: {playlist_size}")
         counter = 0
         for audio_file in file_list:
             while True:
@@ -124,7 +124,7 @@ class Music(commands.Cog):
             name=str(audio_tags["artist"][0])
         )
         embed.set_footer(
-            text="%s/%s : %s" % (counter, amount, filename)
+            text=f"{counter}/{amount} : {filename}"
         )
         return embed
 

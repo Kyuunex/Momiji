@@ -29,9 +29,9 @@ class VoiceLogging(commands.Cog):
 
     def member_voice_join_left(self, member, channel, action):
         if member:
-            description = "%s\n" % member.mention
-            description += "has %s\n" % action
-            description += "**%s**" % channel.name
+            description = f"{member.mention}\n"
+            description += f"has {action}\n"
+            description += f"**{channel.name}**"
             embed = discord.Embed(
                 color=0x419400,
                 description=description,
@@ -43,10 +43,10 @@ class VoiceLogging(commands.Cog):
 
     def member_voice_switch(self, member, before, after):
         if member:
-            description = "%s\n" % member.mention
+            description = f"{member.mention}\n"
             description += "has switched\n"
-            description += "from **%s**\n" % before.name
-            description += "to **%s**" % after.name
+            description += f"from **{before.name}**\n"
+            description += f"to **{after.name}**"
             embed = discord.Embed(
                 color=0x419400,
                 description=description,

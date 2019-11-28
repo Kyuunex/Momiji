@@ -15,7 +15,7 @@ class SelfAssignableRoles(commands.Cog):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
             db.query(["INSERT INTO assignable_roles VALUES (?,?)", [str(ctx.guild.id), str(role.id)]])
-            await ctx.send("`%s` role is now self-assignable" % role.name)
+            await ctx.send(f"`{role.name}` role is now self-assignable")
 
     @commands.command(name="sar_remove", brief="Remove a self assignable role", description="")
     @commands.check(permissions.is_admin)
@@ -24,7 +24,7 @@ class SelfAssignableRoles(commands.Cog):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if role:
             db.query(["DELETE FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
-            await ctx.send("`%s` role is no longer self-assignable" % role.name)
+            await ctx.send(f"`{role.name}` role is no longer self-assignable")
 
     @commands.command(name="sar_list", brief="List all self assignable roles in this server", description="")
     @commands.check(permissions.is_admin)
@@ -35,9 +35,9 @@ class SelfAssignableRoles(commands.Cog):
         for one_role_db in all_roles:
             role = discord.utils.get(ctx.guild.roles, id=int(one_role_db[0]))
             if role:
-                output += "%s\n" % role.name
+                output += f"{role.name}\n" 
             else:
-                output += "%s\n" % (one_role_db[0])
+                output += f"{one_role_db[0]}\n"
         await ctx.send(output)
 
     @commands.command(name="join", brief="Get a role", description="")
@@ -50,7 +50,7 @@ class SelfAssignableRoles(commands.Cog):
                 if str(role.id) == str(check[0][0]):
                     try:
                         await ctx.author.add_roles(role)
-                        await ctx.send("%s you now have the `%s` role" % (ctx.author.mention, role.name))
+                        await ctx.send(f"{ctx.author.mention} you now have the `{role.name}` role")
                     except Exception as e:
                         await ctx.send(e)
             else:
@@ -68,7 +68,7 @@ class SelfAssignableRoles(commands.Cog):
                 if str(role.id) == str(check[0][0]):
                     try:
                         await ctx.author.remove_roles(role)
-                        await ctx.send("%s you no longer have the `%s` role" % (ctx.author.mention, role.name))
+                        await ctx.send(f"{ctx.author.mention} you no longer have the `{role.name}` role")
                     except Exception as e:
                         await ctx.send(e)
             else:

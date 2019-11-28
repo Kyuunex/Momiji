@@ -22,7 +22,7 @@ async def is_owner(ctx):
 def get_admin_list():
     contents = ""
     for user_id in admin_list:
-        contents += "<@%s>\n" % user_id
+        contents += f"<@{user_id}>\n" 
     return discord.Embed(title="Bot admin list", description=contents, color=0xffffff)
 
 

@@ -25,12 +25,15 @@ class Img(commands.Cog):
             await ctx.send("slow down bruh")
             return None
 
-        if os.path.exists(self.art_dir):
-            while True:
-                random_picture = random.choice(os.listdir(self.art_dir))
-                if (random_picture.split("."))[-1] == "png" or (random_picture.split("."))[-1] == "jpg":
-                    break
-            await ctx.send(file=discord.File(self.art_dir+random_picture))
+        if not os.path.exists(self.art_dir):
+            await ctx.send("This command is not enabled")
+            return None
+
+        while True:
+            random_picture = random.choice(os.listdir(self.art_dir))
+            if (random_picture.split("."))[-1] == "png" or (random_picture.split("."))[-1] == "jpg":
+                break
+        await ctx.send(file=discord.File(self.art_dir+random_picture))
 
     @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life")
     async def neko(self, ctx):
@@ -83,7 +86,7 @@ class Img(commands.Cog):
                             buffer = (await image_response.read())
                             ext = imghdr.what("", h=buffer)
                             # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
-                            await ctx.send(file=discord.File(buffer, "%s.%s" % (search_query, ext)))
+                            await ctx.send(file=discord.File(buffer, f"{search_query}.{ext}"))
 
 
 def setup(bot):

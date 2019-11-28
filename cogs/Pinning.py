@@ -37,33 +37,32 @@ class Pinning(commands.Cog):
 
                         db.query(["INSERT INTO pinning_history VALUES (?)", [str(raw_reaction.message_id)]])
                         pin_channel = self.bot.get_channel(int(pinning_channel[1]))
-                        content = "<#%s> %s" % (str(raw_reaction.channel_id), str(reaction.emoji))
+                        content = f"<#{raw_reaction.channel_id}> {reaction.emoji}"
                         await pin_channel.send(content=content, embed=await self.pin_embed(message))
 
     async def pin_embed(self, message):
-        if message:
-            if message.embeds:
-                embed = message.embeds[0]
-            else:
-                description = message.content
-                description += "\n\n[(context)](https://discordapp.com/channels/%s/%s/%s)" % \
-                               (str(message.guild.id), str(message.channel.id), str(message.id))
-                embed = discord.Embed(
-                    description=description,
-                    color=0xFFFFFF
-                )
-                if message.attachments:
-                    attachment = message.attachments[0]
-                    embed.set_image(
-                        url=attachment.url
-                    )
-                embed.set_author(
-                    name=message.author.display_name,
-                    icon_url=message.author.avatar_url
-                )
-            return embed
-        else:
+        if not message:
             return None
+            
+        if message.embeds:
+            return message.embeds[0]
+
+        description = message.content
+        description += f"\n\n[(context)](https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id})"
+        embed = discord.Embed(
+            description=description,
+            color=0xFFFFFF
+        )
+        if message.attachments:
+            attachment = message.attachments[0]
+            embed.set_image(
+                url=attachment.url
+            )
+        embed.set_author(
+            name=message.author.display_name,
+            icon_url=message.author.avatar_url
+        )
+        return embed
 
 
 def setup(bot):

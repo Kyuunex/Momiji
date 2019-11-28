@@ -13,14 +13,14 @@ class Misc(commands.Cog):
         try:
             channel = ctx.author.voice.channel
         except:
-            await ctx.send("%s you are not in a voice channel right now" % ctx.author.mention)
+            await ctx.send(f"{ctx.author.mention} you are not in a voice channel right now")
             return None
-        await ctx.send("Screenshare link for `%s`: <https://discordapp.com/channels/%s/%s/>" %
-                       (str(channel.name), str(ctx.guild.id), str(channel.id)))
+        await ctx.send(f"Screenshare link for `{channel.name}`: "
+                       f"<https://discordapp.com/channels/{ctx.guild.id}/{channel.id}/>")
 
     @commands.command(name="roll", brief="A very complicated roll command", description="")
     async def roll(self, ctx, maximum="100"):
-        who = ctx.message.author.display_name
+        who = ctx.message.author.display_name.replace("@", "")
         try:
             maximum = int(maximum)
         except:
@@ -30,10 +30,10 @@ class Misc(commands.Cog):
         else:
             random_number = random.randint(0, maximum)
         if random_number == 1:
-            point = "point"
+            point_str = "point"
         else:
-            point = "points"
-        await ctx.send("**%s** rolls **%s** %s" % (who.replace("@", ""), random_number, point))
+            point_str = "points"
+        await ctx.send(f"**{who}** rolls **{random_number}** {point_str}")
 
     @commands.command(name="ping", brief="Ping a role", description="")
     @commands.check(permissions.is_admin)
@@ -63,7 +63,7 @@ class Misc(commands.Cog):
         async with ctx.channel.typing():
             role = discord.utils.get(ctx.guild.roles, name=role_name)
             for member in role.members:
-                await member.remove_roles(role, reason="pruned role `%s`" % role_name)
+                await member.remove_roles(role, reason=f"pruned role `{role_name}`")
         await ctx.send("Done")
 
 

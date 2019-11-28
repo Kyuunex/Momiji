@@ -19,39 +19,41 @@ class StatsBuilder(commands.Cog):
             else:
                 if len(ctx.message.mentions) > 0:
                     member = ctx.message.mentions[0]
-        output = "name: %s\n" % (str(member.name))
-        output = "display_name: %s\n" % (str(member.display_name))
-        output += "joined_at: %s\n" % (str(member.joined_at))
-        output += "premium_since: %s\n" % (str(member.premium_since))
-        output += "mobile_status: %s\n" % (str(member.mobile_status))
-        output += "desktop_status: %s\n" % (str(member.desktop_status))
-        output += "web_status: %s\n" % (str(member.web_status))
-        output += "created_at: %s\n" % (str(member.created_at))
+        body = f"name: {member.name}\n"
+        body += f"display_name: {member.display_name}\n"
+        body += f"joined_at: {member.joined_at}\n"
+        body += f"premium_since: {member.premium_since}\n"
+        body += f"mobile_status: {member.mobile_status}\n"
+        body += f"desktop_status: {member.desktop_status}\n"
+        body += f"web_status: {member.web_status}\n"
+        body += f"created_at: {member.created_at}\n"
         # profile = member.profile()
-        # output += "nitro: %s\n" % (str(profile.nitro))
-        # output += "staff: %s\n" % (str(profile.staff))
-        # output += "partner: %s\n" % (str(profile.partner))
-        # output += "bug_hunter: %s\n" % (str(profile.bug_hunter))
-        # output += "early_supporter: %s\n" % (str(profile.early_supporter))
-        # output += "hypesquad: %s\n" % (str(profile.hypesquad))
-        await ctx.send(output)
+        # body += f"nitro: {profile.nitro}\n"
+        # body += f"staff: {profile.staff}\n"
+        # body += f"partner: {profile.partner}\n"
+        # body += f"bug_hunter: {profile.bug_hunter}\n"
+        # body += f"early_supporter: {profile.early_supporter}\n"
+        # body += f"hypesquad: {profile.hypesquad}\n"
+        embed = discord.Embed(title="Momiji is best wolf.", description=body, color=0xe95e62)
+        await ctx.send(embed=embed)
 
     @commands.command(name="guild", brief="About this guild", description="")
     @commands.guild_only()
     async def about_guild(self, ctx):
         guild = ctx.guild
-        output = "name: %s\n" % (str(guild.name))
-        output = "region: %s\n" % (str(guild.region))
-        output += "id: %s\n" % (str(guild.id))
-        output += "owner_id: %s\n" % (str(guild.owner_id))
-        output += "max_presences: %s\n" % (str(guild.max_presences))
-        output += "max_members: %s\n" % (str(guild.max_members))
-        output += "verification_level: %s\n" % (str(guild.verification_level))
-        output += "premium_tier: %s\n" % (str(guild.premium_tier))
-        output += "premium_subscription_count: %s\n" % (str(guild.premium_subscription_count))
-        output += "filesize_limit: %s\n" % (str(guild.filesize_limit))
-        output += "created_at: %s\n" % (str(guild.created_at))
-        await ctx.send(output)
+        body = f"name: {guild.name}\n"
+        body += f"region: {guild.region}\n"
+        body += f"id: {guild.id}\n"
+        body += f"owner_id: {guild.owner_id}\n"
+        body += f"max_presences: {guild.max_presences}\n"
+        body += f"max_members: {guild.max_members}\n"
+        body += f"verification_level: {guild.verification_level}\n"
+        body += f"premium_tier: {guild.premium_tier}\n"
+        body += f"premium_subscription_count: {guild.premium_subscription_count}\n"
+        body += f"filesize_limit: {guild.filesize_limit}\n"
+        body += f"created_at: {guild.created_at}\n"
+        embed = discord.Embed(title="Momiji is best wolf.", description=body, color=0xe95e62)
+        await ctx.send(embed=embed)
 
     @commands.command(name="about", brief="About this bot", description="")
     async def about_bot(self, ctx):
@@ -60,15 +62,15 @@ class StatsBuilder(commands.Cog):
         user_amount = len(self.bot.users)
         script_now_time = time.time()
         uptime = self.measure_time(script_start_time, script_now_time)
-        description = "__**Stats:**__\n"
-        description += "**Bot owner:** <@%s>\n" % (str(app_info.owner.id))
-        # description += "**Current version:** %s\n" % (app_version)
-        description += "**Amount of guilds serving:** %s\n" % (str(guild_amount))
-        description += "**Amount of users serving:** %s\n" % (str(user_amount))
-        description += "**Lib used:** [discord.py](https://github.com/Rapptz/discord.py/)\n"
-        description += "**Uptime:** %s\n" % (str(uptime))
-        description += "**Memory usage:** idk how to see this but probably less than 100M\n"
-        embed = discord.Embed(title="Momiji is best wolf.", description=description, color=0xe95e62)
+        body = "__**Stats:**__\n"
+        body += f"**Bot owner:** <@{app_info.owner.id}>\n"
+        # body += f"**Current version:** {app_version}\n"
+        body += f"**Amount of guilds serving:** {guild_amount}\n"
+        body += f"**Amount of users serving:** {user_amount}\n"
+        body += "**Lib used:** [discord.py](https://github.com/Rapptz/discord.py/)\n"
+        body += f"**Uptime:** {uptime}\n"
+        body += "**Memory usage:** idk how to see this but probably less than 100M\n"
+        embed = discord.Embed(title="Momiji is best wolf.", description=body, color=0xe95e62)
         await ctx.send(embed=embed)
 
     def measure_time(self, start_time, end_time):

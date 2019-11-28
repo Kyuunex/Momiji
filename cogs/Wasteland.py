@@ -64,17 +64,17 @@ class Wasteland(commands.Cog):
                     removed = await self.compare_lists(before.roles, after.roles, reverse=False)
 
                     if added:
-                        text = "**Added**:\n%s"
                         role = added[0]
+                        text = f"**Added**:\n{role.name}"
                     elif removed:
-                        text = "**Removed**:\n%s"
                         role = removed[0]
+                        text = f"**Removed**:\n{role.name}"
 
                     voice_role = db.query(["SELECT role_id FROM voice_roles WHERE role_id = ?", [str(role.id)]])
                     regulars_role = db.query(["SELECT role_id FROM regular_roles WHERE role_id = ?", [str(role.id)]])
                     if (not voice_role) and (not regulars_role):
                         channel = self.bot.get_channel(int(wasteland_channel[1]))
-                        await channel.send(embed=await WastelandEmbeds.role_change(after, text % role.name))
+                        await channel.send(embed=await WastelandEmbeds.role_change(after, text))
 
     @commands.Cog.listener()
     async def on_user_update(self, before, after):

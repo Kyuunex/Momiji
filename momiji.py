@@ -9,14 +9,15 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "b20191124"
+app_version = "b20191128"
+user_extention_directory = "user_modules"
 client = commands.Bot(command_prefix=command_prefix,
-                      description="Momiji %s" % app_version)
+                      description=f"Momiji {app_version}")
 if not os.path.exists("data"):
     print("Please configure this bot according to readme file.")
     sys.exit("data folder and it's contents are missing")
-if not os.path.exists("user_modules"):
-    os.makedirs("user_modules")
+if not os.path.exists(user_extention_directory):
+    os.makedirs(user_extention_directory)
 
 if not os.path.exists(database_file):
     db.query("CREATE TABLE config (setting, parent, value, flag)")
@@ -100,10 +101,17 @@ initial_extensions = [
     "cogs.Wasteland",
 ]
 
+user_extentions = db.query("SELECT module_name FROM module_bridges")
+
 if __name__ == "__main__":
     for extension in initial_extensions:
         try:
             client.load_extension(extension)
+        except Exception as e:
+            print(e)
+    for user_extention in user_extentions:
+        try:
+            client.load_extension(f"{user_extention_directory}.{user_extention[0]}")
         except Exception as e:
             print(e)
 
@@ -117,6 +125,6 @@ async def on_ready():
     if not db.query("SELECT * FROM admins"):
         app_info = await client.application_info()
         db.query(["INSERT INTO admins VALUES (?, ?)", [str(app_info.owner.id), "1"]])
-        print("Added %s to admin list" % app_info.owner.name)
+        print(f"Added {app_info.owner.name} to admin list")
 
 client.run(bot_token)
