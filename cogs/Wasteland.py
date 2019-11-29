@@ -7,6 +7,7 @@ class Wasteland(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.wasteland_channels = db.query("SELECT guild_id, channel_id FROM wasteland_channels")
+        self.wasteland_ignore_channels = db.query("SELECT channel_id FROM wasteland_ignore_channels")
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, member):
@@ -39,6 +40,11 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if self.wasteland_ignore_channels:
+            for ignore_channel in self.wasteland_ignore_channels:
+                if str(ignore_channel[0]) == str(before.channel.id):
+                    return None
+
         if not before.author.bot:
             if before.content != after.content:
                 for wasteland_channel in self.wasteland_channels:
@@ -48,6 +54,11 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
+        if self.wasteland_ignore_channels:
+            for ignore_channel in self.wasteland_ignore_channels:
+                if str(ignore_channel[0]) == str(message.channel.id):
+                    return None
+
         if not message.author.bot:
             for wasteland_channel in self.wasteland_channels:
                 if str(wasteland_channel[0]) == str(message.guild.id):

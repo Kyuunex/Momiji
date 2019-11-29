@@ -9,7 +9,7 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "b20191128"
+app_version = "b20191129"
 user_extension_directory = "user_modules"
 client = commands.Bot(command_prefix=command_prefix,
                       description=f"Momiji {app_version}")
@@ -37,6 +37,7 @@ if not os.path.exists(database_file):
 
     db.query("CREATE TABLE voice_logging_channels (guild_id, channel_id)")
     db.query("CREATE TABLE wasteland_channels (guild_id, channel_id)")
+    db.query("CREATE TABLE wasteland_ignore_channels (guild_id, channel_id)")
     db.query("CREATE TABLE regular_roles (guild_id, role_id, threshold)")
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
@@ -101,6 +102,7 @@ initial_extensions = [
     "cogs.Waifu",
     "cogs.Welcome",
     "cogs.Wasteland",
+    "cogs.WastelandConfiguration",
 ]
 
 user_extensions = db.query("SELECT module_name FROM module_bridges")
