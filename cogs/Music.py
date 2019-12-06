@@ -1,132 +1,114 @@
-import discord
-from discord.ext import commands
 import asyncio
-import os
-import random
-from modules import permissions
-from mutagen.easyid3 import EasyID3
+
+import discord
+import youtube_dl
+
+from discord.ext import commands
+
+# Suppress noise about console usage from errors
+youtube_dl.utils.bug_reports_message = lambda: ""
+
+
+ytdl_format_options = {
+    "format": "bestaudio/best",
+    "outtmpl": "data/%(extractor)s-%(id)s-%(title)s.%(ext)s",
+    "restrictfilenames": True,
+    "noplaylist": True,
+    "nocheckcertificate": True,
+    "ignoreerrors": False,
+    "logtostderr": False,
+    "quiet": True,
+    "no_warnings": True,
+    "default_search": "auto",  # bind to ipv4 since ipv6 addresses cause issues sometimes
+    "source_address": "0.0.0.0"
+}
+
+ffmpeg_options = {
+    "options": "-vn"
+}
+
+ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+
+
+async def is_dj(ctx):
+    if not ctx.author.voice:
+        return False
+    if not (ctx.author.voice.channel.permissions_for(ctx.message.author)).priority_speaker:
+        return False
+    return True
+
+
+class YTDLSource(discord.PCMVolumeTransformer):
+    def __init__(self, source, *, data, volume=0.5):
+        super().__init__(source, volume)
+
+        self.data = data
+
+        self.title = data.get("title")
+        self.url = data.get("url")
+
+    @classmethod
+    async def from_url(cls, url, *, loop=None, stream=False):
+        loop = loop or asyncio.get_event_loop()
+        data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=not stream))
+
+        if "entries" in data:
+            # take first item from a playlist
+            data = data["entries"][0]
+
+        filename = data["url"] if stream else ytdl.prepare_filename(data)
+        return cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)
 
 
 class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.audio_storage = "data/audio/"
-        self.voice_sessions = {}
-        self.stop_queue = {}
 
-    @commands.command(name="vc_join", brief="Join voice channel", description="")
-    @commands.check(permissions.is_admin)
-    async def vc_join(self, ctx):
-        for voice_client in self.bot.voice_clients:
-            if voice_client.guild.id == ctx.message.guild.id:
-                await ctx.send("already playing in this guild")
-                return None
-        self.voice_sessions[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
-        await ctx.send("Momiji reporting for duty")
+    @commands.command(name="m_join", brief="Join a voice channel", description="")
+    @commands.check(is_dj)
+    async def m_join(self, ctx):
+        pass
 
-    @commands.command(name="vc_leave", brief="Leave voice channel", description="")
-    @commands.check(permissions.is_admin)
-    async def vc_leave(self, ctx):
-        if ctx.message.guild.id in self.voice_sessions:
-            if self.voice_sessions[ctx.message.guild.id].is_playing():
-                self.stop_queue[ctx.message.guild.id] = True
-                self.voice_sessions[ctx.message.guild.id].stop()
-            await self.voice_sessions[ctx.message.guild.id].disconnect()
-            del self.voice_sessions[ctx.message.guild.id]
-            await ctx.send("if you dislike me this much, fine, i'll leave")
+    @commands.command(name="m_leave", brief="Disconnect from a voice channel", description="")
+    @commands.check(is_dj)
+    async def m_leave(self, ctx):
+        await ctx.voice_client.disconnect()
 
-    @commands.command(name="m_play", brief="Play music", description="")
-    @commands.check(permissions.is_admin)
-    async def m_play(self, ctx):
-        if not ctx.message.guild.id in self.voice_sessions:
-            # await self.vc_join(ctx) # this does not work so I'll just copy and paste
-            for voice_client in self.bot.voice_clients:
-                if voice_client.guild.id == ctx.message.guild.id:
-                    await ctx.send("already playing in this guild")
-                    return None
-            self.voice_sessions[ctx.message.guild.id] = await ctx.author.voice.channel.connect(timeout=60.0)
-            await ctx.send("Momiji reporting for duty")
+    @commands.command(name="m_play", brief="Plays from a url (almost anything youtube_dl supports)", description="")
+    @commands.check(is_dj)
+    async def m_play(self, ctx, *, url):
+        async with ctx.typing():
+            player = await YTDLSource.from_url(url, loop=self.bot.loop)
+            ctx.voice_client.play(player, after=lambda e: print("Player error: %s" % e) if e else None)
+        await ctx.send(f"Now playing: `{player.title}`")
 
-        if not ctx.message.guild.id in self.voice_sessions:
-            await ctx.send("Something broke")
-            return None
+    @commands.command(name="y_stream",
+                      brief="Streams from a url",
+                      description="Same as m_play, but doesn't pre-download")
+    @commands.check(is_dj)
+    async def m_stream(self, ctx, *, url):
+        async with ctx.typing():
+            player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
+            ctx.voice_client.play(player, after=lambda e: print("Player error: %s" % e) if e else None)
 
-        if self.voice_sessions[ctx.message.guild.id].is_playing():
-            await ctx.send("already playing in this guild.")
-            return None
+        await ctx.send(f"Now playing: `{player.title}`")
 
-        self.stop_queue[ctx.message.guild.id] = None
-
-        if not os.path.exists(self.audio_storage):
-            await ctx.send("music folder does not exist")
-            return None
-
-        file_list = os.listdir(self.audio_storage)
-        random.shuffle(file_list)
-        playlist_size = len(file_list)
-        await ctx.send(f"Total amount of tracks in the playlist: {playlist_size}")
-        counter = 0
-        for audio_file in file_list:
-            while True:
-                if ctx.message.guild.id in self.voice_sessions:
-                    if self.voice_sessions[ctx.message.guild.id].is_playing():
-                        await asyncio.sleep(3)
-                    else:
-                        if not self.stop_queue[ctx.message.guild.id]:
-                            if (audio_file.split("."))[-1] == "mp3" or (audio_file.split("."))[-1] == "ogg" or \
-                                    (audio_file.split("."))[-1] == "flac":
-                                counter += 1
-                                audio_file_location = self.audio_storage+audio_file
-                                try:
-                                    self.voice_sessions[ctx.guild.id].play(discord.FFmpegPCMAudio(audio_file_location))
-                                except Exception as e:
-                                    await ctx.send(e)
-                                try:
-                                    audio_tags = EasyID3(audio_file_location)
-                                except Exception as e:
-                                    audio_tags = {
-                                        "title": [""],
-                                        "artist": [""],
-                                        "album": [""],
-                                    }
-                                    print(e)
-                                try:
-                                    embed = self.currently_playing_embed(audio_file, playlist_size, counter, audio_tags)
-                                    await ctx.send(embed=embed, delete_after=600)
-                                except Exception as e:
-                                    print(e)
-                        break
-    
-    @commands.command(name="m_next", brief="Next track", description="")
-    @commands.check(permissions.is_admin)
-    async def m_next(self, ctx):
-        if ctx.message.guild.id in self.voice_sessions:
-            if self.voice_sessions[ctx.message.guild.id].is_playing():
-                self.voice_sessions[ctx.message.guild.id].stop()
-                await ctx.send("Next track")
-
-    @commands.command(name="m_stop", brief="Stop music", description="")
-    @commands.check(permissions.is_admin)
+    @commands.command(name="m_stop", brief="Stop the music", description="")
+    @commands.check(is_dj)
     async def m_stop(self, ctx):
-        if ctx.message.guild.id in self.voice_sessions:
-            if self.voice_sessions[ctx.message.guild.id].is_playing():
-                self.stop_queue[ctx.message.guild.id] = True
-                self.voice_sessions[ctx.message.guild.id].stop()
-                await ctx.send("Stopped playing music")
+        ctx.voice_client.stop()
 
-    def currently_playing_embed(self, filename, amount, counter, audio_tags):
-        embed = discord.Embed(
-            title=str(audio_tags["title"][0]),
-            description=str(audio_tags["album"][0]),
-            color=0xFFFF00
-        )
-        embed.set_author(
-            name=str(audio_tags["artist"][0])
-        )
-        embed.set_footer(
-            text=f"{counter}/{amount} : {filename}"
-        )
-        return embed
+    @m_play.before_invoke
+    @m_stream.before_invoke
+    async def ensure_voice(self, ctx):
+        if ctx.voice_client is None:
+            if ctx.author.voice:
+                await ctx.author.voice.channel.connect()
+            else:
+                await ctx.send("You are not connected to a voice channel.")
+                raise commands.CommandError("Author not connected to a voice channel.")
+        elif ctx.voice_client.is_playing():
+            ctx.voice_client.stop()
 
 
 def setup(bot):
