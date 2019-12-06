@@ -82,7 +82,7 @@ class Music(commands.Cog):
             ctx.voice_client.play(player, after=lambda e: print("Player error: %s" % e) if e else None)
         await ctx.send(f"Now playing: `{player.title}`")
 
-    @commands.command(name="y_stream",
+    @commands.command(name="m_stream",
                       brief="Streams from a url",
                       description="Same as m_play, but doesn't pre-download")
     @commands.check(is_dj)
