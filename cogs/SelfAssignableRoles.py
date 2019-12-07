@@ -44,37 +44,45 @@ class SelfAssignableRoles(commands.Cog):
     @commands.guild_only()
     async def join(self, ctx, *, role_name):
         role = self.get_case_insensitive_role(ctx.guild.roles, name=role_name)
-        if role:
-            check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
-            if check:
-                if str(role.id) == str(check[0][0]):
-                    try:
-                        await ctx.author.add_roles(role)
-                        await ctx.send(f"{ctx.author.mention} you now have the `{role.name}` role")
-                    except Exception as e:
-                        await ctx.send(e)
+        if not role:
+            await ctx.send(f"{ctx.author.mention}, bruh, this role does not exist.")
+            return None
+
+        check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
+        if not check:
+            if role.permissions.administrator:
+                await ctx.send(f"imagine trying to get admin permissions by tricking me. "
+                               f"you disgust me {ctx.author.mention}")
             else:
-                await ctx.send("bruh, this role is not self assignable")
-        else:
-            await ctx.send("bruh, this role does not exist.")
+                await ctx.send(f"{ctx.author.mention}, bruh, this role is not self assignable")
+            return None
+
+        if str(role.id) == str(check[0][0]):
+            try:
+                await ctx.author.add_roles(role)
+                await ctx.send(f"{ctx.author.mention} you now have the `{role.name}` role")
+            except Exception as e:
+                await ctx.send(e)
 
     @commands.command(name="leave", brief="Remove a role", description="")
     @commands.guild_only()
     async def leave(self, ctx, *, role_name):
         role = self.get_case_insensitive_role(ctx.guild.roles, name=role_name)
-        if role:
-            check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
-            if check:
-                if str(role.id) == str(check[0][0]):
-                    try:
-                        await ctx.author.remove_roles(role)
-                        await ctx.send(f"{ctx.author.mention} you no longer have the `{role.name}` role")
-                    except Exception as e:
-                        await ctx.send(e)
-            else:
-                await ctx.send("bruh, this role is not self assignable or removable")
-        else:
-            await ctx.send("bruh, this role does not exist.")
+        if not role:
+            await ctx.send(f"{ctx.author.mention}, bruh, this role does not exist.")
+            return None
+
+        check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
+        if not check:
+            await ctx.send(f"{ctx.author.mention}, bruh, this role is not self assignable or removable")
+            return None
+
+        if str(role.id) == str(check[0][0]):
+            try:
+                await ctx.author.remove_roles(role)
+                await ctx.send(f"{ctx.author.mention} you no longer have the `{role.name}` role")
+            except Exception as e:
+                await ctx.send(e)
 
     def get_case_insensitive_role(self, roles, name):
         for role in roles:
