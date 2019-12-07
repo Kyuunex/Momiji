@@ -43,7 +43,7 @@ class SelfAssignableRoles(commands.Cog):
     @commands.command(name="join", brief="Get a role", description="")
     @commands.guild_only()
     async def join(self, ctx, *, role_name):
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = self.get_case_insensitive_role(ctx.guild.roles, name=role_name)
         if role:
             check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
             if check:
@@ -56,12 +56,12 @@ class SelfAssignableRoles(commands.Cog):
             else:
                 await ctx.send("bruh, this role is not self assignable")
         else:
-            await ctx.send("bruh, this role does not exist. also, roles are case-sensitive.")
+            await ctx.send("bruh, this role does not exist.")
 
     @commands.command(name="leave", brief="Remove a role", description="")
     @commands.guild_only()
     async def leave(self, ctx, *, role_name):
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = self.get_case_insensitive_role(ctx.guild.roles, name=role_name)
         if role:
             check = db.query(["SELECT role_id FROM assignable_roles WHERE role_id = ?", [str(role.id)]])
             if check:
@@ -74,7 +74,13 @@ class SelfAssignableRoles(commands.Cog):
             else:
                 await ctx.send("bruh, this role is not self assignable or removable")
         else:
-            await ctx.send("bruh, this role does not exist. also, roles are case-sensitive.")
+            await ctx.send("bruh, this role does not exist.")
+
+    def get_case_insensitive_role(self, roles, name):
+        for role in roles:
+            if role.name.lower() == name.lower():
+                return role
+        return None
 
 
 def setup(bot):
