@@ -3,6 +3,14 @@ from discord.ext import commands
 
 
 class Waifu(commands.Cog):
+    """
+    Waifu claiming game:
+    You can only claim one member as a waifu
+    You can only be claimed by one member as a waifu
+    You can claim yourself if you don't want someone else to claim you
+    but you won't be able to claim anyone else.
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
