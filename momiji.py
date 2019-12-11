@@ -9,7 +9,7 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "b20191207.1"
+app_version = "b20191212"
 user_extension_directory = "user_modules"
 client = commands.Bot(command_prefix=command_prefix,
                       description=f"Momiji {app_version}")

@@ -84,9 +84,9 @@ class SelfAssignableRoles(commands.Cog):
             except Exception as e:
                 await ctx.send(e)
 
-    def get_case_insensitive_role(self, roles, name):
+    def get_case_insensitive_role(self, roles, lookup):
         for role in roles:
-            if role.name.lower() == name.lower():
+            if role.name.lower() == lookup.lower():
                 return role
         return None
 
