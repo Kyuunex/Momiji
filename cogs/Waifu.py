@@ -122,7 +122,7 @@ class Waifu(commands.Cog):
             owner_name = self.guaranteed_member_string(ctx, claim_record[0])
             waifu_name = self.guaranteed_member_string(ctx, claim_record[1])
             if owner_name == waifu_name:
-                contents += f"`{owner_name}` claimed themself\n"
+                contents += f"`{owner_name}` claimed themselves\n"
             else:
                 contents += f"`{owner_name}` claimed `{waifu_name}`\n"
         await wrappers.send_large_text(ctx.channel, contents)
