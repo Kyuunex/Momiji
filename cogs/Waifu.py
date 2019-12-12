@@ -57,19 +57,23 @@ class Waifu(commands.Cog):
         if your_waifu_id:
             waifu_name = self.guaranteed_member_string(ctx, your_waifu_id[0][0])
             if waifu_name == member.display_name:
-                await ctx.send(f"{member.display_name} is already your waifu")
+                await ctx.send(f"`{member.display_name}` is already your waifu")
             else:
-                await ctx.send(f"you already claimed {waifu_name} as your waifu. you can only claim one at a time")
+                if waifu_name == ctx.author.display_name:
+                    await ctx.send(f"you already claimed yourself as your waifu. you can have only one claim at a time")
+                else:
+                    await ctx.send(f"you already claimed `{waifu_name}` as your waifu. "
+                                   f"you can only claim one at a time")
             return None
         if owner_id:
             owner_name = self.guaranteed_member_string(ctx, owner_id[0][0])
-            await ctx.send(f"{member.display_name} is already claimed by {owner_name}")
+            await ctx.send(f"`{member.display_name}` is already claimed by `{owner_name}`")
             return None
         db.query(["INSERT INTO waifu_claims VALUES (?,?)", [str(ctx.author.id), str(member.id)]])
         if str(ctx.author.id) == str(member.id):
             await ctx.send("you claimed yourself as your waifu. nice.")
             return None
-        await ctx.send(f"you claimed {member.display_name} as your waifu")
+        await ctx.send(f"you claimed `{member.display_name}` as your waifu")
 
     @commands.command(name="unclaim_waifu", brief="Unclaim a server member as a waifu", description="")
     @commands.guild_only()
@@ -88,7 +92,7 @@ class Waifu(commands.Cog):
         if your_waifu_id:
             db.query(["DELETE FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
                       [str(ctx.author.id), str(member.id)]])
-            await ctx.send(f"you unclaimed {member.display_name} as your waifu")
+            await ctx.send(f"you unclaimed `{member.display_name}` as your waifu")
 
     @commands.command(name="show_my_waifu", brief="Show who is my waifu", description="")
     @commands.guild_only()
@@ -104,10 +108,10 @@ class Waifu(commands.Cog):
         contents = f"{ctx.author.mention}\n"
         if your_owner_id:
             owner_name = self.guaranteed_member_string(ctx, your_owner_id[0][0])
-            contents += f"you are claimed by {owner_name}\n"
+            contents += f"you are claimed by `{owner_name}`\n"
         if your_waifu_id:
             waifu_name = self.guaranteed_member_string(ctx, your_waifu_id[0][0])
-            contents += f"you claimed {waifu_name} as your waifu\n"
+            contents += f"you claimed `{waifu_name}` as your waifu\n"
         await ctx.send(contents)
 
     @commands.command(name="waifu_chart", brief="Waifu chart", description="")
@@ -117,7 +121,10 @@ class Waifu(commands.Cog):
         for claim_record in db.query("SELECT owner_id, waifu_id FROM waifu_claims"):
             owner_name = self.guaranteed_member_string(ctx, claim_record[0])
             waifu_name = self.guaranteed_member_string(ctx, claim_record[1])
-            contents += f"{owner_name} claimed {waifu_name}\n"
+            if owner_name == waifu_name:
+                contents += f"`{owner_name}` claimed themself\n"
+            else:
+                contents += f"`{owner_name}` claimed `{waifu_name}`\n"
         await wrappers.send_large_text(ctx.channel, contents)
 
 
