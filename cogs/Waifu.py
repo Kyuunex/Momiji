@@ -1,4 +1,5 @@
 from modules import db
+from modules import wrappers
 from discord.ext import commands
 
 
@@ -52,7 +53,7 @@ class Waifu(commands.Cog):
             return None
 
         your_waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ?", [str(ctx.author.id)]])
-        new_waifu_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(member.id)]])
+        owner_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(member.id)]])
         if your_waifu_id:
             waifu_name = self.guaranteed_member_string(ctx, your_waifu_id[0][0])
             if waifu_name == member.display_name:
@@ -60,9 +61,9 @@ class Waifu(commands.Cog):
             else:
                 await ctx.send(f"you already claimed {waifu_name} as your waifu. you can only claim one at a time")
             return None
-        if new_waifu_id:
-            owner_name = self.guaranteed_member_string(ctx, new_waifu_id[0][0])
-            await ctx.send(f"{owner_name} is already claimed by {owner_name}")
+        if owner_id:
+            owner_name = self.guaranteed_member_string(ctx, owner_id[0][0])
+            await ctx.send(f"{member.display_name} is already claimed by {owner_name}")
             return None
         db.query(["INSERT INTO waifu_claims VALUES (?,?)", [str(ctx.author.id), str(member.id)]])
         if str(ctx.author.id) == str(member.id):
@@ -108,6 +109,16 @@ class Waifu(commands.Cog):
             waifu_name = self.guaranteed_member_string(ctx, your_waifu_id[0][0])
             contents += f"you claimed {waifu_name} as your waifu\n"
         await ctx.send(contents)
+
+    @commands.command(name="waifu_chart", brief="Waifu chart", description="")
+    @commands.guild_only()
+    async def waifu_chart(self, ctx):
+        contents = "all waifu claim records:\n"
+        for claim_record in db.query("SELECT owner_id, waifu_id FROM waifu_claims"):
+            owner_name = self.guaranteed_member_string(ctx, claim_record[0])
+            waifu_name = self.guaranteed_member_string(ctx, claim_record[1])
+            contents += f"{owner_name} claimed {waifu_name}\n"
+        await wrappers.send_large_text(ctx.channel, contents)
 
 
 def setup(bot):
