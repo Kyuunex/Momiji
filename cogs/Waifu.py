@@ -15,25 +15,24 @@ class Waifu(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    def get_case_insensitive_member_display_name(self, guild, lookup):
-        for member in guild.members:
-            if member.display_name.lower() == lookup.lower():
-                return member
-        return None
-
-    def guaranteed_member(self, ctx, lookup):
+    def get_member_guaranteed(self, ctx, lookup):
         if len(ctx.message.mentions) > 0:
             return ctx.message.mentions[0]
+
         if lookup.isdigit():
             result = ctx.guild.get_member(int(lookup))
             if result:
                 return result
+
         if "#" in lookup:
             result = ctx.guild.get_member_named(lookup)
             if result:
                 return result
 
-        return self.get_case_insensitive_member_display_name(ctx.guild, lookup)
+        for member in ctx.guild.members:
+            if member.display_name.lower() == lookup.lower():
+                return member
+        return None
 
     def guaranteed_member_string(self, ctx, lookup):
         if len(ctx.message.mentions) > 0:
@@ -47,7 +46,7 @@ class Waifu(commands.Cog):
     @commands.command(name="claim_waifu", brief="Claim a server member as a waifu", description="")
     @commands.guild_only()
     async def claim_waifu(self, ctx, *, user_id):
-        member = self.guaranteed_member(ctx, user_id)
+        member = self.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
             return None
@@ -80,7 +79,7 @@ class Waifu(commands.Cog):
     @commands.command(name="unclaim_waifu", brief="Unclaim a server member as a waifu", description="")
     @commands.guild_only()
     async def unclaim_waifu(self, ctx, *, user_id):
-        member = self.guaranteed_member(ctx, user_id)
+        member = self.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
             if user_id.isdigit():
