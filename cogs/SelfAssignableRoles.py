@@ -43,7 +43,7 @@ class SelfAssignableRoles(commands.Cog):
     @commands.command(name="join", brief="Get a role", description="")
     @commands.guild_only()
     async def join(self, ctx, *, role_name):
-        role = self.get_case_insensitive_role(ctx.guild.roles, name=role_name)
+        role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
         if not role:
             await ctx.send(f"{ctx.author.mention}, bruh, this role does not exist.")
             return None
@@ -67,7 +67,7 @@ class SelfAssignableRoles(commands.Cog):
     @commands.command(name="leave", brief="Remove a role", description="")
     @commands.guild_only()
     async def leave(self, ctx, *, role_name):
-        role = self.get_case_insensitive_role(ctx.guild.roles, name=role_name)
+        role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
         if not role:
             await ctx.send(f"{ctx.author.mention}, bruh, this role does not exist.")
             return None

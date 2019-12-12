@@ -52,10 +52,9 @@ class Waifu(commands.Cog):
             await ctx.send("no member found with that name")
             return None
 
-        your_waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ?", [str(ctx.author.id)]])
-        owner_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(member.id)]])
-        if your_waifu_id:
-            waifu_name = self.guaranteed_member_string(ctx, your_waifu_id[0][0])
+        waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ?", [str(ctx.author.id)]])
+        if waifu_id:
+            waifu_name = self.guaranteed_member_string(ctx, waifu_id[0][0])
             if waifu_name == member.display_name:
                 await ctx.send(f"`{member.display_name}` is already your waifu")
             else:
@@ -65,10 +64,13 @@ class Waifu(commands.Cog):
                     await ctx.send(f"you already claimed `{waifu_name}` as your waifu. "
                                    f"you can only claim one at a time")
             return None
+
+        owner_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(member.id)]])
         if owner_id:
             owner_name = self.guaranteed_member_string(ctx, owner_id[0][0])
             await ctx.send(f"`{member.display_name}` is already claimed by `{owner_name}`")
             return None
+
         db.query(["INSERT INTO waifu_claims VALUES (?,?)", [str(ctx.author.id), str(member.id)]])
         if str(ctx.author.id) == str(member.id):
             await ctx.send("you claimed yourself as your waifu. nice.")
