@@ -119,7 +119,7 @@ if __name__ == "__main__":
     for bridged_extension in bridged_extensions:
         try:
             client.load_extension(f"{bridged_extensions_directory}.{bridged_extension[0]}")
-            print(f"Bridged extension {bridged_extension} loaded")
+            print(f"Bridged extension {bridged_extension[0]} loaded")
         except Exception as e:
             print(e)
     for user_extension in os.listdir(user_extensions_directory):
