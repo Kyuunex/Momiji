@@ -12,8 +12,8 @@ class MomijiCommands(commands.Cog):
     async def bridge(self, ctx, bridge_type: str, value: str):
         if bridge_type == "channel":
             db.query(["INSERT INTO mmj_channel_bridges VALUES (?, ?)", [str(ctx.channel.id), str(value)]])
-        elif bridge_type == "module":
-            db.query(["INSERT INTO module_bridges VALUES (?, ?)", [str(ctx.channel.id), str(value)]])
+        elif bridge_type == "extension":
+            db.query(["INSERT INTO bridged_extensions VALUES (?, ?)", [str(ctx.channel.id), str(value)]])
         await ctx.send(":ok_hand:")
 
 

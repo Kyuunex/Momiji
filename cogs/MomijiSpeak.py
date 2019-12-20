@@ -8,29 +8,29 @@ from modules import db
 class MomijiSpeak(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.module_bridges = db.query("SELECT channel_id, module_name FROM module_bridges")
+        self.bridged_extensions = db.query("SELECT channel_id, extension_name FROM bridged_extensions")
         self.momiji_responses = db.query("SELECT * FROM mmj_responses")
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if self.module_bridges:
-            for bridge in self.module_bridges:
+        if self.bridged_extensions:
+            for bridge in self.bridged_extensions:
                 if str(bridge[0]) == str(message.channel.id):
                     return None
         await self.main(message)
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        if self.module_bridges:
-            for bridge in self.module_bridges:
+        if self.bridged_extensions:
+            for bridge in self.bridged_extensions:
                 if str(bridge[0]) == str(message.channel.id):
                     return None
         db.query(["DELETE FROM mmj_message_logs WHERE message_id = ?", [str(message.id)]])
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        if self.module_bridges:
-            for bridge in self.module_bridges:
+        if self.bridged_extensions:
+            for bridge in self.bridged_extensions:
                 if str(bridge[0]) == str(after.channel.id):
                     return None
         if not await self.check_privacy(after):

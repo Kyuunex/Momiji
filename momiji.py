@@ -9,20 +9,23 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "b20191212"
-user_extension_directory = "user_modules"
+app_version = "b20191220"
+user_extensions_directory = "user_extensions"
+bridged_extensions_directory = "bridged_extensions"
 client = commands.Bot(command_prefix=command_prefix,
                       description=f"Momiji {app_version}")
 if not os.path.exists("data"):
     print("Please configure this bot according to readme file.")
     sys.exit("data folder and it's contents are missing")
-if not os.path.exists(user_extension_directory):
-    os.makedirs(user_extension_directory)
+if not os.path.exists(user_extensions_directory):
+    os.makedirs(user_extensions_directory)
+if not os.path.exists(bridged_extensions_directory):
+    os.makedirs(bridged_extensions_directory)
 
 if not os.path.exists(database_file):
     db.query("CREATE TABLE config (setting, parent, value, flag)")
     db.query("CREATE TABLE admins (user_id, permissions)")
-    db.query("CREATE TABLE module_bridges (channel_id, module_name)")
+    db.query("CREATE TABLE bridged_extensions (channel_id, extension_name)")
 
     db.query("CREATE TABLE pinning_history (message_id)")
     db.query("CREATE TABLE pinning_channel_blacklist (channel_id)")
@@ -105,7 +108,7 @@ initial_extensions = [
     "cogs.WastelandConfiguration",
 ]
 
-user_extensions = db.query("SELECT module_name FROM module_bridges")
+bridged_extensions = db.query("SELECT module_name FROM bridged_extensions")
 
 if __name__ == "__main__":
     for extension in initial_extensions:
@@ -113,9 +116,20 @@ if __name__ == "__main__":
             client.load_extension(extension)
         except Exception as e:
             print(e)
-    for user_extension in user_extensions:
+    for bridged_extension in bridged_extensions:
         try:
-            client.load_extension(f"{user_extension_directory}.{user_extension[0]}")
+            client.load_extension(f"{bridged_extensions_directory}.{bridged_extension[0]}")
+            print(f"Bridged extension {bridged_extension} loaded")
+        except Exception as e:
+            print(e)
+    for user_extension in os.listdir(user_extensions_directory):
+        if user_extension == ".":
+            continue
+        if user_extension == "..":
+            continue
+        try:
+            client.load_extension(f"{user_extensions_directory}.{user_extension}")
+            print(f"User extension {user_extension} loaded")
         except Exception as e:
             print(e)
 

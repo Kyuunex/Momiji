@@ -110,4 +110,5 @@ venv.bak/
 # other
 data
 test.py
-user_modules
+user_extensions
+bridged_extensions
