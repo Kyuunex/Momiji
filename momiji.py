@@ -108,7 +108,7 @@ initial_extensions = [
     "cogs.WastelandConfiguration",
 ]
 
-bridged_extensions = db.query("SELECT module_name FROM bridged_extensions")
+bridged_extensions = db.query("SELECT extension_name FROM bridged_extensions")
 
 if __name__ == "__main__":
     for extension in initial_extensions:
@@ -123,13 +123,12 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
     for user_extension in os.listdir(user_extensions_directory):
-        if user_extension == ".":
+        if not user_extension.endswith(".py"):
             continue
-        if user_extension == "..":
-            continue
+        extension_name = user_extension.replace(".py","")
         try:
-            client.load_extension(f"{user_extensions_directory}.{user_extension}")
-            print(f"User extension {user_extension} loaded")
+            client.load_extension(f"{user_extensions_directory}.{extension_name}")
+            print(f"User extension {extension_name} loaded")
         except Exception as e:
             print(e)
 
