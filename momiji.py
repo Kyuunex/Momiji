@@ -9,7 +9,7 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "b20191220"
+app_version = "b20191228"
 user_extensions_directory = "user_extensions"
 bridged_extensions_directory = "bridged_extensions"
 client = commands.Bot(command_prefix=command_prefix,
