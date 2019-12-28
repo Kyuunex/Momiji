@@ -1,6 +1,7 @@
 from modules import db
 import discord
 from discord.ext import commands
+import datetime
 
 
 class Pinning(commands.Cog):
@@ -25,6 +26,10 @@ class Pinning(commands.Cog):
                 if any(c[0] in message.content.lower() for c in blacklist):
                     return None
 
+                time_ago = datetime.datetime(2019, 12, 28).utcnow() - message.created_at
+                if abs(time_ago).total_seconds() / 3600 >= 48:
+                    return None
+
                 reactions = message.reactions
                 for reaction in reactions:
                     if reaction.count >= int(pinning_channel[2]):
@@ -43,7 +48,7 @@ class Pinning(commands.Cog):
     async def pin_embed(self, message):
         if not message:
             return None
-            
+
         if message.embeds:
             return message.embeds[0]
 
