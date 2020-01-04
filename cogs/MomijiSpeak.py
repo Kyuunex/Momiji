@@ -116,11 +116,16 @@ class MomijiSpeak(commands.Cog):
             content = None
         else:
             content = str(message.content)
+        if message.guild:
+            message_guild_id = message.guild.id
+        else:
+            message_guild_id = "0"
+
         db.query(
             [
                 "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                 [
-                    str(message.guild.id),
+                    str(message_guild_id),
                     str(message.channel.id), 
                     str(message.author.id), 
                     str(message.id),
