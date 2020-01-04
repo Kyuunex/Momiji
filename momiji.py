@@ -49,7 +49,11 @@ if not os.path.exists(database_file):
              "(guild_id, channel_id, user_id, message_id, username, bot, contents, timestamp)")
     db.query("CREATE TABLE mmj_channel_bridges (channel_id, depended_channel_id)")
     db.query("CREATE TABLE mmj_stats_channel_blacklist (channel_id)")
-    db.query("CREATE TABLE mmj_private_areas (type, id)")
+
+    db.query("CREATE TABLE mmj_private_channels (channel_id)")
+    db.query("CREATE TABLE mmj_private_categories (category_id)")
+    db.query("CREATE TABLE mmj_private_guilds (guild_id)")
+    
     db.query("CREATE TABLE mmj_word_blacklist (word)")
     db.query("CREATE TABLE mmj_responses (trigger, response, type, one_in)")
     db.query(["INSERT INTO mmj_word_blacklist VALUES (?)", ["@"]])

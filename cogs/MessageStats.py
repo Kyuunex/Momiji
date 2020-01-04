@@ -96,7 +96,7 @@ class MessageStats(commands.Cog):
     @commands.check(permissions.is_owner)
     @commands.guild_only()
     async def word_stats(self, ctx):
-        if db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(ctx.guild.id)]]):
+        if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(ctx.guild.id)]]):
             await ctx.send("impossible to do this in this guild because this is a private area "
                            "and I don\'t store messages from here")
             return None
