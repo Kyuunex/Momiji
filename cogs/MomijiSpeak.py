@@ -50,8 +50,9 @@ class MomijiSpeak(commands.Cog):
                 await message.channel.send(message.content)
 
     async def check_privacy(self, message):
-        if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(message.guild.id)]]):
-            return True
+        if message.guild:
+            if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(message.guild.id)]]):
+                return True
         if db.query(["SELECT * FROM mmj_private_channels WHERE channel_id = ?", [str(message.channel.id)]]):
             return True
         return False
