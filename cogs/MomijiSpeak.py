@@ -142,7 +142,7 @@ class MomijiSpeak(commands.Cog):
                 if "momiji" in msg or self.bot.user.mention in message.content:
                     await self.momiji_speak(message)
                 else:
-                    await self.join_spam_train(message)
+                    # await self.join_spam_train(message)
 
                     if message.content.isupper() and len(message.content) > 1 and random.randint(0, 20) == 1:
                         await self.momiji_speak(message)
