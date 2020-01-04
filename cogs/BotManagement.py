@@ -25,6 +25,7 @@ class BotManagement(commands.Cog):
     @commands.check(permissions.is_owner)
     async def restart(self, ctx):
         await ctx.send("Restarting")
+        await self.bot.close()
         quit()
 
     @commands.command(name="update", brief="Update the bot", description="it just does git pull")
@@ -32,6 +33,7 @@ class BotManagement(commands.Cog):
     async def update(self, ctx):
         await ctx.send("Updating.")
         os.system("git pull")
+        await self.bot.close()
         quit()
 
     @commands.command(name="sql", brief="Execute an SQL query", description="")
