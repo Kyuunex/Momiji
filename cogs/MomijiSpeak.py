@@ -50,13 +50,11 @@ class MomijiSpeak(commands.Cog):
                 await message.channel.send(message.content)
 
     async def check_privacy(self, message):
-        if (not db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(message.guild.id)]])) and \
-                (not db.query(["SELECT * FROM mmj_private_channels WHERE channel_id = ?", [str(message.channel.id)]])):
-            # Not a private channel
-            return False
-        else:
-            # Private channel
+        if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(message.guild.id)]]):
             return True
+        if db.query(["SELECT * FROM mmj_private_channels WHERE channel_id = ?", [str(message.channel.id)]]):
+            return True
+        return False
 
     async def bridge_check(self, channel_id):
         bridged_channel = db.query(["SELECT depended_channel_id FROM mmj_channel_bridges "
