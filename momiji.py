@@ -43,6 +43,7 @@ if not os.path.exists(database_file):
     db.query("CREATE TABLE regular_roles (guild_id, role_id, threshold)")
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
+    db.query("CREATE TABLE assignable_roles_user_blacklist (user_id, role_id)")
     db.query("CREATE TABLE cr_pair (command_id, response_id)")
 
     db.query("CREATE TABLE mmj_message_logs "
