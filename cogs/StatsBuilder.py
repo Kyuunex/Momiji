@@ -64,7 +64,7 @@ class StatsBuilder(commands.Cog):
         uptime = self.measure_time(script_start_time, script_now_time)
         body = "__**Stats:**__\n"
         body += f"**Bot owner:** <@{app_info.owner.id}>\n"
-        # body += f"**Current version:** {app_version}\n"
+        body += f"**Current version:** {self.bot.app_version}\n"
         body += f"**Amount of guilds serving:** {guild_amount}\n"
         body += f"**Amount of users serving:** {user_amount}\n"
         body += "**Lib used:** [discord.py](https://github.com/Rapptz/discord.py/)\n"
