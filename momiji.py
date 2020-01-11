@@ -9,7 +9,7 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "b20200109"
+app_version = "20200111"
 user_extensions_directory = "user_extensions"
 bridged_extensions_directory = "bridged_extensions"
 
@@ -119,6 +119,8 @@ class Momiji(commands.Bot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.background_tasks = []
+        self.app_version = app_version
+        self.description = f"Momiji {app_version}"
 
         for extension in initial_extensions:
             try:
@@ -161,6 +163,5 @@ class Momiji(commands.Bot):
             print(f"Added {app_info.owner.name} to admin list")
 
 
-client = Momiji(command_prefix=command_prefix,
-                description=f"Momiji {app_version}")
+client = Momiji(command_prefix=command_prefix)
 client.run(bot_token)
