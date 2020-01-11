@@ -16,7 +16,7 @@ class MessageStats(commands.Cog):
     @commands.guild_only()
     async def user_stats(self, ctx, *args):
         if not await cooldown.check(str(ctx.author.id), "last_stat_time", 40):
-            if not await permissions.is_owner(ctx):
+            if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
                 return None
 

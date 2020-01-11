@@ -6,6 +6,7 @@ from discord.ext import commands
 import time
 import json
 import urllib.request
+from modules import permissions
 
 
 async def is_dj(ctx):
@@ -69,8 +70,9 @@ class InspiroBot(commands.Cog):
     @commands.command(name="inspire", brief="When you crave some inspiration in your life", description="")
     async def inspire(self, ctx):
         if not await cooldown.check(str(ctx.author.id), "last_inspire_time", 40):
-            await ctx.send("slow down bruh")
-            return None
+            if not await permissions.is_admin(ctx):
+                await ctx.send("slow down bruh")
+                return None
 
         image_url = await self.get_image()
         if "https://generated.inspirobot.me/a/" in image_url:
