@@ -47,7 +47,7 @@ class MomijiChannelImporting(commands.Cog):
                     content = str(message.content)
                 query_queue.append(
                     [
-                        "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         [
                             str(message.guild.id),
                             str(message.channel.id), 
@@ -56,7 +56,8 @@ class MomijiChannelImporting(commands.Cog):
                             str(message.author.name),
                             str(int(message.author.bot)),
                             content,
-                            str(int(time.mktime(message.created_at.timetuple()))) 
+                            str(int(time.mktime(message.created_at.timetuple()))),
+                            str("0"),
                         ]
                     ]
                 )

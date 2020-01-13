@@ -47,7 +47,7 @@ if not os.path.exists(database_file):
     db.query("CREATE TABLE cr_pair (command_id, response_id)")
 
     db.query("CREATE TABLE mmj_message_logs "
-             "(guild_id, channel_id, user_id, message_id, username, bot, contents, timestamp)")
+             "(guild_id, channel_id, user_id, message_id, username, bot, contents, timestamp, deleted)")
     db.query("CREATE TABLE mmj_channel_bridges (channel_id, depended_channel_id)")
     db.query("CREATE TABLE mmj_stats_channel_blacklist (channel_id)")
 

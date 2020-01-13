@@ -25,7 +25,8 @@ class MomijiSpeak(commands.Cog):
             for bridge in self.bridged_extensions:
                 if str(bridge[0]) == str(message.channel.id):
                     return None
-        db.query(["DELETE FROM mmj_message_logs WHERE message_id = ?", [str(message.id)]])
+        db.query(["UPDATE mmj_message_logs SET deleted = ? WHERE message_id = ?",
+                  [str("1"), str(message.id)]])
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
@@ -36,6 +37,15 @@ class MomijiSpeak(commands.Cog):
         if not await self.check_privacy(after):
             db.query(["UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
                       [str(after.content), str(after.id)]])
+    
+    @commands.Cog.listener()
+    async def on_guild_channel_delete(self, deleted_channel):
+        if self.bridged_extensions:
+            for bridge in self.bridged_extensions:
+                if str(bridge[0]) == str(deleted_channel.id):
+                    return None
+        db.query(["UPDATE mmj_message_logs SET deleted = ? WHERE channel_id = ?",
+                  [str("1"), str(deleted_channel.id)]])
 
     async def join_spam_train(self, message):
         counter = 0
@@ -75,7 +85,8 @@ class MomijiSpeak(commands.Cog):
 
     async def pick_message(self, message, depended_channel_id):
         all_potential_messages = db.query(["SELECT * FROM mmj_message_logs "
-                                           "WHERE channel_id = ? AND bot = ?", [str(depended_channel_id), "0"]])
+                                           "WHERE channel_id = ? AND bot = ? AND deleted = ?", 
+                                           [str(depended_channel_id), "0", "0"]])
         if all_potential_messages:
             counter = 0
             while True:
@@ -123,7 +134,7 @@ class MomijiSpeak(commands.Cog):
 
         db.query(
             [
-                "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
                     str(message_guild_id),
                     str(message.channel.id), 
@@ -132,7 +143,8 @@ class MomijiSpeak(commands.Cog):
                     str(message.author.name),
                     str(int(message.author.bot)),
                     content,
-                    str(int(time.mktime(message.created_at.timetuple()))) 
+                    str(int(time.mktime(message.created_at.timetuple()))),
+                    str("0"),
                 ]
             ]
         )
