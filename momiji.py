@@ -9,7 +9,7 @@ import os
 from modules import db
 
 command_prefix = ";"
-app_version = "20200113"
+app_version = "20200114"
 user_extensions_directory = "user_extensions"
 bridged_extensions_directory = "bridged_extensions"
 
