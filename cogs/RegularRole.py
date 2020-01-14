@@ -1,5 +1,6 @@
 from modules import db
 from modules import permissions
+from modules import wrappers
 import discord
 from discord.ext import commands
 import time
@@ -80,6 +81,37 @@ class RegularRole(commands.Cog):
             db.query(["DELETE FROM regular_roles WHERE guild_id = ? AND role_id = ?",
                       [str(ctx.guild.id), str(role.id)]])
             await ctx.send(f"{role.name} is no longer the regular role")
+
+    @commands.command(name="regular_role_blacklist_add", brief="", description="")
+    @commands.check(permissions.is_admin)
+    @commands.guild_only()
+    async def regular_role_blacklist_add(self, ctx, user_id):
+        member = wrappers.get_member_guaranteed(ctx, user_id)
+        if not member:
+            await ctx.send("no member found with that name")
+            return None
+        db.query(["INSERT INTO regular_roles_user_blacklist VALUES (?,?)", [str(ctx.guild.id), str(member.id)]])
+        await ctx.send(f"{member.display_name} is now no longer be allowed to be a regular")
+
+    @commands.command(name="regular_role_blacklist_remove", brief="", description="")
+    @commands.check(permissions.is_admin)
+    @commands.guild_only()
+    async def regular_role_blacklist_remove(self, ctx, user_id=None):
+        if not user_id:
+            user_blacklist = db.query(["SELECT user_id FROM regular_roles_user_blacklist "
+                                       "WHERE guild_id = ?", [str(ctx.guild.id)]])
+            await ctx.send(user_blacklist)
+            return None
+
+        member = wrappers.get_member_guaranteed(ctx, user_id)
+        if not member:
+            await ctx.send("no member found with that name")
+            return None
+
+        db.query(["DELETE FROM regular_roles_user_blacklist "
+                  "WHERE guild_id = ? AND user_id = ?",
+                  [str(ctx.guild.id), str(member.id)]])
+        await ctx.send(f"{member.name} is now allowed to be a regular again")
 
     async def list_sorter(self, a_list):
         results = dict(Counter(a_list))
