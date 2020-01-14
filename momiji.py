@@ -41,6 +41,7 @@ if not os.path.exists(database_file):
     db.query("CREATE TABLE wasteland_channels (guild_id, channel_id)")
     db.query("CREATE TABLE wasteland_ignore_channels (guild_id, channel_id)")
     db.query("CREATE TABLE regular_roles (guild_id, role_id, threshold)")
+    db.query("CREATE TABLE regular_roles_user_blacklist (guild_id, user_id)")
     db.query("CREATE TABLE voice_roles (guild_id, channel_id, role_id)")
     db.query("CREATE TABLE assignable_roles (guild_id, role_id)")
     db.query("CREATE TABLE assignable_roles_user_blacklist (user_id, role_id)")

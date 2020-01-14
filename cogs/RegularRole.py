@@ -23,6 +23,8 @@ class RegularRole(commands.Cog):
         for regular_role in self.regular_roles:
             if str(regular_role[0]) == str(ctx.guild.id):
                 async with ctx.channel.typing():
+                    user_blacklist = db.query(["SELECT user_id FROM regular_roles_user_blacklist "
+                                               "WHERE guild_id = ?", [str(ctx.guild.id)]])
                     role = discord.utils.get(ctx.guild.roles, id=int(regular_role[1]))
 
                     for member in role.members:
@@ -45,6 +47,10 @@ class RegularRole(commands.Cog):
                     rank = 0
                     for member_id in stats:
                         member = ctx.guild.get_member(int(member_id[0][0]))
+                        for blacklisted_user in user_blacklist:
+                            if str(member_id[0][0]) == str(blacklisted_user[0]):
+                                member = None
+                                break
                         if member:
                             rank += 1
                             try:
