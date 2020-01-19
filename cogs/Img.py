@@ -55,7 +55,7 @@ class Img(commands.Cog):
             async with session.get(url) as json_response:
                 image_url = (await json_response.json())["url"]
                 if "https://cdn.nekos.life/" in image_url:
-                    await ctx.send(image_url)
+                    await ctx.send(f"|| {image_url} ||")
 
     @commands.command(name="gis", brief="Google image search",
                       description="Search for a phrase on Google images and post a random result")
