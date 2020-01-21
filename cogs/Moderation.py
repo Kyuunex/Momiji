@@ -32,7 +32,7 @@ class Moderation(commands.Cog):
             else:
                 async with ctx.channel.typing():
                     deleted = await ctx.channel.purge(limit=int(amount))
-                await ctx.send("Deleted {} message(s)".format(len(deleted)))
+                await ctx.send(f"Deleted {len(deleted)} message(s)")
         except Exception as e:
             await ctx.send(e)
 
