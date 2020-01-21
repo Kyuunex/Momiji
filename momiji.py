@@ -8,7 +8,6 @@ import os
 
 from modules import db
 
-command_prefix = ";"
 user_extensions_directory = "user_extensions"
 bridged_extensions_directory = "bridged_extensions"
 
@@ -163,5 +162,5 @@ class Momiji(commands.Bot):
             print(f"Added {app_info.owner.name} to admin list")
 
 
-client = Momiji(command_prefix=command_prefix)
+client = Momiji(command_prefix=";")
 client.run(bot_token)
