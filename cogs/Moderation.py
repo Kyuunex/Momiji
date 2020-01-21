@@ -13,6 +13,9 @@ class Moderation(commands.Cog):
             await ctx.send("lol no")
             return None
 
+        if not amount.isdigit():
+            return None
+
         try:
             await ctx.message.delete()
             if len(ctx.message.mentions) > 0:
