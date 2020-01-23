@@ -165,7 +165,6 @@ class Momiji(commands.Bot):
             else:
                 db.query(["INSERT INTO admins VALUES (?, ?)", [str(app_info.owner.id), "1"]])
                 print(f"Added {app_info.owner.name} to admin list")
-                print("added only one")
 
 
 client = Momiji(command_prefix=";")
