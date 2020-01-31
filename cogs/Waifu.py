@@ -100,7 +100,7 @@ class Waifu(commands.Cog):
     @commands.command(name="waifu_chart", brief="Waifu chart", description="")
     @commands.guild_only()
     async def waifu_chart(self, ctx):
-        contents = ""
+        contents = "all waifu claim records:\n"
         for claim_record in db.query("SELECT owner_id, waifu_id FROM waifu_claims"):
             owner_name = self.guaranteed_member_string(ctx, claim_record[0])
             waifu_name = self.guaranteed_member_string(ctx, claim_record[1])
