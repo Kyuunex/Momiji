@@ -16,7 +16,7 @@ class MessageStats(commands.Cog):
     @commands.guild_only()
     async def user_stats(self, ctx, *args):
         if not await cooldown.check(str(ctx.author.id), "last_stat_time", 40):
-            if not await permissions.is_owner(ctx):
+            if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
                 return None
 
@@ -96,7 +96,7 @@ class MessageStats(commands.Cog):
     @commands.check(permissions.is_owner)
     @commands.guild_only()
     async def word_stats(self, ctx):
-        if db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(ctx.guild.id)]]):
+        if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(ctx.guild.id)]]):
             await ctx.send("impossible to do this in this guild because this is a private area "
                            "and I don\'t store messages from here")
             return None

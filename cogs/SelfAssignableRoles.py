@@ -57,6 +57,13 @@ class SelfAssignableRoles(commands.Cog):
                 await ctx.send(f"{ctx.author.mention}, bruh, this role is not self assignable")
             return None
 
+        blacklist_check = db.query(["SELECT * FROM assignable_roles_user_blacklist "
+                                    "WHERE user_id = ? AND role_id = ?",
+                                    [str(ctx.author.id), str(role.id)]])
+        if blacklist_check:
+            await ctx.send(f"{ctx.author.mention}, *you* are not allowed to self assign this role")
+            return None
+
         if str(role.id) == str(check[0][0]):
             try:
                 await ctx.author.add_roles(role)

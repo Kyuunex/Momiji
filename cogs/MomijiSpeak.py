@@ -25,7 +25,8 @@ class MomijiSpeak(commands.Cog):
             for bridge in self.bridged_extensions:
                 if str(bridge[0]) == str(message.channel.id):
                     return None
-        db.query(["DELETE FROM mmj_message_logs WHERE message_id = ?", [str(message.id)]])
+        db.query(["UPDATE mmj_message_logs SET deleted = ? WHERE message_id = ?",
+                  [str("1"), str(message.id)]])
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
@@ -36,6 +37,15 @@ class MomijiSpeak(commands.Cog):
         if not await self.check_privacy(after):
             db.query(["UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
                       [str(after.content), str(after.id)]])
+    
+    @commands.Cog.listener()
+    async def on_guild_channel_delete(self, deleted_channel):
+        if self.bridged_extensions:
+            for bridge in self.bridged_extensions:
+                if str(bridge[0]) == str(deleted_channel.id):
+                    return None
+        db.query(["UPDATE mmj_message_logs SET deleted = ? WHERE channel_id = ?",
+                  [str("1"), str(deleted_channel.id)]])
 
     async def join_spam_train(self, message):
         counter = 0
@@ -50,13 +60,12 @@ class MomijiSpeak(commands.Cog):
                 await message.channel.send(message.content)
 
     async def check_privacy(self, message):
-        if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and \
-                (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
-            # Not a private channel
-            return False
-        else:
-            # Private channel
+        if message.guild:
+            if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(message.guild.id)]]):
+                return True
+        if db.query(["SELECT * FROM mmj_private_channels WHERE channel_id = ?", [str(message.channel.id)]]):
             return True
+        return False
 
     async def bridge_check(self, channel_id):
         bridged_channel = db.query(["SELECT depended_channel_id FROM mmj_channel_bridges "
@@ -76,7 +85,8 @@ class MomijiSpeak(commands.Cog):
 
     async def pick_message(self, message, depended_channel_id):
         all_potential_messages = db.query(["SELECT * FROM mmj_message_logs "
-                                           "WHERE channel_id = ? AND bot = ?", [str(depended_channel_id), "0"]])
+                                           "WHERE channel_id = ? AND bot = ? AND deleted = ?", 
+                                           [str(depended_channel_id), "0", "0"]])
         if all_potential_messages:
             counter = 0
             while True:
@@ -117,18 +127,24 @@ class MomijiSpeak(commands.Cog):
             content = None
         else:
             content = str(message.content)
+        if message.guild:
+            message_guild_id = message.guild.id
+        else:
+            message_guild_id = "0"
+
         db.query(
             [
-                "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 [
-                    str(message.guild.id),
+                    str(message_guild_id),
                     str(message.channel.id), 
                     str(message.author.id), 
                     str(message.id),
                     str(message.author.name),
                     str(int(message.author.bot)),
                     content,
-                    str(int(time.mktime(message.created_at.timetuple()))) 
+                    str(int(time.mktime(message.created_at.timetuple()))),
+                    str("0"),
                 ]
             ]
         )
@@ -142,7 +158,7 @@ class MomijiSpeak(commands.Cog):
                 if "momiji" in msg or self.bot.user.mention in message.content:
                     await self.momiji_speak(message)
                 else:
-                    await self.join_spam_train(message)
+                    # await self.join_spam_train(message)
 
                     if message.content.isupper() and len(message.content) > 1 and random.randint(0, 20) == 1:
                         await self.momiji_speak(message)

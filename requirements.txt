@@ -1,2 +1,4 @@
 discord.py[voice]
 mutagen
+psutil
+youtube_dl

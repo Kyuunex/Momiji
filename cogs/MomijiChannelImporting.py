@@ -47,7 +47,7 @@ class MomijiChannelImporting(commands.Cog):
                     content = str(message.content)
                 query_queue.append(
                     [
-                        "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         [
                             str(message.guild.id),
                             str(message.channel.id), 
@@ -56,7 +56,8 @@ class MomijiChannelImporting(commands.Cog):
                             str(message.author.name),
                             str(int(message.author.bot)),
                             content,
-                            str(int(time.mktime(message.created_at.timetuple()))) 
+                            str(int(time.mktime(message.created_at.timetuple()))),
+                            str("0"),
                         ]
                     ]
                 )
@@ -65,13 +66,12 @@ class MomijiChannelImporting(commands.Cog):
             print(e)
 
     async def check_privacy(self, message):
-        if (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.guild.id)]])) and \
-                (not db.query(["SELECT * FROM mmj_private_areas WHERE id = ?", [str(message.channel.id)]])):
-            # Not a private channel
-            return False
-        else:
-            # Private channel
+        if message.guild:
+            if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(message.guild.id)]]):
+                return True
+        if db.query(["SELECT * FROM mmj_private_channels WHERE channel_id = ?", [str(message.channel.id)]]):
             return True
+        return False
 
 
 def setup(bot):

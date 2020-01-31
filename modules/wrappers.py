@@ -8,3 +8,23 @@ async def send_large_text(channel, contents):
         output += line
     if len(output) > 0:
         await channel.send(output)
+
+
+def get_member_guaranteed(ctx, lookup):
+    if len(ctx.message.mentions) > 0:
+        return ctx.message.mentions[0]
+
+    if lookup.isdigit():
+        result = ctx.guild.get_member(int(lookup))
+        if result:
+            return result
+
+    if "#" in lookup:
+        result = ctx.guild.get_member_named(lookup)
+        if result:
+            return result
+
+    for member in ctx.guild.members:
+        if member.display_name.lower() == lookup.lower():
+            return member
+    return None

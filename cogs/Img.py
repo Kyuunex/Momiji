@@ -8,6 +8,7 @@ import random
 import imghdr
 from modules import db
 from modules import cooldown
+from modules import permissions
 
 
 class Img(commands.Cog):
@@ -22,8 +23,9 @@ class Img(commands.Cog):
                       description="Upload a random picture from ./data/art/ folder")
     async def art(self, ctx):
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
-            await ctx.send("slow down bruh")
-            return None
+            if not await permissions.is_admin(ctx):
+                await ctx.send("slow down bruh")
+                return None
 
         if not os.path.exists(self.art_dir):
             await ctx.send("This command is not enabled")
@@ -44,15 +46,16 @@ class Img(commands.Cog):
     @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life")
     async def neko(self, ctx):
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
-            await ctx.send("slow down bruh")
-            return None
+            if not await permissions.is_admin(ctx):
+                await ctx.send("slow down bruh")
+                return None
 
         url = "https://www.nekos.life/api/v2/img/neko"
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as json_response:
                 image_url = (await json_response.json())["url"]
                 if "https://cdn.nekos.life/" in image_url:
-                    await ctx.send(image_url)
+                    await ctx.send(f"|| {image_url} ||")
 
     @commands.command(name="gis", brief="Google image search",
                       description="Search for a phrase on Google images and post a random result")
@@ -67,9 +70,10 @@ class Img(commands.Cog):
             await ctx.send("This command works in NSFW channels only.")
             return None
 
-        if not await cooldown.check(str(ctx.author.id), "last_img_time", 40):
-            await ctx.send("slow down bruh")
-            return None
+        if not await cooldown.check(str(ctx.author.id), "last_gis_time", 40):
+            if not await permissions.is_admin(ctx):
+                await ctx.send("slow down bruh")
+                return None
 
         if len(search_query) < 1:
             return None

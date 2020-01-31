@@ -2,6 +2,9 @@ import discord
 from discord.ext import commands
 import time
 
+import os
+import psutil
+
 script_start_time = time.time()
 
 
@@ -58,18 +61,27 @@ class StatsBuilder(commands.Cog):
     @commands.command(name="about", brief="About this bot", description="")
     async def about_bot(self, ctx):
         app_info = await self.bot.application_info()
+        process = psutil.Process(os.getpid())
+        memory_usage = process.memory_info().rss / 1024 / 1024
         guild_amount = len(self.bot.guilds)
         user_amount = len(self.bot.users)
         script_now_time = time.time()
         uptime = self.measure_time(script_start_time, script_now_time)
         body = "__**Stats:**__\n"
-        body += f"**Bot owner:** <@{app_info.owner.id}>\n"
-        # body += f"**Current version:** {app_version}\n"
+        if app_info.team:
+            bot_owner_string = ""
+            for bot_owner in app_info.team.members:
+                bot_owner_string += f"<@{bot_owner.id}> "
+        else:
+            bot_owner = app_info.owner
+            bot_owner_string = f"<@{bot_owner.id}>"
+        body += f"**Bot owner(s):** {bot_owner_string}\n"
+        body += f"**Current version:** {self.bot.app_version}\n"
         body += f"**Amount of guilds serving:** {guild_amount}\n"
         body += f"**Amount of users serving:** {user_amount}\n"
         body += "**Lib used:** [discord.py](https://github.com/Rapptz/discord.py/)\n"
         body += f"**Uptime:** {uptime}\n"
-        body += "**Memory usage:** idk how to see this but probably less than 100M\n"
+        body += f"**Memory usage:** {memory_usage} MB\n"
         embed = discord.Embed(title="Momiji is best wolf.", description=body, color=0xe95e62)
         await ctx.send(embed=embed)
 

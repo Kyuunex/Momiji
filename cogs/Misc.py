@@ -1,4 +1,5 @@
 from discord.ext import commands
+import datetime
 
 
 class Misc(commands.Cog):
@@ -14,6 +15,10 @@ class Misc(commands.Cog):
             return None
         await ctx.send(f"Screenshare link for `{channel.name}`: "
                        f"<https://discordapp.com/channels/{ctx.guild.id}/{channel.id}/>")
+
+    @commands.command(name="utc", brief="Return the current time in UTC", description="")
+    async def utc(self, ctx):
+        await ctx.send(datetime.datetime.utcnow())
 
 
 def setup(bot):
