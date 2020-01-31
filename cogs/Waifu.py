@@ -1,3 +1,4 @@
+import discord
 from modules import db
 from modules import wrappers
 from discord.ext import commands
@@ -118,7 +119,7 @@ class Waifu(commands.Cog):
     @commands.command(name="waifu_chart", brief="Waifu chart", description="")
     @commands.guild_only()
     async def waifu_chart(self, ctx):
-        contents = "all waifu claim records:\n"
+        contents = ""
         for claim_record in db.query("SELECT owner_id, waifu_id FROM waifu_claims"):
             owner_name = self.guaranteed_member_string(ctx, claim_record[0])
             waifu_name = self.guaranteed_member_string(ctx, claim_record[1])
@@ -126,7 +127,16 @@ class Waifu(commands.Cog):
                 contents += f"`{owner_name}` claimed themselves\n"
             else:
                 contents += f"`{owner_name}` claimed `{waifu_name}`\n"
-        await wrappers.send_large_text(ctx.channel, contents)
+            if len(contents) > 1800:
+                embed = discord.Embed(description=contents, color=0xffffff)
+                embed.set_author("Waifu Claim Records")
+                await ctx.send(embed=embed)
+                contents = ""
+        if contents == "":
+            contents = "\n"
+        embed = discord.Embed(description=contents, color=0xffffff)
+        embed.set_author("Waifu Claim Records")
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
