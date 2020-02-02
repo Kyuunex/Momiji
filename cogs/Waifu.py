@@ -1,3 +1,4 @@
+import discord
 from modules import db
 from modules import wrappers
 from discord.ext import commands
@@ -107,7 +108,16 @@ class Waifu(commands.Cog):
                 contents += f"`{owner_name}` claimed themselves\n"
             else:
                 contents += f"`{owner_name}` claimed `{waifu_name}`\n"
-        await wrappers.send_large_text(ctx.channel, contents)
+            if len(contents) > 1800:
+                embed = discord.Embed(description=contents, color=0xffffff)
+                embed.set_author("Waifu Claim Records")
+                await ctx.send(embed=embed)
+                contents = ""
+        if contents == "":
+            contents = "\n"
+        embed = discord.Embed(description=contents, color=0xffffff)
+        embed.set_author("Waifu Claim Records")
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
