@@ -100,24 +100,16 @@ class Waifu(commands.Cog):
     @commands.command(name="waifu_chart", brief="Waifu chart", description="")
     @commands.guild_only()
     async def waifu_chart(self, ctx):
-        contents = "all waifu claim records:\n"
+        contents = ":revolving_hearts: **Waifu Claim Records**\n\n"
         for claim_record in db.query("SELECT owner_id, waifu_id FROM waifu_claims"):
             owner_name = self.guaranteed_member_string(ctx, claim_record[0])
             waifu_name = self.guaranteed_member_string(ctx, claim_record[1])
             if owner_name == waifu_name:
-                contents += f"`{owner_name}` claimed themselves\n"
+                contents += f"**{owner_name}** claimed themselves\n"
             else:
-                contents += f"`{owner_name}` claimed `{waifu_name}`\n"
-            if len(contents) > 1800:
-                embed = discord.Embed(description=contents, color=0xffffff)
-                embed.set_author("Waifu Claim Records")
-                await ctx.send(embed=embed)
-                contents = ""
-        if contents == "":
-            contents = "\n"
-        embed = discord.Embed(description=contents, color=0xffffff)
-        embed.set_author("Waifu Claim Records")
-        await ctx.send(embed=embed)
+                contents += f"**{owner_name}** claimed **{waifu_name}**\n"
+        embed = discord.Embed(color=0xff6781)
+        await wrappers.send_large_embed(ctx.channel, embed, contents)
 
 
 def setup(bot):
