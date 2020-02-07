@@ -58,6 +58,9 @@ class MessageStats(commands.Cog):
             rank = 0
             contents = ""
 
+            if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(ctx.guild.id)]]):
+                contents += "I'm only collecting metadata from this server\n\n"
+
             for member_id in stats:
                 user_info = db.query(["SELECT username FROM mmj_message_logs WHERE user_id = ?",
                                       [str(member_id[0][0])]])
