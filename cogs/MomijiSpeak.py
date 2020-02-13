@@ -79,7 +79,7 @@ class MomijiSpeak(commands.Cog):
         if len(string) > 0:
             blacklist = db.query("SELECT word FROM mmj_word_blacklist")
             if not (any(str(c[0]) in str(string.lower()) for c in blacklist)):
-                if not (any(string.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-", "t!", "t@"))):
+                if not (any(string.startswith(c) for c in (";", "'", "!", ",", ".", "=", "-", "t!", "t@", "$"))):
                     return True
         return False
 
