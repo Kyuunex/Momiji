@@ -12,7 +12,7 @@ class MessageStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="userstats", brief="Show user stats", description="")
+    @commands.command(name="user_stats", brief="Show user stats", description="", aliases=["userstats"])
     @commands.guild_only()
     async def user_stats(self, ctx, *args):
         if not await cooldown.check(str(ctx.author.id), "last_stat_time", 40):
