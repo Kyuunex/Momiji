@@ -1,4 +1,3 @@
-from modules import db
 from modules import permissions
 from discord.ext import commands
 
@@ -11,9 +10,12 @@ class MomijiCommands(commands.Cog):
     @commands.check(permissions.is_admin)
     async def bridge(self, ctx, bridge_type: str, value: str):
         if bridge_type == "channel":
-            db.query(["INSERT INTO mmj_channel_bridges VALUES (?, ?)", [str(ctx.channel.id), str(value)]])
+            await self.bot.db.execute("INSERT INTO mmj_channel_bridges VALUES (?, ?)",
+                                      [str(ctx.channel.id), str(value)])
         elif bridge_type == "extension":
-            db.query(["INSERT INTO bridged_extensions VALUES (?, ?)", [str(ctx.channel.id), str(value)]])
+            await self.bot.db.execute("INSERT INTO bridged_extensions VALUES (?, ?)",
+                                      [str(ctx.channel.id), str(value)])
+        await self.bot.db.commit()
         await ctx.send(":ok_hand:")
 
     @commands.command(name="sayonara", brief="Leave the current guild and forget it", description="")
@@ -22,16 +24,17 @@ class MomijiCommands(commands.Cog):
     async def sayonara(self, ctx):
         await ctx.send("sayonara...")
         await ctx.guild.leave()
-        db.query(["DELETE FROM pinning_channels WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM welcome_messages WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM goodbye_messages WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM voice_logging_channels WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM wasteland_channels WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM wasteland_ignore_channels WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM regular_roles WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM voice_roles WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM assignable_roles WHERE guild_id = ?", [str(ctx.guild.id)]])
-        db.query(["DELETE FROM mmj_message_logs WHERE guild_id = ?", [str(ctx.guild.id)]])
+        await self.bot.db.execute("DELETE FROM pinning_channels WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM welcome_messages WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM goodbye_messages WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM voice_logging_channels WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM wasteland_channels WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM wasteland_ignore_channels WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM regular_roles WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM voice_roles WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM assignable_roles WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM mmj_message_logs WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.commit()
         print(f"i forgot about {ctx.guild.name}")
 
 

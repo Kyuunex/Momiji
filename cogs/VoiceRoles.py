@@ -1,4 +1,3 @@
-from modules import db
 from modules import permissions
 
 import discord
@@ -20,7 +19,9 @@ class VoiceRoles(commands.Cog):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if channel:
             if role:
-                db.query(["INSERT INTO voice_roles VALUES (?,?,?)", [str(ctx.guild.id), str(channel.id), str(role.id)]])
+                await self.bot.db.execute("INSERT INTO voice_roles VALUES (?,?,?)",
+                                          [str(ctx.guild.id), str(channel.id), str(role.id)])
+                await self.bot.db.commit()
                 await ctx.send(f"Tied {channel.mention} channel to {role.name} role")
             else:
                 await ctx.send("Can't find a role with that name")
@@ -38,8 +39,10 @@ class VoiceRoles(commands.Cog):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
         if channel:
             if role:
-                db.query(["DELETE FROM voice_roles WHERE guild_id = ? AND channel_id = ? AND role_id = ?",
-                          [str(ctx.guild.id), str(channel.id), str(role.id)]])
+                await self.bot.db.execute("DELETE FROM voice_roles "
+                                          "WHERE guild_id = ? AND channel_id = ? AND role_id = ?",
+                                          [str(ctx.guild.id), str(channel.id), str(role.id)])
+                await self.bot.db.commit()
                 await ctx.send(f"Untied {channel.mention} channel from {role.name} role")
             else:
                 await ctx.send("Can't find a role with that name")
@@ -50,23 +53,27 @@ class VoiceRoles(commands.Cog):
     async def on_voice_state_update(self, member, before, after):
         if not before.channel == after.channel:
             if not before.channel:  # Member joined a channel
-                role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                    [str(after.channel.id)]])
+                async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                             [str(after.channel.id)]) as cursor:
+                    role_id = await cursor.fetchall()
                 if role_id:
                     role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
                     await member.add_roles(role)
             else:
                 if not after.channel:  # Member left channel
-                    role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                        [str(before.channel.id)]])
+                    async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                                 [str(before.channel.id)]) as cursor:
+                        role_id = await cursor.fetchall()
                     if role_id:
                         role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
                         await member.remove_roles(role)
                 else:  # Member switched channel
-                    role_id = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                        [str(before.channel.id)]])
-                    role_id_after = db.query(["SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                              [str(after.channel.id)]])
+                    async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                                 [str(before.channel.id)]) as cursor:
+                        role_id = await cursor.fetchall()
+                    async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
+                                                 [str(after.channel.id)]) as cursor:
+                        role_id_after = await cursor.fetchall()
                     if role_id != role_id_after:
                         if role_id:
                             role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))

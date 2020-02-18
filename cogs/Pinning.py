@@ -1,4 +1,3 @@
-from modules import db
 import discord
 from discord.ext import commands
 import datetime
@@ -7,12 +6,12 @@ import datetime
 class Pinning(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.pinning_channels = db.query("SELECT guild_id, channel_id, threshold FROM pinning_channels")
-        self.pinning_channel_blacklist = db.query("SELECT channel_id FROM pinning_channel_blacklist")
 
     @commands.Cog.listener()
     async def on_raw_reaction_add(self, raw_reaction):
-        for pinning_channel in self.pinning_channels:
+        async with self.bot.db.execute("SELECT guild_id, channel_id, threshold FROM pinning_channels") as cursor:
+            pinning_channels = await cursor.fetchall()
+        for pinning_channel in pinning_channels:
             if str(pinning_channel[0]) == str(raw_reaction.guild_id):
                 if int(pinning_channel[1]) == raw_reaction.channel_id:
                     return None
@@ -22,7 +21,8 @@ class Pinning(commands.Cog):
                     return None
 
                 message = await channel.fetch_message(raw_reaction.message_id)
-                blacklist = db.query("SELECT word FROM mmj_word_blacklist")
+                async with self.bot.db.execute("SELECT word FROM mmj_word_blacklist") as cursor:
+                    blacklist = await cursor.fetchall()
                 if any(c[0] in message.content.lower() for c in blacklist):
                     return None
 
@@ -33,14 +33,23 @@ class Pinning(commands.Cog):
                 reactions = message.reactions
                 for reaction in reactions:
                     if reaction.count >= int(pinning_channel[2]):
-                        if (str(raw_reaction.channel_id),) in self.pinning_channel_blacklist:
+                        async with self.bot.db.execute("SELECT channel_id FROM pinning_channel_blacklist "
+                                                     "WHERE channel_id = ?",
+                                                     [str(raw_reaction.channel_id)]) as cursor:
+                            pinning_channel_blacklist = await cursor.fetchall()
+
+                        if pinning_channel_blacklist:
                             return None
 
-                        if db.query(["SELECT message_id FROM pinning_history WHERE message_id = ?",
-                                     [str(raw_reaction.message_id)]]):
+                        async with self.bot.db.execute("SELECT message_id FROM pinning_history WHERE message_id = ?",
+                                                     [str(raw_reaction.message_id)]) as cursor:
+                            is_already_pinned = await cursor.fetchall()
+                        if is_already_pinned:
                             return None
 
-                        db.query(["INSERT INTO pinning_history VALUES (?)", [str(raw_reaction.message_id)]])
+                        await self.bot.db.execute("INSERT INTO pinning_history VALUES (?)",
+                                                  [str(raw_reaction.message_id)])
+                        await self.bot.db.commit()
                         pin_channel = self.bot.get_channel(int(pinning_channel[1]))
                         content = f"<#{raw_reaction.channel_id}> {reaction.emoji}"
                         await pin_channel.send(content=content, embed=await self.pin_embed(message))

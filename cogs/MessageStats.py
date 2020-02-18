@@ -1,4 +1,3 @@
-from modules import db
 from modules import cooldown
 from modules import permissions
 import time
@@ -40,17 +39,17 @@ class MessageStats(commands.Cog):
                         sub_args = arg.split(":")
                         scope_value = str(sub_args[1])
 
-            query = ["SELECT user_id FROM mmj_message_logs "
-                     f"WHERE {scope_key} = ? AND bot = ? AND timestamp > ?",
-                     [str(scope_value), str("0"), str(after)]]
+            query_str = f"SELECT user_id FROM mmj_message_logs WHERE {scope_key} = ? AND bot = ? AND timestamp > ?"
 
             if "all_channels" not in args:
-                no_xp_channel_list = db.query("SELECT * FROM mmj_stats_channel_blacklist")
+                async with self.bot.db.execute("SELECT * FROM mmj_stats_channel_blacklist") as cursor:
+                    no_xp_channel_list = await cursor.fetchall()
                 if no_xp_channel_list:
                     for one_no_xp_channel in no_xp_channel_list:
-                        query[0] += f" AND channel_id != '{one_no_xp_channel[0]}'"
+                        query_str += f" AND channel_id != '{one_no_xp_channel[0]}'"
 
-            messages = db.query(query)
+            async with self.bot.db.execute(query_str, [str(scope_value), str("0"), str(after)]) as cursor:
+                messages = await cursor.fetchall()
 
             stats = await self.list_sorter(messages)
             total_amount = len(messages)
@@ -58,12 +57,16 @@ class MessageStats(commands.Cog):
             rank = 0
             contents = ""
 
-            if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(ctx.guild.id)]]):
+            async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
+                                         [str(ctx.guild.id)]) as cursor:
+                guild_privacy_check = await cursor.fetchall()
+            if guild_privacy_check:
                 contents += "I'm only collecting metadata from this server\n\n"
 
             for member_id in stats:
-                user_info = db.query(["SELECT username FROM mmj_message_logs WHERE user_id = ?",
-                                      [str(member_id[0][0])]])
+                async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
+                                             [str(member_id[0][0])]) as cursor:
+                    user_info = await cursor.fetchall()
                 member = ctx.guild.get_member(int(member_id[0][0]))
                 if not member:
                     member_name = user_info[0][0]
@@ -99,14 +102,19 @@ class MessageStats(commands.Cog):
     @commands.check(permissions.is_owner)
     @commands.guild_only()
     async def word_stats(self, ctx):
-        if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(ctx.guild.id)]]):
+        async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
+                                     [str(ctx.guild.id)]) as cursor:
+            is_private_guild = await cursor.fetchall()
+        if is_private_guild:
             await ctx.send("impossible to do this in this guild because this is a private area "
                            "and I don\'t store messages from here")
             return None
 
         async with ctx.channel.typing():
             title = "Here are 40 most used words in server all time:"
-            messages = db.query(["SELECT contents FROM mmj_message_logs WHERE guild_id = ?", [str(ctx.guild.id)]])
+            async with self.bot.db.execute("SELECT contents FROM mmj_message_logs WHERE guild_id = ?",
+                                         [str(ctx.guild.id)]) as cursor:
+                messages = await cursor.fetchall()
 
             individual_words = []
             for message in messages:
@@ -124,7 +132,7 @@ class MessageStats(commands.Cog):
             for word_stat in stats:
                 if not (any(c == word_stat[0] for c in blacklist)):
                     rank += 1
-                    amount = str(word_stat[1])+" times"
+                    amount = str(word_stat[1]) + " times"
                     contents += f"**[{rank}]** : `{word_stat[0]}` : {amount}\n"
                     if rank == 40:
                         break
@@ -137,6 +145,7 @@ class MessageStats(commands.Cog):
     async def list_sorter(self, a_list):
         results = dict(Counter(a_list))
         return reversed(sorted(results.items(), key=operator.itemgetter(1)))
+
 
 def setup(bot):
     bot.add_cog(MessageStats(bot))

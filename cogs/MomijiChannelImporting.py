@@ -1,4 +1,3 @@
-from modules import db
 from modules import permissions
 import discord
 from discord.ext import commands
@@ -39,37 +38,30 @@ class MomijiChannelImporting(commands.Cog):
                 private_area = True
             else:
                 private_area = False
-            query_queue = []
             async for message in log_instance:
                 if private_area:
                     content = None
                 else:
                     content = str(message.content)
-                query_queue.append(
-                    [
-                        "INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        [
-                            str(message.guild.id),
-                            str(message.channel.id), 
-                            str(message.author.id), 
-                            str(message.id),
-                            str(message.author.name),
-                            str(int(message.author.bot)),
-                            content,
-                            str(int(time.mktime(message.created_at.timetuple()))),
-                            str("0"),
-                        ]
-                    ]
-                )
-            db.mass_query(query_queue)
+                await self.bot.db.execute("INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                                          [str(message.guild.id), str(message.channel.id), str(message.author.id),
+                                           str(message.id), str(message.author.name), str(int(message.author.bot)),
+                                           content, str(int(time.mktime(message.created_at.timetuple()))), str("0")])
+            await self.bot.db.commit()
         except Exception as e:
             print(e)
 
     async def check_privacy(self, message):
         if message.guild:
-            if db.query(["SELECT * FROM mmj_private_guilds WHERE guild_id = ?", [str(message.guild.id)]]):
+            async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
+                                         [str(message.guild.id)]) as cursor:
+                private_guild_check = await cursor.fetchall()
+            if private_guild_check:
                 return True
-        if db.query(["SELECT * FROM mmj_private_channels WHERE channel_id = ?", [str(message.channel.id)]]):
+        async with self.bot.db.execute("SELECT * FROM mmj_private_channels WHERE channel_id = ?",
+                                     [str(message.channel.id)]) as cursor:
+            private_channel_check = await cursor.fetchall()
+        if private_channel_check:
             return True
         return False
 

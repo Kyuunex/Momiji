@@ -6,7 +6,6 @@ from discord.ext import commands
 import os
 import random
 import imghdr
-from modules import db
 from modules import cooldown
 from modules import permissions
 
@@ -15,9 +14,6 @@ class Img(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.art_dir = "data/art/"
-        self.google_api_key = db.query(["SELECT value FROM config WHERE setting = ?", ["google_api_key"]])
-        self.google_search_engine_id = db.query(["SELECT value FROM config WHERE setting = ?",
-                                                 ["google_search_engine_id"]])
 
     @commands.command(name="art", brief="Post a random picture",
                       description="Upload a random picture from ./data/art/ folder")
@@ -41,7 +37,7 @@ class Img(commands.Cog):
             random_picture = random.choice(list_of_art)
             if (random_picture.split("."))[-1] == "png" or (random_picture.split("."))[-1] == "jpg":
                 break
-        await ctx.send(file=discord.File(self.art_dir+random_picture))
+        await ctx.send(file=discord.File(self.art_dir + random_picture))
 
     @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life")
     async def neko(self, ctx):
@@ -62,7 +58,13 @@ class Img(commands.Cog):
     async def gis(self, ctx, search_query):
         # This one's for you, UC-sama
 
-        if not self.google_api_key:
+        async with self.bot.db.execute("SELECT value FROM config WHERE setting = ?", ["google_api_key"]) as cursor:
+            google_api_key = await cursor.fetchall()
+        async with self.bot.db.execute("SELECT value FROM config WHERE setting = ?",
+                                     ["google_search_engine_id"]) as cursor:
+            google_search_engine_id = await cursor.fetchall()
+
+        if not google_api_key:
             await ctx.send("This command is not enabled")
             return None
 
@@ -80,9 +82,9 @@ class Img(commands.Cog):
 
         query = {
             "q": str(search_query),
-            "key": str(self.google_api_key[0][0]),
+            "key": str(google_api_key[0][0]),
             "searchType": "image",
-            "cx": str(self.google_search_engine_id[0][0]),
+            "cx": str(google_search_engine_id[0][0]),
             "start": str(random.randint(1, 21))
         }
         url = "https://www.googleapis.com/customsearch/v1?" + urllib.parse.urlencode(query)

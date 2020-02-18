@@ -1,5 +1,4 @@
 import discord
-from modules import db
 from modules import wrappers
 from discord.ext import commands
 
@@ -33,7 +32,9 @@ class Waifu(commands.Cog):
             await ctx.send("no member found with that name")
             return None
 
-        waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ?", [str(ctx.author.id)]])
+        async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ?",
+                                     [str(ctx.author.id)]) as cursor:
+            waifu_id = await cursor.fetchall()
         if waifu_id:
             waifu_name = self.guaranteed_member_string(ctx, waifu_id[0][0])
             if waifu_name == member.display_name:
@@ -46,13 +47,16 @@ class Waifu(commands.Cog):
                                    f"you can only claim one at a time")
             return None
 
-        owner_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(member.id)]])
+        async with self.bot.db.execute("SELECT owner_id FROM waifu_claims WHERE waifu_id = ?",
+                                     [str(member.id)]) as cursor:
+            owner_id = await cursor.fetchall()
         if owner_id:
             owner_name = self.guaranteed_member_string(ctx, owner_id[0][0])
             await ctx.send(f"`{member.display_name}` is already claimed by `{owner_name}`")
             return None
 
-        db.query(["INSERT INTO waifu_claims VALUES (?,?)", [str(ctx.author.id), str(member.id)]])
+        await self.bot.db.execute("INSERT INTO waifu_claims VALUES (?,?)", [str(ctx.author.id), str(member.id)])
+        await self.bot.db.commit()
         if str(ctx.author.id) == str(member.id):
             await ctx.send("you claimed yourself as your waifu. nice.")
             return None
@@ -65,23 +69,30 @@ class Waifu(commands.Cog):
         if not member:
             await ctx.send("no member found with that name")
             if user_id.isdigit():
-                db.query(["DELETE FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
-                          [str(ctx.author.id), str(user_id)]])
+                await self.bot.db.execute("DELETE FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
+                                          [str(ctx.author.id), str(user_id)])
+                await self.bot.db.commit()
                 await ctx.send("but i tried to unclaim whoever you claimed")
             return None
 
-        your_waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
-                                  [str(ctx.author.id), str(member.id)]])
+        async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
+                                     [str(ctx.author.id), str(member.id)]) as cursor:
+            your_waifu_id = await cursor.fetchall()
         if your_waifu_id:
-            db.query(["DELETE FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
-                      [str(ctx.author.id), str(member.id)]])
+            await self.bot.db.execute("DELETE FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
+                                      [str(ctx.author.id), str(member.id)])
+            await self.bot.db.commit()
             await ctx.send(f"you unclaimed `{member.display_name}` as your waifu")
 
     @commands.command(name="show_my_waifu", brief="Show who is my waifu", description="")
     @commands.guild_only()
     async def show_my_waifu(self, ctx):
-        your_owner_id = db.query(["SELECT owner_id FROM waifu_claims WHERE waifu_id = ?", [str(ctx.author.id)]])
-        your_waifu_id = db.query(["SELECT waifu_id FROM waifu_claims WHERE owner_id = ?", [str(ctx.author.id)]])
+        async with self.bot.db.execute("SELECT owner_id FROM waifu_claims WHERE waifu_id = ?",
+                                     [str(ctx.author.id)]) as cursor:
+            your_owner_id = await cursor.fetchall()
+        async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ?",
+                                     [str(ctx.author.id)]) as cursor:
+            your_waifu_id = await cursor.fetchall()
         if (not your_waifu_id) and (not your_owner_id):
             await ctx.send("you claimed no one and no one claimed you")
             return None
@@ -101,7 +112,9 @@ class Waifu(commands.Cog):
     @commands.guild_only()
     async def waifu_chart(self, ctx):
         contents = ":revolving_hearts: **Waifu Claim Records**\n\n"
-        for claim_record in db.query("SELECT owner_id, waifu_id FROM waifu_claims"):
+        async with self.bot.db.execute("SELECT owner_id, waifu_id FROM waifu_claims") as cursor:
+            waifu_claims = await cursor.fetchall()
+        for claim_record in waifu_claims:
             owner_name = self.guaranteed_member_string(ctx, claim_record[0])
             waifu_name = self.guaranteed_member_string(ctx, claim_record[1])
             if owner_name == waifu_name:

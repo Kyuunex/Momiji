@@ -1,4 +1,3 @@
-from modules import db
 import discord
 from discord.ext import commands
 
@@ -6,11 +5,13 @@ from discord.ext import commands
 class VoiceLogging(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.voice_logging_channels = db.query("SELECT guild_id, channel_id FROM voice_logging_channels")
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        for voice_logging_channel in self.voice_logging_channels:
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM voice_logging_channels") as cursor:
+            voice_logging_channels = await cursor.fetchall()
+
+        for voice_logging_channel in voice_logging_channels:
             if str(voice_logging_channel[0]) == str(member.guild.id):
                 channel = self.bot.get_channel(int(voice_logging_channel[1]))
                 if before.channel == after.channel:

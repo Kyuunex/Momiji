@@ -1,4 +1,3 @@
-from modules import db
 import random
 from modules import permissions
 
@@ -17,8 +16,9 @@ class Welcome(commands.Cog):
             await ctx.message.delete()
         except Exception as e:
             print(e)
-        db.query(["INSERT INTO welcome_messages VALUES (?,?,?)",
-                  [str(ctx.guild.id), str(ctx.channel.id), str(welcome_message)]])
+        await self.bot.db.execute("INSERT INTO welcome_messages VALUES (?,?,?)",
+                                  [str(ctx.guild.id), str(ctx.channel.id), str(welcome_message)])
+        await self.bot.db.commit()
         await ctx.send(":ok_hand:", delete_after=3)
 
     @commands.command(name="set_goodbye_message", brief="", description="")
@@ -29,14 +29,16 @@ class Welcome(commands.Cog):
             await ctx.message.delete()
         except Exception as e:
             print(e)
-        db.query(["INSERT INTO goodbye_messages VALUES (?,?,?)",
-                  [str(ctx.guild.id), str(ctx.channel.id), str(goodbye_message)]])
+        await self.bot.db.execute("INSERT INTO goodbye_messages VALUES (?,?,?)",
+                                  [str(ctx.guild.id), str(ctx.channel.id), str(goodbye_message)])
+        await self.bot.db.commit()
         await ctx.send(":ok_hand:", delete_after=3)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        goodbye_messages = db.query(["SELECT channel_id, message FROM goodbye_messages WHERE guild_id = ?",
-                                     [str(member.guild.id)]])
+        async with self.bot.db.execute("SELECT channel_id, message FROM goodbye_messages WHERE guild_id = ?",
+                                     [str(member.guild.id)]) as cursor:
+            goodbye_messages = await cursor.fetchall()
         if goodbye_messages:
             right_message = random.choice(goodbye_messages)
             channel = self.bot.get_channel(int(right_message[0]))
@@ -44,8 +46,9 @@ class Welcome(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        welcome_messages = db.query(["SELECT channel_id, message FROM welcome_messages WHERE guild_id = ?",
-                                     [str(member.guild.id)]])
+        async with self.bot.db.execute("SELECT channel_id, message FROM welcome_messages WHERE guild_id = ?",
+                                     [str(member.guild.id)]) as cursor:
+            welcome_messages = await cursor.fetchall()
         if welcome_messages:
             right_message = random.choice(welcome_messages)
             channel = self.bot.get_channel(int(right_message[0]))
