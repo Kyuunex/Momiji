@@ -87,7 +87,7 @@ class Momiji(commands.Bot):
                 print(e)
 
     async def start(self, *args, **kwargs):
-        self.db = await aiosqlite.connect(database_file)
+        self.db = await aiosqlite.connect(self.database_file)
 
         await super().start(*args, **kwargs)
 
