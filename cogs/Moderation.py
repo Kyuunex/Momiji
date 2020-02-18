@@ -1,5 +1,6 @@
 from discord.ext import commands
 from modules import permissions
+from modules import wrappers
 
 
 class Moderation(commands.Cog):
@@ -59,6 +60,21 @@ class Moderation(commands.Cog):
             await ctx.send(f"Deleted {len(deleted)} message(s)")
         except Exception as e:
             await ctx.send(e)
+
+    @commands.command(name="mod_note", brief="", description="")
+    @commands.guild_only()
+    @commands.check(permissions.is_admin)
+    async def mod_note(self, ctx, user_id, *, note):
+        member = wrappers.get_member_guaranteed(ctx, user_id)
+
+        if not member:
+            await ctx.send("no member found with that name")
+            return None
+
+        await self.bot.db.execute("INSERT INTO mod_notes VALUES (?, ?, ?)",
+                                  [str(ctx.guild.id), str(member.id), note])
+        await self.bot.db.commit()
+        await ctx.send(f"note added for {member.name}")
 
 
 def setup(bot):

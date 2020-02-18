@@ -32,6 +32,7 @@ def create_tables():
         c.execute("CREATE TABLE pinning_channels (guild_id, channel_id, threshold)")
 
         c.execute("CREATE TABLE aimod_blacklist (word)")
+        c.execute("CREATE TABLE mod_notes (guild_id, user_id, note)")
 
         c.execute("CREATE TABLE waifu_claims (owner_id, waifu_id)")
 
