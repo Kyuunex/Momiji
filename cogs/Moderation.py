@@ -112,7 +112,7 @@ class Moderation(commands.Cog):
                 icon_url=member.avatar_url
             )
             embed.set_footer(
-                text=f"Noted on #{timestamp}"
+                text=f"Noted on {timestamp}"
             )
             return embed
         else:
