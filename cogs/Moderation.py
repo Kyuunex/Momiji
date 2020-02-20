@@ -9,6 +9,7 @@ class Moderation(commands.Cog):
 
     @commands.command(name="purge", brief="Purge X amount of messages", description="")
     @commands.guild_only()
+    @commands.check(permissions.channel_manage_messages)
     async def purge(self, ctx, amount, author=None):
         # TODO: make this more usable
         if not (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
@@ -63,7 +64,7 @@ class Moderation(commands.Cog):
 
     @commands.command(name="mod_note", brief="", description="")
     @commands.guild_only()
-    @commands.check(permissions.is_admin)
+    @commands.check(permissions.channel_ban_members)
     async def mod_note(self, ctx, user_id, *, note):
         member = wrappers.get_member_guaranteed(ctx, user_id)
 
