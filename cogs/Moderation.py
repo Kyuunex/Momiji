@@ -97,7 +97,7 @@ class Moderation(commands.Cog):
                 if check_member.id != int(one_note[1]):
                     continue
             member = ctx.guild.get_member(int(one_note[1]))
-            timestamp = datetime.datetime.fromtimestamp(int(one_note[3]))
+            timestamp = datetime.datetime.utcfromtimestamp(int(one_note[3]))
             embed = await self.mod_noted_member(member, one_note[2], timestamp)
             await ctx.send(embed=embed)
 
