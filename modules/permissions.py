@@ -40,3 +40,11 @@ def check_admin(user_id):
 
 def check_owner(user_id):
     return str(user_id) in owner_list
+
+
+async def channel_ban_members(ctx):
+    return (ctx.channel.permissions_for(ctx.author)).ban_members
+
+
+async def channel_manage_messages(ctx):
+    return (ctx.channel.permissions_for(ctx.author)).manage_messages
