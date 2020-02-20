@@ -83,11 +83,19 @@ class Moderation(commands.Cog):
     @commands.command(name="mod_notes", brief="", description="")
     @commands.guild_only()
     @commands.check(permissions.channel_ban_members)
-    async def mod_notes(self, ctx):
+    async def mod_notes(self, ctx, *, user_id=""):
         async with self.bot.db.execute("SELECT * FROM mod_notes") as cursor:
             all_mod_notes = await cursor.fetchall()
 
+        if user_id:
+            check_member = wrappers.get_member_guaranteed(ctx, user_id)
+        else:
+            check_member = None
+
         for one_note in all_mod_notes:
+            if check_member:
+                if check_member.id != int(one_note[1]):
+                    continue
             member = ctx.guild.get_member(int(one_note[1]))
             timestamp = datetime.datetime.fromtimestamp(int(one_note[2]))
             embed = await self.mod_noted_member(member, one_note[2], timestamp)
