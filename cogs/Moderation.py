@@ -71,8 +71,8 @@ class Moderation(commands.Cog):
             await ctx.send("no member found with that name")
             return None
 
-        await self.bot.db.execute("INSERT INTO mod_notes VALUES (?, ?, ?)",
-                                  [str(ctx.guild.id), str(member.id), note])
+        await self.bot.db.execute("INSERT INTO mod_notes VALUES (?, ?, ?, ?)",
+                                  [str(ctx.guild.id), str(member.id), note, "0"])
         await self.bot.db.commit()
         await ctx.send(f"note added for {member.name}")
 
