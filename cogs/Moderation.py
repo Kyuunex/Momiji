@@ -84,7 +84,7 @@ class Moderation(commands.Cog):
     @commands.guild_only()
     @commands.check(permissions.channel_ban_members)
     async def mod_notes(self, ctx, *, user_id=""):
-        async with self.bot.db.execute("SELECT * FROM mod_notes") as cursor:
+        async with self.bot.db.execute("SELECT * FROM mod_notes WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
             all_mod_notes = await cursor.fetchall()
 
         if user_id:
