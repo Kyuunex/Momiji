@@ -58,14 +58,14 @@ class MessageStats(commands.Cog):
             contents = ""
 
             async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
-                                         [str(ctx.guild.id)]) as cursor:
+                                           [str(ctx.guild.id)]) as cursor:
                 guild_privacy_check = await cursor.fetchall()
             if guild_privacy_check:
                 contents += "I'm only collecting metadata from this server\n\n"
 
             for member_id in stats:
                 async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
-                                             [str(member_id[0][0])]) as cursor:
+                                               [str(member_id[0][0])]) as cursor:
                     user_info = await cursor.fetchall()
                 member = ctx.guild.get_member(int(member_id[0][0]))
                 if not member:
@@ -103,7 +103,7 @@ class MessageStats(commands.Cog):
     @commands.guild_only()
     async def word_stats(self, ctx):
         async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
-                                     [str(ctx.guild.id)]) as cursor:
+                                       [str(ctx.guild.id)]) as cursor:
             is_private_guild = await cursor.fetchall()
         if is_private_guild:
             await ctx.send("impossible to do this in this guild because this is a private area "
@@ -113,7 +113,7 @@ class MessageStats(commands.Cog):
         async with ctx.channel.typing():
             title = "Here are 40 most used words in server all time:"
             async with self.bot.db.execute("SELECT contents FROM mmj_message_logs WHERE guild_id = ?",
-                                         [str(ctx.guild.id)]) as cursor:
+                                           [str(ctx.guild.id)]) as cursor:
                 messages = await cursor.fetchall()
 
             individual_words = []
