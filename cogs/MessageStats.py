@@ -79,13 +79,13 @@ class MessageStats(commands.Cog):
                     contents += f"**[{rank}]**"
                     contents += " : "
 
-                    contents += f"`{member_name}`"
+                    contents += f"`{member_name.replace('`', '')}`"
                     contents += " : "
 
                     if member:
                         if member.nick:
                             if member.nick != member_name:
-                                contents += f"`{member.nick}`"
+                                contents += f"`{member.nick.replace('`', '')}`"
                                 contents += " : "
 
                     contents += f"{member_id[1]} msgs"
