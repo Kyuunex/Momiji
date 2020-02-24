@@ -2,6 +2,7 @@ import discord
 import os
 from discord.ext import commands
 from modules import permissions
+from modules import wrappers
 from modules.connections import database_file as database_file
 
 
@@ -39,10 +40,19 @@ class BotManagement(commands.Cog):
     @commands.check(permissions.is_owner)
     async def sql(self, ctx, *, query):
         if len(query) > 0:
-            async with await self.bot.db.execute(query) as cursor:
-                response = await cursor.fetchall()
-            await self.bot.db.commit()
-            await ctx.send(response)
+            try:
+                async with await self.bot.db.execute(query) as cursor:
+                    response = await cursor.fetchall()
+                await self.bot.db.commit()
+                if not response:
+                    await ctx.send(":ok_hand:")
+                else:
+                    buffer = ""
+                    for entry in response:
+                        buffer += f"{str(entry)}\n"
+                    await wrappers.send_large_text(ctx.channel, buffer)
+            except Exception as e:
+                await ctx.send(e)
 
     @commands.command(name="leave_guild", brief="Leave the current guild", description="")
     @commands.check(permissions.is_owner)
