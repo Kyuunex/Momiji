@@ -45,14 +45,20 @@ class BotManagement(commands.Cog):
                     response = await cursor.fetchall()
                 await self.bot.db.commit()
                 if not response:
-                    await ctx.send(":ok_hand:")
+                    embed = discord.Embed(description="query executed successfully", color=0xadff2f)
+                    await ctx.send(embed=embed)
                 else:
                     buffer = ""
                     for entry in response:
                         buffer += f"{str(entry)}\n"
-                    await wrappers.send_large_text(ctx.channel, buffer)
+
+                    embed = discord.Embed(color=0xadff2f)
+                    embed.set_author(name="query results")
+                    await wrappers.send_large_embed(ctx.channel, embed, buffer)
             except Exception as e:
-                await ctx.send(e)
+                embed = discord.Embed(description=e, color=0xbd3661)
+                embed.set_author(name="error occurred while executing the query")
+                await ctx.send(embed=embed)
 
     @commands.command(name="leave_guild", brief="Leave the current guild", description="")
     @commands.check(permissions.is_owner)
