@@ -7,7 +7,7 @@ To configure momiji, you are mostly gonna need to use sql commands. Everything i
 In this table, various configs are stored. 
 The table columns are:
 + `setting` - Identifies what setting is this row represents
-+ `parent` - This almost always indicates what guild this setting is for. If the setting is guild independent, it does not matter what is specified but a value of `0` is what I recommend for consistencey.
++ `parent` - This almost always indicates what guild this setting is for. If the setting is guild independent, it does not matter what is specified but a value of `0` is what I recommend for consistency.
 + `value` - This indicates the value of the setting. This almost always stores a channel id/role id/api key. 
 + `flag` - Another value for this config that specifies something else regarding this setting. This column is not always used.
 
