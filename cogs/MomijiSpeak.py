@@ -70,12 +70,12 @@ class MomijiSpeak(commands.Cog):
     async def check_privacy(self, message):
         if message.guild:
             async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
-                                         [str(message.guild.id)]) as cursor:
+                                           [str(message.guild.id)]) as cursor:
                 private_guild_check = await cursor.fetchall()
             if private_guild_check:
                 return True
         async with self.bot.db.execute("SELECT * FROM mmj_private_channels WHERE channel_id = ?",
-                                     [str(message.channel.id)]) as cursor:
+                                       [str(message.channel.id)]) as cursor:
             private_channel_check = await cursor.fetchall()
         if private_channel_check:
             return True
@@ -83,7 +83,7 @@ class MomijiSpeak(commands.Cog):
 
     async def bridge_check(self, channel_id):
         async with self.bot.db.execute("SELECT depended_channel_id FROM mmj_channel_bridges "
-                                     "WHERE channel_id = ?", [str(channel_id)]) as cursor:
+                                       "WHERE channel_id = ?", [str(channel_id)]) as cursor:
             bridged_channel = await cursor.fetchall()
         if bridged_channel:
             return str(bridged_channel[0][0])
@@ -101,8 +101,8 @@ class MomijiSpeak(commands.Cog):
 
     async def pick_message(self, message, depended_channel_id):
         async with self.bot.db.execute("SELECT * FROM mmj_message_logs "
-                                     "WHERE channel_id = ? AND bot = ? AND deleted = ?",
-                                     [str(depended_channel_id), "0", "0"]) as cursor:
+                                       "WHERE channel_id = ? AND bot = ? AND deleted = ?",
+                                       [str(depended_channel_id), "0", "0"]) as cursor:
             all_potential_messages = await cursor.fetchall()
         if all_potential_messages:
             counter = 0
