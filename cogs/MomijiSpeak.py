@@ -167,7 +167,7 @@ class MomijiSpeak(commands.Cog):
                 else:
                     # await self.join_spam_train(message)
 
-                    if message.content.isupper() and len(message.content) > 1 and random.randint(0, 20) == 1:
+                    if message.content.isupper() and len(message.content) > 2 and random.randint(0, 20) == 1:
                         await self.momiji_speak(message)
 
                     async with self.bot.db.execute("SELECT * FROM mmj_responses") as cursor:
