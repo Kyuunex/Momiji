@@ -1,6 +1,7 @@
 from modules import permissions
 import discord
 from discord.ext import commands
+from modules import wrappers
 
 
 class Utilities(commands.Cog):
@@ -37,6 +38,18 @@ class Utilities(commands.Cog):
             for member in role.members:
                 await member.remove_roles(role, reason=f"pruned role `{role_name}`")
         await ctx.send("Done")
+
+    @commands.command(name="clean_member_roles", brief="Take all roles away from a member", description="")
+    @commands.check(permissions.is_admin)
+    @commands.guild_only()
+    async def clean_member_roles(self, ctx, user_id):
+        member = wrappers.get_member_guaranteed(ctx, user_id)
+        if member:
+            try:
+                await member.edit(roles=[])
+                await ctx.send("Done")
+            except:
+                await ctx.send("no perms to change nickname and/or remove roles")
 
 
 def setup(bot):
