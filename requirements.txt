@@ -3,3 +3,4 @@ mutagen
 psutil
 youtube_dl
 aiosqlite
+feedparser
