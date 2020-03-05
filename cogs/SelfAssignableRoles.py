@@ -28,11 +28,10 @@ class SelfAssignableRoles(commands.Cog):
             await ctx.send(f"`{role.name}` role is no longer self-assignable")
 
     @commands.command(name="sar_list", brief="List all self assignable roles in this server", description="")
-    @commands.check(permissions.is_admin)
     @commands.guild_only()
     async def sar_list(self, ctx):
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE guild_id = ?",
-                                     [str(ctx.guild.id)]) as cursor:
+                                       [str(ctx.guild.id)]) as cursor:
             all_roles = await cursor.fetchall()
         output = "Self-assignable roles:\n"
         for one_role_db in all_roles:
@@ -43,7 +42,7 @@ class SelfAssignableRoles(commands.Cog):
                 output += f"{one_role_db[0]}\n"
         await ctx.send(output)
 
-    @commands.command(name="join", brief="Get a role", description="")
+    @commands.command(name="join", brief="Assign a self-assignable role", description="")
     @commands.guild_only()
     async def join(self, ctx, *, role_name):
         role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
@@ -52,7 +51,7 @@ class SelfAssignableRoles(commands.Cog):
             return None
 
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE role_id = ?",
-                                     [str(role.id)]) as cursor:
+                                       [str(role.id)]) as cursor:
             check = await cursor.fetchall()
         if not check:
             if role.permissions.administrator:
@@ -63,8 +62,8 @@ class SelfAssignableRoles(commands.Cog):
             return None
 
         async with self.bot.db.execute("SELECT * FROM assignable_roles_user_blacklist "
-                                     "WHERE user_id = ? AND role_id = ?",
-                                     [str(ctx.author.id), str(role.id)]) as cursor:
+                                       "WHERE user_id = ? AND role_id = ?",
+                                       [str(ctx.author.id), str(role.id)]) as cursor:
             blacklist_check = await cursor.fetchall()
         if blacklist_check:
             await ctx.send(f"{ctx.author.mention}, *you* are not allowed to self assign this role")
@@ -77,7 +76,7 @@ class SelfAssignableRoles(commands.Cog):
             except Exception as e:
                 await ctx.send(e)
 
-    @commands.command(name="leave", brief="Remove a role", description="")
+    @commands.command(name="leave", brief="Remove a self-assignable a role", description="")
     @commands.guild_only()
     async def leave(self, ctx, *, role_name):
         role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
@@ -86,7 +85,7 @@ class SelfAssignableRoles(commands.Cog):
             return None
 
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE role_id = ?",
-                                     [str(role.id)]) as cursor:
+                                       [str(role.id)]) as cursor:
             check = await cursor.fetchall()
         if not check:
             await ctx.send(f"{ctx.author.mention}, bruh, this role is not self assignable or removable")
