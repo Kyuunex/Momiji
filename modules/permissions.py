@@ -48,3 +48,7 @@ async def channel_ban_members(ctx):
 
 async def channel_manage_messages(ctx):
     return (ctx.channel.permissions_for(ctx.author)).manage_messages
+
+
+async def channel_manage_guild(ctx):
+    return (ctx.channel.permissions_for(ctx.author)).manage_guild

@@ -13,11 +13,9 @@ class RegularRole(commands.Cog):
 
     @commands.command(name="regular_role_reassign", brief="Reassign the regular role", description="")
     @commands.guild_only()
+    @commands.check(permissions.channel_manage_guild)
     async def regular_role_reassign(self, ctx):
         # TODO: Make this more efficient, only apply changes, don't clear the role.
-        if not (ctx.channel.permissions_for(ctx.message.author)).manage_guild:
-            await ctx.send("lol no")
-            return None
 
         async with self.bot.db.execute("SELECT guild_id, role_id, threshold FROM regular_roles") as cursor:
             regular_roles = await cursor.fetchall()
