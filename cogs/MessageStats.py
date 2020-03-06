@@ -1,5 +1,6 @@
 from modules import cooldown
 from modules import permissions
+from modules import wrappers
 import time
 import discord
 from discord.ext import commands
@@ -38,6 +39,11 @@ class MessageStats(commands.Cog):
                     if ":" in arg:
                         sub_args = arg.split(":")
                         scope_value = str(sub_args[1])
+                if "limit" in arg:
+                    max_results = 40
+                    if ":" in arg:
+                        sub_args = arg.split(":")
+                        max_results = int(sub_args[1])
 
             query_str = f"SELECT user_id FROM mmj_message_logs WHERE {scope_key} = ? AND bot = ? AND timestamp > ?"
 
@@ -94,18 +100,18 @@ class MessageStats(commands.Cog):
 
                     contents += f"{member_id[1]} msgs"
                     contents += "\n"
-                    if rank == 40:
+                    if rank == max_results:
                         break
 
-            embed = discord.Embed(description=contents, color=0xffffff)
+            embed = discord.Embed(color=0xffffff)
             embed.set_author(name="User stats")
             embed.set_footer(text=f"Total amount of messages sent: {total_amount}")
-        await ctx.send(embed=embed)
+        await wrappers.send_large_embed(ctx.channel, embed, contents)
 
     @commands.command(name="word_stats", brief="Word statistics", description="")
     @commands.check(permissions.is_owner)
     @commands.guild_only()
-    async def word_stats(self, ctx):
+    async def word_stats(self, ctx, *args):
         async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             is_private_guild = await cursor.fetchall()
@@ -119,6 +125,13 @@ class MessageStats(commands.Cog):
             async with self.bot.db.execute("SELECT contents FROM mmj_message_logs WHERE guild_id = ?",
                                            [str(ctx.guild.id)]) as cursor:
                 messages = await cursor.fetchall()
+
+            for arg in args:
+                if "limit" in arg:
+                    max_results = 40
+                    if ":" in arg:
+                        sub_args = arg.split(":")
+                        max_results = int(sub_args[1])
 
             individual_words = []
             for message in messages:
@@ -138,13 +151,13 @@ class MessageStats(commands.Cog):
                     rank += 1
                     amount = str(word_stat[1]) + " times"
                     contents += f"**[{rank}]** : `{word_stat[0]}` : {amount}\n"
-                    if rank == 40:
+                    if rank == max_results:
                         break
 
-            embed = discord.Embed(description=contents, color=0xffffff)
+            embed = discord.Embed(color=0xffffff)
             embed.set_author(name="Word stats")
             embed.set_footer(text="Momiji is best wolf.")
-        await ctx.send(embed=embed)
+        await wrappers.send_large_embed(ctx.channel, embed, contents)
 
     async def list_sorter(self, a_list):
         results = dict(Counter(a_list))
