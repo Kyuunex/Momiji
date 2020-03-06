@@ -90,7 +90,7 @@ class MessageStats(commands.Cog):
 
                     if member:
                         if "mention" in args:
-                            contents += f"`{member.mention}`"
+                            contents += f"{member.mention}"
                             contents += " : "
                         else:
                             if member.nick:
