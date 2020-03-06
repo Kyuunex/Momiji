@@ -32,6 +32,7 @@ class MessageStats(commands.Cog):
 
             scope_key = "guild_id"
             scope_value = str(ctx.guild.id)
+            max_results = 40
             for arg in args:
                 if "channel" in arg:
                     scope_key = "channel_id"
@@ -40,7 +41,6 @@ class MessageStats(commands.Cog):
                         sub_args = arg.split(":")
                         scope_value = str(sub_args[1])
                 if "limit" in arg:
-                    max_results = 40
                     if ":" in arg:
                         sub_args = arg.split(":")
                         max_results = int(sub_args[1])
@@ -126,9 +126,9 @@ class MessageStats(commands.Cog):
                                            [str(ctx.guild.id)]) as cursor:
                 messages = await cursor.fetchall()
 
+            max_results = 40
             for arg in args:
                 if "limit" in arg:
-                    max_results = 40
                     if ":" in arg:
                         sub_args = arg.split(":")
                         max_results = int(sub_args[1])
