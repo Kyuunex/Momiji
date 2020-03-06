@@ -83,10 +83,14 @@ class MessageStats(commands.Cog):
                     contents += " : "
 
                     if member:
-                        if member.nick:
-                            if member.nick != member_name:
-                                contents += f"`{member.nick.replace('`', '')}`"
-                                contents += " : "
+                        if "mention" in args:
+                            contents += f"`{member.mention}`"
+                            contents += " : "
+                        else:
+                            if member.nick:
+                                if member.nick != member_name:
+                                    contents += f"`{member.nick.replace('`', '')}`"
+                                    contents += " : "
 
                     contents += f"{member_id[1]} msgs"
                     contents += "\n"
