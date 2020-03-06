@@ -121,17 +121,17 @@ class MessageStats(commands.Cog):
             return None
 
         async with ctx.channel.typing():
-            title = "Here are 40 most used words in server all time:"
-            async with self.bot.db.execute("SELECT contents FROM mmj_message_logs WHERE guild_id = ?",
-                                           [str(ctx.guild.id)]) as cursor:
-                messages = await cursor.fetchall()
-
             max_results = 40
             for arg in args:
                 if "limit" in arg:
                     if ":" in arg:
                         sub_args = arg.split(":")
                         max_results = int(sub_args[1])
+
+            title = f"Here are {max_results} most used words in server all time:"
+            async with self.bot.db.execute("SELECT contents FROM mmj_message_logs WHERE guild_id = ?",
+                                           [str(ctx.guild.id)]) as cursor:
+                messages = await cursor.fetchall()
 
             individual_words = []
             for message in messages:
