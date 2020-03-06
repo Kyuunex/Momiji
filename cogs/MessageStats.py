@@ -70,12 +70,12 @@ class MessageStats(commands.Cog):
                 contents += "I'm only collecting metadata from this server\n\n"
 
             for member_id in stats:
-                async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
-                                               [str(member_id[0][0])]) as cursor:
-                    user_info = await cursor.fetchall()
                 member = ctx.guild.get_member(int(member_id[0][0]))
                 if not member:
-                    member_name = user_info[0][0]
+                    async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
+                                                   [str(member_id[0][0])]) as cursor:
+                        user_info = await cursor.fetchone()
+                    member_name = user_info[0]
                 else:
                     member_name = member.name
 
