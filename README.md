@@ -29,7 +29,6 @@ I am sorry, but this happens when you want to add new features and accounting fo
 + Momiji's main functionality is taking a random message that has been said by someone else and replying with it once someone triggers Momiji. When Momiji first joins a server, it has no collection of chat logs. It's highly recommended import messages from the channel immediately so Momiji can get to working as intended. To import messages from every channel the bot sees, type `;init`. This will import old messages. This may take a very very long time depending on how many messages there are to import. Newer messages are automatically stored.
 + To prevent leaking information between channels, Momiji will pick a message that has been said in that current channel before.
 + I recommend blacklisting some offensive words with this command `;blacklist <whatever you want to blacklist>`.
-+ To bring up the admin help menu type `;help admin`.
 + See configuration.md for how to configure it. Though it's out of date. I think the `;help` command is a lot more useful.
 
 ---
