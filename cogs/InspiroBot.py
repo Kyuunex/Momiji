@@ -10,6 +10,8 @@ from modules import permissions
 
 
 async def is_dj(ctx):
+    if not ctx.guild:
+        return False
     if not ctx.author.voice:
         return False
     if not (ctx.author.voice.channel.permissions_for(ctx.message.author)).priority_speaker:
@@ -24,6 +26,7 @@ class InspiroBot(commands.Cog):
         self.stop_queue = {}
 
     @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot", description="")
+    @commands.guild_only()
     @commands.check(is_dj)
     async def mindfulness(self, ctx):
         self.stop_queue[ctx.guild.id] = None
@@ -51,6 +54,7 @@ class InspiroBot(commands.Cog):
                                 await asyncio.sleep(5)
 
     @commands.command(name="mindfulness_stop", brief="Stop the mindfulness mode", description="")
+    @commands.guild_only()
     @commands.check(is_dj)
     async def mindfulness_stop(self, ctx):
         self.stop_queue[ctx.guild.id] = True
