@@ -31,6 +31,8 @@ ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
 
 
 async def is_dj(ctx):
+    if not ctx.guild:
+        return False
     if not ctx.author.voice:
         return False
     if not (ctx.author.voice.channel.permissions_for(ctx.message.author)).priority_speaker:
@@ -65,16 +67,19 @@ class Music(commands.Cog):
         self.bot = bot
 
     @commands.command(name="m_join", brief="Join a voice channel", description="")
+    @commands.guild_only()
     @commands.check(is_dj)
     async def m_join(self, ctx):
         pass
 
     @commands.command(name="m_leave", brief="Disconnect from a voice channel", description="")
+    @commands.guild_only()
     @commands.check(is_dj)
     async def m_leave(self, ctx):
         await ctx.voice_client.disconnect()
 
     @commands.command(name="m_play", brief="Plays from a url (almost anything youtube_dl supports)", description="")
+    @commands.guild_only()
     @commands.check(is_dj)
     async def m_play(self, ctx, *, url):
         async with ctx.typing():
@@ -85,6 +90,7 @@ class Music(commands.Cog):
     @commands.command(name="m_stream",
                       brief="Streams from a url",
                       description="Same as m_play, but doesn't pre-download")
+    @commands.guild_only()
     @commands.check(is_dj)
     async def m_stream(self, ctx, *, url):
         async with ctx.typing():
@@ -94,6 +100,7 @@ class Music(commands.Cog):
         await ctx.send(f"Now playing: `{player.title}`")
 
     @commands.command(name="m_stop", brief="Stop the music", description="")
+    @commands.guild_only()
     @commands.check(is_dj)
     async def m_stop(self, ctx):
         ctx.voice_client.stop()
