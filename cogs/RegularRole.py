@@ -23,8 +23,8 @@ class RegularRole(commands.Cog):
         for regular_role in regular_roles:
             if str(regular_role[0]) == str(ctx.guild.id):
                 async with ctx.channel.typing():
-                    async with self.bot.db.execute("SELECT user_id FROM regular_roles_user_blacklist WHERE guild_id = ?",
-                                                 [str(ctx.guild.id)]) as cursor:
+                    async with self.bot.db.execute("SELECT user_id FROM regular_roles_user_blacklist "
+                                                   "WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
                         user_blacklist = await cursor.fetchall()
                     role = discord.utils.get(ctx.guild.roles, id=int(regular_role[1]))
 
@@ -103,7 +103,7 @@ class RegularRole(commands.Cog):
     async def regular_role_blacklist_remove(self, ctx, user_id=None):
         if not user_id:
             async with self.bot.db.execute("SELECT user_id FROM regular_roles_user_blacklist WHERE guild_id = ?",
-                                         [str(ctx.guild.id)]) as cursor:
+                                           [str(ctx.guild.id)]) as cursor:
                 user_blacklist = await cursor.fetchall()
             await ctx.send(user_blacklist)
             return None
