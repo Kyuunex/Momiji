@@ -34,15 +34,15 @@ class Pinning(commands.Cog):
                 for reaction in reactions:
                     if reaction.count >= int(pinning_channel[2]):
                         async with self.bot.db.execute("SELECT channel_id FROM pinning_channel_blacklist "
-                                                     "WHERE channel_id = ?",
-                                                     [str(raw_reaction.channel_id)]) as cursor:
+                                                       "WHERE channel_id = ?",
+                                                       [str(raw_reaction.channel_id)]) as cursor:
                             pinning_channel_blacklist = await cursor.fetchall()
 
                         if pinning_channel_blacklist:
                             return None
 
                         async with self.bot.db.execute("SELECT message_id FROM pinning_history WHERE message_id = ?",
-                                                     [str(raw_reaction.message_id)]) as cursor:
+                                                       [str(raw_reaction.message_id)]) as cursor:
                             is_already_pinned = await cursor.fetchall()
                         if is_already_pinned:
                             return None
