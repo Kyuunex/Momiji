@@ -33,7 +33,7 @@ class Waifu(commands.Cog):
             return None
 
         async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ?",
-                                     [str(ctx.author.id)]) as cursor:
+                                       [str(ctx.author.id)]) as cursor:
             waifu_id = await cursor.fetchall()
         if waifu_id:
             waifu_name = self.guaranteed_member_string(ctx, waifu_id[0][0])
@@ -48,7 +48,7 @@ class Waifu(commands.Cog):
             return None
 
         async with self.bot.db.execute("SELECT owner_id FROM waifu_claims WHERE waifu_id = ?",
-                                     [str(member.id)]) as cursor:
+                                       [str(member.id)]) as cursor:
             owner_id = await cursor.fetchall()
         if owner_id:
             owner_name = self.guaranteed_member_string(ctx, owner_id[0][0])
@@ -76,7 +76,7 @@ class Waifu(commands.Cog):
             return None
 
         async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
-                                     [str(ctx.author.id), str(member.id)]) as cursor:
+                                       [str(ctx.author.id), str(member.id)]) as cursor:
             your_waifu_id = await cursor.fetchall()
         if your_waifu_id:
             await self.bot.db.execute("DELETE FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
@@ -88,10 +88,10 @@ class Waifu(commands.Cog):
     @commands.guild_only()
     async def show_my_waifu(self, ctx):
         async with self.bot.db.execute("SELECT owner_id FROM waifu_claims WHERE waifu_id = ?",
-                                     [str(ctx.author.id)]) as cursor:
+                                       [str(ctx.author.id)]) as cursor:
             your_owner_id = await cursor.fetchall()
         async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ?",
-                                     [str(ctx.author.id)]) as cursor:
+                                       [str(ctx.author.id)]) as cursor:
             your_waifu_id = await cursor.fetchall()
         if (not your_waifu_id) and (not your_owner_id):
             await ctx.send("you claimed no one and no one claimed you")
