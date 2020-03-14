@@ -54,7 +54,7 @@ class VoiceRoles(commands.Cog):
         if not before.channel == after.channel:
             if not before.channel:  # Member joined a channel
                 async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                             [str(after.channel.id)]) as cursor:
+                                               [str(after.channel.id)]) as cursor:
                     role_id = await cursor.fetchall()
                 if role_id:
                     role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
@@ -62,17 +62,17 @@ class VoiceRoles(commands.Cog):
             else:
                 if not after.channel:  # Member left channel
                     async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                                 [str(before.channel.id)]) as cursor:
+                                                   [str(before.channel.id)]) as cursor:
                         role_id = await cursor.fetchall()
                     if role_id:
                         role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
                         await member.remove_roles(role)
                 else:  # Member switched channel
                     async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                                 [str(before.channel.id)]) as cursor:
+                                                   [str(before.channel.id)]) as cursor:
                         role_id = await cursor.fetchall()
                     async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                                 [str(after.channel.id)]) as cursor:
+                                                   [str(after.channel.id)]) as cursor:
                         role_id_after = await cursor.fetchall()
                     if role_id != role_id_after:
                         if role_id:
