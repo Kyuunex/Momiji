@@ -37,7 +37,7 @@ class Welcome(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         async with self.bot.db.execute("SELECT channel_id, message FROM goodbye_messages WHERE guild_id = ?",
-                                     [str(member.guild.id)]) as cursor:
+                                       [str(member.guild.id)]) as cursor:
             goodbye_messages = await cursor.fetchall()
         if goodbye_messages:
             right_message = random.choice(goodbye_messages)
@@ -47,7 +47,7 @@ class Welcome(commands.Cog):
     @commands.Cog.listener()
     async def on_member_join(self, member):
         async with self.bot.db.execute("SELECT channel_id, message FROM welcome_messages WHERE guild_id = ?",
-                                     [str(member.guild.id)]) as cursor:
+                                       [str(member.guild.id)]) as cursor:
             welcome_messages = await cursor.fetchall()
         if welcome_messages:
             right_message = random.choice(welcome_messages)
