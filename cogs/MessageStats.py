@@ -20,6 +20,13 @@ class MessageStats(commands.Cog):
                 await ctx.send("slow down bruh")
                 return None
 
+        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+                                       [str(ctx.guild.id)]) as cursor:
+            is_enabled_guild = await cursor.fetchall()
+        if not is_enabled_guild:
+            await ctx.send("MomijiSpeak is not enabled in this guild.")
+            return None
+
         async with ctx.channel.typing():
             if "month" in args:
                 after = int(time.time()) - 2592000
@@ -118,6 +125,13 @@ class MessageStats(commands.Cog):
         if is_private_guild:
             await ctx.send("impossible to do this in this guild because this is a private area "
                            "and I don\'t store messages from here")
+            return None
+
+        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+                                       [str(ctx.guild.id)]) as cursor:
+            is_enabled_guild = await cursor.fetchall()
+        if not is_enabled_guild:
+            await ctx.send("MomijiSpeak is not enabled in this guild.")
             return None
 
         async with ctx.channel.typing():

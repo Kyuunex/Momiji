@@ -15,6 +15,10 @@ class MomijiChannelImporting(commands.Cog):
         for channel in ctx.guild.channels:
             if type(channel) is discord.TextChannel:
                 await self.import_one_channel(ctx, channel)
+
+        await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?)", [str(ctx.guild.id)])
+        await self.bot.db.commit()
+
         await ctx.send(":ok_hand:")
 
     @commands.command(name="import", brief="Import the chat", description="Imports stuff")

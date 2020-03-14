@@ -34,6 +34,7 @@ class MomijiCommands(commands.Cog):
         await self.bot.db.execute("DELETE FROM voice_roles WHERE guild_id = ?", [str(ctx.guild.id)])
         await self.bot.db.execute("DELETE FROM assignable_roles WHERE guild_id = ?", [str(ctx.guild.id)])
         await self.bot.db.execute("DELETE FROM mmj_message_logs WHERE guild_id = ?", [str(ctx.guild.id)])
+        await self.bot.db.execute("DELETE FROM mmj_enabled_guilds WHERE guild_id = ?", [str(ctx.guild.id)])
         await self.bot.db.commit()
         print(f"i forgot about {ctx.guild.name}")
 

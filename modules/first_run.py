@@ -63,6 +63,8 @@ def create_tables():
         c.execute("CREATE TABLE mmj_private_categories (category_id)")
         c.execute("CREATE TABLE mmj_private_guilds (guild_id)")
 
+        c.execute("CREATE TABLE mmj_enabled_guilds (guild_id)")
+
         c.execute("CREATE TABLE mmj_word_blacklist (word)")
         c.execute("CREATE TABLE mmj_responses (trigger, response, type, one_in)")
         c.execute("INSERT INTO mmj_word_blacklist VALUES (?)", ["@"])
