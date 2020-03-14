@@ -12,10 +12,11 @@ class CRPair(commands.Cog):
             lookup = await cursor.fetchall()
         if lookup:
             response_message = await message.channel.fetch_message(int(lookup[0][0]))
-            try:
-                await response_message.delete()
-            except:
-                pass
+            if response_message:
+                try:
+                    await response_message.delete()
+                except:
+                    pass
 
 
 def setup(bot):
