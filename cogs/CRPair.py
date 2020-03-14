@@ -8,7 +8,7 @@ class CRPair(commands.Cog):
     @commands.Cog.listener()
     async def on_message_delete(self, message):
         async with self.bot.db.execute("SELECT response_id FROM cr_pair WHERE command_id = ?",
-                                     [str(message.id)]) as cursor:
+                                       [str(message.id)]) as cursor:
             lookup = await cursor.fetchall()
         if lookup:
             response_message = await message.channel.fetch_message(int(lookup[0][0]))
