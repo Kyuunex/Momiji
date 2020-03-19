@@ -24,6 +24,36 @@ class Utilities(commands.Cog):
 
         await ctx.send(f"message `{message}` sent to {member.name}")
 
+    @commands.command(name="read_dm_reply", brief="What the member has sent the bot")
+    @commands.check(permissions.is_owner)
+    async def read_dm_reply(self, ctx, user_id, amount=20, dm=""):
+        member = wrappers.get_member_guaranteed(ctx, user_id)
+
+        if not member:
+            await ctx.send("no member found with that name")
+            return None
+
+        dm_channel = member.dm_channel
+
+        if not dm_channel:
+            await member.create_dm()
+            dm_channel = member.dm_channel
+
+        if not dm_channel:
+            await ctx.send("it seems like i can't access the dm channel")
+            return None
+
+        buffer = ""
+        async for message in dm_channel.history(limit=int(amount)):
+            buffer += f"{message.author.name}: {message.content}\n"
+
+        embed = discord.Embed(color=0xffffff)
+        embed.set_author(name=f"messages between me and {member.name}")
+        if dm:
+            await wrappers.send_large_embed(ctx.author, embed, buffer)
+        else:
+            await wrappers.send_large_embed(ctx.channel, embed, buffer)
+
     @commands.command(name="mass_nick", brief="Nickname every user", description="")
     @commands.check(permissions.is_admin)
     @commands.guild_only()
