@@ -8,13 +8,21 @@ class Utilities(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="ping", brief="Ping a role", description="")
+    @commands.command(name="message_member", brief="DM a member", description="")
     @commands.check(permissions.is_admin)
-    async def ping(self, ctx, *, role_name):
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
-        await role.edit(mentionable=True)
-        await ctx.send(role.mention)
-        await role.edit(mentionable=False)
+    async def message_member(self, ctx, user_id, *, message):
+        member = wrappers.get_member_guaranteed(ctx, user_id)
+
+        if not member:
+            await ctx.send("no member found with that name")
+            return None
+
+        try:
+            await member.send(content=message)
+        except Exception as e:
+            await ctx.send(e)
+
+        await ctx.send(f"message `{message}` sent to {member.name}")
 
     @commands.command(name="mass_nick", brief="Nickname every user", description="")
     @commands.check(permissions.is_admin)
