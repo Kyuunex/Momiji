@@ -51,6 +51,7 @@ class Utilities(commands.Cog):
         embed.set_author(name=f"messages between me and {member.name}")
         if dm:
             await wrappers.send_large_embed(ctx.author, embed, buffer)
+            await ctx.send("i sent you the results to you in dm")
         else:
             await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
