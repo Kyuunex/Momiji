@@ -17,11 +17,12 @@ class MomijiSpeak(commands.Cog):
                 if str(bridge[0]) == str(message.channel.id):
                     return None
 
-        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                       [str(message.guild.id)]) as cursor:
-            is_enabled_guild = await cursor.fetchall()
-        if not is_enabled_guild:
-            return None
+        if message.guild:
+            async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+                                           [str(message.guild.id)]) as cursor:
+                is_enabled_guild = await cursor.fetchall()
+            if not is_enabled_guild:
+                return None
 
         await self.main(message)
 
@@ -34,11 +35,12 @@ class MomijiSpeak(commands.Cog):
                 if str(bridge[0]) == str(message.channel.id):
                     return None
 
-        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                       [str(message.guild.id)]) as cursor:
-            is_enabled_guild = await cursor.fetchall()
-        if not is_enabled_guild:
-            return None
+        if message.guild:
+            async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+                                           [str(message.guild.id)]) as cursor:
+                is_enabled_guild = await cursor.fetchall()
+            if not is_enabled_guild:
+                return None
 
         await self.bot.db.execute("UPDATE mmj_message_logs SET deleted = ? WHERE message_id = ?",
                                   [str("1"), str(message.id)])
@@ -53,11 +55,12 @@ class MomijiSpeak(commands.Cog):
                 if str(bridge[0]) == str(after.channel.id):
                     return None
 
-        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                       [str(after.guild.id)]) as cursor:
-            is_enabled_guild = await cursor.fetchall()
-        if not is_enabled_guild:
-            return None
+        if after.guild:
+            async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+                                           [str(after.guild.id)]) as cursor:
+                is_enabled_guild = await cursor.fetchall()
+            if not is_enabled_guild:
+                return None
 
         if not await self.check_privacy(after):
             await self.bot.db.execute("UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
