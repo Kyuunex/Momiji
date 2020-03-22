@@ -10,8 +10,21 @@ class Utilities(commands.Cog):
 
     @commands.command(name="message_member", brief="DM a member", description="")
     @commands.check(permissions.is_admin)
-    async def message_member(self, ctx, user_id, *, message):
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+    async def message_member(self, ctx, user_id, guild_id, *, message):
+        guild = None
+
+        if ctx.guild:
+            guild = ctx.guild
+
+        if guild_id != "here":
+            if guild_id.isdigit():
+                guild = self.bot.get_guild(int(guild_id))
+
+        if not guild:
+            await ctx.send("no guild specified")
+            return None
+
+        member = wrappers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
 
         if not member:
             await ctx.send("no member found with that name")
@@ -26,8 +39,21 @@ class Utilities(commands.Cog):
 
     @commands.command(name="read_dm_reply", brief="What the member has sent the bot")
     @commands.check(permissions.is_owner)
-    async def read_dm_reply(self, ctx, user_id, amount=20, dm=""):
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+    async def read_dm_reply(self, ctx, user_id, guild_id="here", amount=20, dm=""):
+        guild = None
+
+        if ctx.guild:
+            guild = ctx.guild
+
+        if guild_id != "here":
+            if guild_id.isdigit():
+                guild = self.bot.get_guild(int(guild_id))
+
+        if not guild:
+            await ctx.send("no guild specified")
+            return None
+
+        member = wrappers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
 
         if not member:
             await ctx.send("no member found with that name")
