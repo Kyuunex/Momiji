@@ -6,7 +6,7 @@ from modules import cooldown
 from modules import permissions
 
 
-class Misc(commands.Cog):
+class Fun(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
@@ -59,4 +59,4 @@ class Misc(commands.Cog):
 
 
 def setup(bot):
-    bot.add_cog(Misc(bot))
+    bot.add_cog(Fun(bot))
