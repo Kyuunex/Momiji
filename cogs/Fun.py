@@ -2,6 +2,8 @@ from discord.ext import commands
 import random
 import pyminesweeper
 from modules import wrappers
+from modules import cooldown
+from modules import permissions
 
 
 class Misc(commands.Cog):
@@ -27,6 +29,11 @@ class Misc(commands.Cog):
 
     @commands.command(name="minesweeper", brief="Sends a randomly generated minesweeper game", description="")
     async def minesweeper(self, ctx, size=10):
+        if not await cooldown.check(str(ctx.channel.id), "last_minesweeper_time", 40):
+            if not await permissions.is_admin(ctx):
+                await ctx.send("slow down bruh")
+                return None
+
         if not 3 < int(size) < 20:
             await ctx.send("size must be between 3 and 20")
             return None
