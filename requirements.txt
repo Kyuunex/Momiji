@@ -4,3 +4,4 @@ psutil
 youtube_dl
 aiosqlite
 feedparser
+python-minesweeper
