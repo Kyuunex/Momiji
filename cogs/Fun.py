@@ -34,8 +34,8 @@ class Fun(commands.Cog):
                 await ctx.send("slow down bruh")
                 return None
 
-        if not 3 < int(size) < 20:
-            await ctx.send("size must be between 3 and 20")
+        if not 3 <= int(size) <= 19:
+            await ctx.send("size range is from 3 to 19")
             return None
 
         instance = pyminesweeper.MinesweeperMap(int(size))
