@@ -1,4 +1,5 @@
 from modules import permissions
+from modules import wrappers
 import discord
 from discord.ext import commands
 
@@ -33,14 +34,16 @@ class SelfAssignableRoles(commands.Cog):
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             all_roles = await cursor.fetchall()
-        output = "Self-assignable roles:\n"
+        buffer = ""
         for one_role_db in all_roles:
             role = discord.utils.get(ctx.guild.roles, id=int(one_role_db[0]))
             if role:
-                output += f"{role.name}\n"
+                buffer += f"{role.name}\n"
             else:
-                output += f"{one_role_db[0]}\n"
-        await ctx.send(output)
+                buffer += f"{one_role_db[0]}\n"
+        embed = discord.Embed(color=0xadff2f)
+        embed.set_author(name="Self-assignable roles:")
+        await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="join", brief="Assign a self-assignable role", description="")
     @commands.guild_only()
