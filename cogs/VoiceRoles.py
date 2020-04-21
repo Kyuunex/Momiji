@@ -60,7 +60,7 @@ class VoiceRoles(commands.Cog):
         if voice_roles:
             buffer = ""
             for voice_role in voice_roles:
-                buffer += f"{voice_role[0]} : {voice_role[1]}"
+                buffer += f"<#{voice_role[0]}> : {voice_role[0]} : {voice_role[1]}\n"
                 
             embed = discord.Embed(color=0xadff2f)
             embed.set_author(name="voice role records")
