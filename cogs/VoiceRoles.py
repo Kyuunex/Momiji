@@ -53,7 +53,7 @@ class VoiceRoles(commands.Cog):
     @commands.command(name="vr_list", brief="List Voice Roles in this guild", description="")
     @commands.check(permissions.is_admin)
     @commands.guild_only()
-    async def vr_remove(self, ctx):
+    async def vr_list(self, ctx):
         async with self.bot.db.execute("SELECT channel_id, role_id FROM voice_roles WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             voice_roles = await cursor.fetchall()
