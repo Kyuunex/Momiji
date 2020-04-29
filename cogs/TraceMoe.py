@@ -21,7 +21,7 @@ class TraceMoe(commands.Cog):
 
         if not await cooldown.check(str(ctx.author.id), "last_trace_time", 600):
             if not await permissions.is_admin(ctx):
-                await ctx.send("slow down bruh")
+                await ctx.send("one use per 10 minutes per user")
                 return None
 
         if not ctx.message.attachments:
