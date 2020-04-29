@@ -57,7 +57,8 @@ class TraceEmbeds:
                 url=f"https://anilist.co/anime/{result.anilist_id}",
                 color=0xAD6F49,
             )
-            embed.set_image(url=result.thumbnail_url)
+            if not result.is_adult:
+                embed.set_image(url=result.thumbnail_url)
             return embed
         else:
             return None
