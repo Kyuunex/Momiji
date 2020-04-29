@@ -43,6 +43,7 @@ initial_extensions = [
     "cogs.RSSFeed",
     "cogs.SelfAssignableRoles",
     "cogs.StatsBuilder", 
+    "cogs.TraceMoe",
     "cogs.Utilities",
     "cogs.VoiceLogging",
     "cogs.VoiceRoles", 
