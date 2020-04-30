@@ -41,7 +41,7 @@ class BotManagement(commands.Cog):
     @commands.command(name="ignore_user", brief="Blacklist a user from using the bot", description="")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
-    async def ignore_user(self, ctx, user_id, reason=""):
+    async def ignore_user(self, ctx, user_id, *, reason=""):
         await self.bot.db.execute("INSERT INTO ignored_users VALUES (?, ?)", [str(user_id), str(reason)])
         await self.bot.db.commit()
         await ctx.send(":ok_hand:")
