@@ -17,6 +17,7 @@ class Img(commands.Cog):
 
     @commands.command(name="art", brief="Post a random picture",
                       description="Upload a random picture from ./data/art/ folder")
+    @commands.check(permissions.is_not_ignored)
     async def art(self, ctx):
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
@@ -40,6 +41,7 @@ class Img(commands.Cog):
         await ctx.send(file=discord.File(self.art_dir + random_picture))
 
     @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life")
+    @commands.check(permissions.is_not_ignored)
     async def neko(self, ctx):
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
@@ -55,6 +57,7 @@ class Img(commands.Cog):
 
     @commands.command(name="gis", brief="Google image search",
                       description="Search for a phrase on Google images and post a random result")
+    @commands.check(permissions.is_not_ignored)
     async def gis(self, ctx, search_query):
         # This one's for you, UC-sama
 

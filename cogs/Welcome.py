@@ -10,6 +10,7 @@ class Welcome(commands.Cog):
 
     @commands.command(name="set_welcome_message", brief="", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def set_welcome_message(self, ctx, *, welcome_message):
         try:
@@ -23,6 +24,7 @@ class Welcome(commands.Cog):
 
     @commands.command(name="set_goodbye_message", brief="", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def set_goodbye_message(self, ctx, *, goodbye_message):
         try:

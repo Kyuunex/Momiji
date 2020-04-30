@@ -8,6 +8,7 @@ class MomijiCommands(commands.Cog):
 
     @commands.command(name="bridge", brief="Bridge the channel", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def bridge(self, ctx, bridge_type: str, value: str):
         if bridge_type == "channel":
             await self.bot.db.execute("INSERT INTO mmj_channel_bridges VALUES (?, ?)",
@@ -20,6 +21,7 @@ class MomijiCommands(commands.Cog):
 
     @commands.command(name="sayonara", brief="Leave the current guild and forget it", description="")
     @commands.check(permissions.is_owner)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def sayonara(self, ctx):
         await ctx.send("sayonara...")

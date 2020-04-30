@@ -3,6 +3,8 @@ import asyncio
 import discord
 import youtube_dl
 
+from modules import permissions
+
 from discord.ext import commands
 
 # Suppress noise about console usage from errors
@@ -69,18 +71,21 @@ class Music(commands.Cog):
     @commands.command(name="m_join", brief="Join a voice channel", description="")
     @commands.guild_only()
     @commands.check(is_dj)
+    @commands.check(permissions.is_not_ignored)
     async def m_join(self, ctx):
         pass
 
     @commands.command(name="m_leave", brief="Disconnect from a voice channel", description="")
     @commands.guild_only()
     @commands.check(is_dj)
+    @commands.check(permissions.is_not_ignored)
     async def m_leave(self, ctx):
         await ctx.voice_client.disconnect()
 
     @commands.command(name="m_play", brief="Plays from a url (almost anything youtube_dl supports)", description="")
     @commands.guild_only()
     @commands.check(is_dj)
+    @commands.check(permissions.is_not_ignored)
     async def m_play(self, ctx, *, url):
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop)
@@ -92,6 +97,7 @@ class Music(commands.Cog):
                       description="Same as m_play, but doesn't pre-download")
     @commands.guild_only()
     @commands.check(is_dj)
+    @commands.check(permissions.is_not_ignored)
     async def m_stream(self, ctx, *, url):
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
@@ -102,6 +108,7 @@ class Music(commands.Cog):
     @commands.command(name="m_stop", brief="Stop the music", description="")
     @commands.guild_only()
     @commands.check(is_dj)
+    @commands.check(permissions.is_not_ignored)
     async def m_stop(self, ctx):
         ctx.voice_client.stop()
 

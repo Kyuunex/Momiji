@@ -11,6 +11,7 @@ class ChannelExporting(commands.Cog):
 
     @commands.command(name="export_channel", brief="Export the channel", description="Exports the chat to json format")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def export_channel(self, ctx, channel_id=None, amount=999999999):
         async with ctx.channel.typing():
             if channel_id is None:

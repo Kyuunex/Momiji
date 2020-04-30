@@ -11,6 +11,7 @@ class Fun(commands.Cog):
         self.bot = bot
 
     @commands.command(name="roll", brief="A very complicated roll command", description="")
+    @commands.check(permissions.is_not_ignored)
     async def roll(self, ctx, maximum="100"):
         who = ctx.message.author.display_name.replace("@", "")
         try:
@@ -28,6 +29,7 @@ class Fun(commands.Cog):
         await ctx.send(f"**{who}** rolls **{random_number}** {point_str}")
 
     @commands.command(name="minesweeper", brief="Sends a randomly generated minesweeper game", description="")
+    @commands.check(permissions.is_not_ignored)
     async def minesweeper(self, ctx, size=10):
         if not await cooldown.check(str(ctx.channel.id), "last_minesweeper_time", 40):
             if not await permissions.is_admin(ctx):

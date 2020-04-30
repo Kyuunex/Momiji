@@ -14,6 +14,7 @@ class MessageStats(commands.Cog):
 
     @commands.command(name="user_stats", brief="Show user stats", description="", aliases=["userstats"])
     @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
     async def user_stats(self, ctx, *args):
         if not await cooldown.check(str(ctx.author.id), "last_stat_time", 40):
             if not await permissions.is_admin(ctx):
@@ -117,6 +118,7 @@ class MessageStats(commands.Cog):
 
     @commands.command(name="word_stats", brief="Word statistics", description="")
     @commands.check(permissions.is_owner)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def word_stats(self, ctx, *args):
         async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",

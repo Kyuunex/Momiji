@@ -28,6 +28,7 @@ class InspiroBot(commands.Cog):
     @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot", description="")
     @commands.guild_only()
     @commands.check(is_dj)
+    @commands.check(permissions.is_not_ignored)
     async def mindfulness(self, ctx):
         self.stop_queue[ctx.guild.id] = None
         session_id = await self.get_session()
@@ -56,6 +57,7 @@ class InspiroBot(commands.Cog):
     @commands.command(name="mindfulness_stop", brief="Stop the mindfulness mode", description="")
     @commands.guild_only()
     @commands.check(is_dj)
+    @commands.check(permissions.is_not_ignored)
     async def mindfulness_stop(self, ctx):
         self.stop_queue[ctx.guild.id] = True
         await ctx.voice_client.disconnect()
@@ -72,6 +74,7 @@ class InspiroBot(commands.Cog):
             ctx.voice_client.stop()
 
     @commands.command(name="inspire", brief="When you crave some inspiration in your life", description="")
+    @commands.check(permissions.is_not_ignored)
     async def inspire(self, ctx):
         if not await cooldown.check(str(ctx.author.id), "last_inspire_time", 40):
             if not await permissions.is_admin(ctx):

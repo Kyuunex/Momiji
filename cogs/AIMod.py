@@ -9,6 +9,7 @@ class AIMod(commands.Cog):
     @commands.command(name="aimod_add", brief="Ban a word",
                       description="The bot will delete a message containing this word")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def aimod_add(self, ctx, *, word):
         try:

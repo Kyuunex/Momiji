@@ -14,6 +14,7 @@ class TraceMoe(commands.Cog):
         self.api = TraceMoeApi()
 
     @commands.command(name="sauce", brief="What anime is this?", aliases=["what_anime"])
+    @commands.check(permissions.is_not_ignored)
     async def sauce(self, ctx):
         """
         Attach an image to the message containing the command to look it up

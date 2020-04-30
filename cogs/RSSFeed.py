@@ -20,6 +20,7 @@ class RSSFeed(commands.Cog):
 
     @commands.command(name="rss_add", brief="Subscribe to an RSS feed in the current channel", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def add(self, ctx, *, url):
         feed_entries = (feedparser.parse(await self.fetch(url)))["entries"]
         if not feed_entries:
@@ -54,6 +55,7 @@ class RSSFeed(commands.Cog):
 
     @commands.command(name="rss_remove", brief="Unsubscribe to an RSS feed in the current channel", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def remove(self, ctx, *, url):
         await self.bot.db.execute("DELETE FROM rssfeed_channels WHERE url = ? AND channel_id = ? ",
                                   [str(url), str(ctx.channel.id)])
@@ -62,6 +64,7 @@ class RSSFeed(commands.Cog):
 
     @commands.command(name="rss_list", brief="Show a list of all RSS feeds being tracked", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def tracklist(self, ctx, everywhere=None):
         async with await self.bot.db.execute("SELECT * FROM rssfeed_tracklist") as cursor:
             tracklist = await cursor.fetchall()

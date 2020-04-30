@@ -11,6 +11,7 @@ class VoiceRoles(commands.Cog):
 
     @commands.command(name="vr_add", brief="Voice role settings", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def vr_add(self, ctx, role_name):
         try:
@@ -31,6 +32,7 @@ class VoiceRoles(commands.Cog):
 
     @commands.command(name="vr_remove", brief="Voice role settings", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def vr_remove(self, ctx, role_name):
         try:
@@ -52,6 +54,7 @@ class VoiceRoles(commands.Cog):
 
     @commands.command(name="vr_list", brief="List Voice Roles in this guild", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def vr_list(self, ctx):
         async with self.bot.db.execute("SELECT channel_id, role_id FROM voice_roles WHERE guild_id = ?",

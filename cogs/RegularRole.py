@@ -14,6 +14,7 @@ class RegularRole(commands.Cog):
     @commands.command(name="regular_role_reassign", brief="Reassign the regular role", description="")
     @commands.guild_only()
     @commands.check(permissions.channel_manage_guild)
+    @commands.check(permissions.is_not_ignored)
     async def regular_role_reassign(self, ctx):
         # TODO: Make this more efficient, only apply changes, don't clear the role.
 
@@ -64,6 +65,7 @@ class RegularRole(commands.Cog):
 
     @commands.command(name="regular_role_add", brief="Manage the regular role", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def regular_role_add(self, ctx, role_name="Regular", threshold="10"):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
@@ -75,6 +77,7 @@ class RegularRole(commands.Cog):
 
     @commands.command(name="regular_role_remove", brief="Manage the regular role", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def regular_role_remove(self, ctx, role_name="Regular"):
         role = discord.utils.get(ctx.guild.roles, name=role_name)
@@ -86,6 +89,7 @@ class RegularRole(commands.Cog):
 
     @commands.command(name="regular_role_blacklist_add", brief="", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def regular_role_blacklist_add(self, ctx, user_id):
         member = wrappers.get_member_guaranteed(ctx, user_id)
@@ -99,6 +103,7 @@ class RegularRole(commands.Cog):
 
     @commands.command(name="regular_role_blacklist_remove", brief="", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def regular_role_blacklist_remove(self, ctx, user_id=None):
         if not user_id:

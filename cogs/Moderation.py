@@ -13,6 +13,7 @@ class Moderation(commands.Cog):
     @commands.command(name="purge", brief="Purge X amount of messages", description="")
     @commands.guild_only()
     @commands.check(permissions.channel_manage_messages)
+    @commands.check(permissions.is_not_ignored)
     async def purge(self, ctx, amount, author=None):
         # TODO: make this more usable
         if not (ctx.channel.permissions_for(ctx.message.author)).manage_messages:
@@ -45,6 +46,7 @@ class Moderation(commands.Cog):
     @commands.command(name="regex_purge", brief="Purge X amount of messages with regex checks", description="")
     @commands.guild_only()
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def regex_purge(self, ctx, amount, string):
         # TODO: this is just a placeholder
 
@@ -68,6 +70,7 @@ class Moderation(commands.Cog):
     @commands.command(name="mod_note", brief="", description="")
     @commands.guild_only()
     @commands.check(permissions.channel_ban_members)
+    @commands.check(permissions.is_not_ignored)
     async def mod_note(self, ctx, user_id, *, note):
         member = wrappers.get_member_guaranteed(ctx, user_id)
 
@@ -83,6 +86,7 @@ class Moderation(commands.Cog):
     @commands.command(name="mod_notes", brief="", description="")
     @commands.guild_only()
     @commands.check(permissions.channel_ban_members)
+    @commands.check(permissions.is_not_ignored)
     async def mod_notes(self, ctx, *, user_id=""):
         async with self.bot.db.execute("SELECT * FROM mod_notes WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
             all_mod_notes = await cursor.fetchall()

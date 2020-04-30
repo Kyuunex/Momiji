@@ -10,6 +10,7 @@ class Utilities(commands.Cog):
 
     @commands.command(name="message_member", brief="DM a member", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def message_member(self, ctx, user_id, guild_id, *, message):
         guild = None
 
@@ -39,6 +40,7 @@ class Utilities(commands.Cog):
 
     @commands.command(name="read_dm_reply", brief="What the member has sent the bot")
     @commands.check(permissions.is_owner)
+    @commands.check(permissions.is_not_ignored)
     async def read_dm_reply(self, ctx, user_id, guild_id="here", amount=20, dm=""):
         guild = None
 
@@ -83,6 +85,7 @@ class Utilities(commands.Cog):
 
     @commands.command(name="mass_nick", brief="Nickname every user", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def mass_nick(self, ctx, nickname=None):
         async with ctx.channel.typing():
@@ -96,6 +99,7 @@ class Utilities(commands.Cog):
 
     @commands.command(name="prune_role", brief="Remove this role from every member", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def prune_role(self, ctx, role_name):
         async with ctx.channel.typing():
@@ -106,6 +110,7 @@ class Utilities(commands.Cog):
 
     @commands.command(name="clean_member_roles", brief="Take all roles away from a member", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def clean_member_roles(self, ctx, user_id):
         member = wrappers.get_member_guaranteed(ctx, user_id)

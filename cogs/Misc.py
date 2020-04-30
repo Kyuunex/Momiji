@@ -1,5 +1,6 @@
 from discord.ext import commands
 import datetime
+from modules import permissions
 
 
 class Misc(commands.Cog):
@@ -7,6 +8,7 @@ class Misc(commands.Cog):
         self.bot = bot
 
     @commands.command(name="ss", brief="Generate a screenshare link", description="")
+    @commands.check(permissions.is_not_ignored)
     async def screenshare_link(self, ctx):
         try:
             channel = ctx.author.voice.channel
@@ -17,6 +19,7 @@ class Misc(commands.Cog):
                        f"<https://discordapp.com/channels/{ctx.guild.id}/{channel.id}/>")
 
     @commands.command(name="utc", brief="Return the current time in UTC", description="")
+    @commands.check(permissions.is_not_ignored)
     async def utc(self, ctx):
         await ctx.send(datetime.datetime.utcnow())
 

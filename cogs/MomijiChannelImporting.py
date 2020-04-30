@@ -10,6 +10,7 @@ class MomijiChannelImporting(commands.Cog):
 
     @commands.command(name="init", brief="Initialize in this guild", description="")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def init_server(self, ctx):
         for channel in ctx.guild.channels:
@@ -23,6 +24,7 @@ class MomijiChannelImporting(commands.Cog):
 
     @commands.command(name="import", brief="Import the chat", description="Imports stuff")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def import_messages(self, ctx, *channel_id_list):
         for channel_id in channel_id_list:
             if channel_id == "this":

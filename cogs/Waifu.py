@@ -1,5 +1,6 @@
 import discord
 from modules import wrappers
+from modules import permissions
 from discord.ext import commands
 
 
@@ -26,6 +27,7 @@ class Waifu(commands.Cog):
 
     @commands.command(name="claim_waifu", brief="Claim a server member as a waifu", description="")
     @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
     async def claim_waifu(self, ctx, *, user_id):
         member = wrappers.get_member_guaranteed(ctx, user_id)
         if not member:
@@ -64,6 +66,7 @@ class Waifu(commands.Cog):
 
     @commands.command(name="unclaim_waifu", brief="Unclaim a server member as a waifu", description="")
     @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
     async def unclaim_waifu(self, ctx, *, user_id):
         member = wrappers.get_member_guaranteed(ctx, user_id)
         if not member:
@@ -86,6 +89,7 @@ class Waifu(commands.Cog):
 
     @commands.command(name="show_my_waifu", brief="Show who is my waifu", description="")
     @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
     async def show_my_waifu(self, ctx):
         async with self.bot.db.execute("SELECT owner_id FROM waifu_claims WHERE waifu_id = ?",
                                        [str(ctx.author.id)]) as cursor:
@@ -110,6 +114,7 @@ class Waifu(commands.Cog):
 
     @commands.command(name="waifu_chart", brief="Waifu chart", description="")
     @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
     async def waifu_chart(self, ctx):
         contents = ":revolving_hearts: **Waifu Claim Records**\n\n"
         async with self.bot.db.execute("SELECT owner_id, waifu_id FROM waifu_claims") as cursor:

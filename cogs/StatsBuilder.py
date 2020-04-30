@@ -5,6 +5,8 @@ import time
 import os
 import psutil
 
+from modules import permissions
+
 script_start_time = time.time()
 
 
@@ -14,6 +16,7 @@ class StatsBuilder(commands.Cog):
 
     @commands.command(name="member", brief="Show some info about a user", description="")
     @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
     async def about_member(self, ctx, user_id=None):
         member = ctx.author
         if user_id:
@@ -42,6 +45,7 @@ class StatsBuilder(commands.Cog):
 
     @commands.command(name="guild", brief="About this guild", description="")
     @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
     async def about_guild(self, ctx):
         guild = ctx.guild
         body = f"name: {guild.name}\n"
@@ -59,6 +63,7 @@ class StatsBuilder(commands.Cog):
         await ctx.send(embed=embed)
 
     @commands.command(name="about", brief="About this bot", description="")
+    @commands.check(permissions.is_not_ignored)
     async def about_bot(self, ctx):
         app_info = await self.bot.application_info()
         process = psutil.Process(os.getpid())
