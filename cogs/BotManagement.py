@@ -31,9 +31,13 @@ class BotManagement(commands.Cog):
         async with self.bot.db.execute("SELECT * FROM ignored_users") as cursor:
             db_ignored_users = await cursor.fetchall()
 
-        buffer = ":hammer: **Users who are blacklisted from using the bot.**\n\n"
+        buffer = ":no_entry_sign: **Users who are blacklisted from using the bot.**\n\n"
         for one_ignored_user in db_ignored_users:
-            buffer += f"<@{one_ignored_user[0]}> | reason: {one_ignored_user[1]}\n"
+            buffer += f"<@{one_ignored_user[0]}> | reason:\n"
+            buffer += "```\n"
+            buffer += f"{one_ignored_user[1]}\n"
+            buffer += "```\n"
+            buffer += "\n"
         embed = discord.Embed(color=0xf76a8c)
         embed.set_footer(text="If a BN has rights to deny service to an individual, so do I.")
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
