@@ -13,8 +13,12 @@ class Wasteland(commands.Cog):
         for wasteland_channel in wasteland_channels:
             if str(wasteland_channel[0]) == str(guild.id):
                 channel = self.bot.get_channel(int(wasteland_channel[1]))
-                about_this_ban = await guild.fetch_ban(member)
-                await channel.send(embed=await WastelandEmbeds.member_ban(member, about_this_ban.reason))
+                try:
+                    about_this_ban = await guild.fetch_ban(member)
+                    ban_reason_string = about_this_ban.reason
+                except:
+                    ban_reason_string = "i have no permissions to fetch the ban reason"
+                await channel.send(embed=await WastelandEmbeds.member_ban(member, ban_reason_string))
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
