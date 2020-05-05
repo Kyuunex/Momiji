@@ -76,3 +76,7 @@ def get_member_guaranteed_custom_guild(ctx, guild, lookup):
         if member.display_name.lower() == lookup.lower():
             return member
     return None
+
+
+def make_message_link(message):
+    return f"https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id}"
