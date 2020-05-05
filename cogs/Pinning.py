@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import datetime
+from modules import wrappers
 
 
 class Pinning(commands.Cog):
@@ -59,10 +60,11 @@ class Pinning(commands.Cog):
             return None
 
         if message.embeds:
-            return message.embeds[0]
+            embed = message.embeds[0]
+            embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(message)})")
+            return embed
 
         description = message.content
-        description += f"\n\n[(context)](https://discordapp.com/channels/{message.guild.id}/{message.channel.id}/{message.id})"
         embed = discord.Embed(
             description=description,
             color=0xFFFFFF
@@ -76,6 +78,7 @@ class Pinning(commands.Cog):
             name=message.author.display_name,
             icon_url=message.author.avatar_url
         )
+        embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(message)})")
         return embed
 
 
