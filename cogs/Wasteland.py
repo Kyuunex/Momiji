@@ -116,10 +116,10 @@ class Wasteland(commands.Cog):
                         text = f"**Removed**:\n{role.name}"
 
                     async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE role_id = ?",
-                                                 [str(role.id)]) as cursor:
+                                                   [str(role.id)]) as cursor:
                         voice_role = await cursor.fetchall()
                     async with self.bot.db.execute("SELECT role_id FROM regular_roles WHERE role_id = ?",
-                                                 [str(role.id)]) as cursor:
+                                                   [str(role.id)]) as cursor:
                         regulars_role = await cursor.fetchall()
                     if (not voice_role) and (not regulars_role):
                         channel = self.bot.get_channel(int(wasteland_channel[1]))
