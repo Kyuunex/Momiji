@@ -1,5 +1,6 @@
 from discord.ext import commands
 import discord
+from modules import wrappers
 
 
 class Wasteland(commands.Cog):
@@ -102,22 +103,19 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        # TODO: make this more efficient
         async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
             wasteland_channels = await cursor.fetchall()
 
         if before.roles != after.roles:
             for wasteland_channel in wasteland_channels:
                 if str(wasteland_channel[0]) == str(after.guild.id):
-                    added = await self.compare_lists(before.roles, after.roles, reverse=True)
-                    removed = await self.compare_lists(before.roles, after.roles, reverse=False)
+                    added = await self.compare_roles(after.roles, before.roles)
+                    removed = await self.compare_roles(before.roles, after.roles)
 
                     if added:
                         role = added[0]
-                        text = f"**Added**:\n{role.name}"
-                    elif removed:
+                    else:
                         role = removed[0]
-                        text = f"**Removed**:\n{role.name}"
 
                     async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE role_id = ?",
                                                    [str(role.id)]) as cursor:
@@ -127,7 +125,10 @@ class Wasteland(commands.Cog):
                         regulars_role = await cursor.fetchall()
                     if (not voice_role) and (not regulars_role):
                         channel = self.bot.get_channel(int(wasteland_channel[1]))
-                        await channel.send(embed=await WastelandEmbeds.role_change(after, text))
+                        if added:
+                            await channel.send(embed=await WastelandEmbeds.role_add(after, role))
+                        else:
+                            await channel.send(embed=await WastelandEmbeds.role_remove(after, role))
 
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
@@ -142,17 +143,11 @@ class Wasteland(commands.Cog):
                         channel = self.bot.get_channel(int(wasteland_channel[1]))
                         await channel.send(embed=await WastelandEmbeds.on_user_update(before, after))
 
-    async def compare_lists(self, list1, list2, reverse=False):
+    async def compare_roles(self, list1, list2):
         difference = []
-        if reverse:
-            compare_list1 = list2
-            compare_list2 = list1
-        else:
-            compare_list1 = list1
-            compare_list2 = list2
-        for i in compare_list1:
-            if not i in compare_list2:
-                difference.append(i)
+        for role in list1:
+            if not role in list2:
+                difference.append(role)
         return difference
 
 
@@ -160,18 +155,21 @@ class WastelandEmbeds:
     @staticmethod
     async def message_delete(message):
         if message:
-            member = message.author
             embed = discord.Embed(
                 description=message.content,
                 color=0xAD6F49
             )
             embed.set_author(
-                name=f"{member.name}#{member.discriminator} | {member.display_name} | {member.id}",
-                icon_url=member.avatar_url
+                name=message.author.display_name,
+                icon_url=message.author.avatar_url
             )
             embed.set_footer(
-                text=f"Message deleted in #{message.channel.name}"
+                text="message deleted"
             )
+            embed.add_field(name="channel", value=message.channel.mention)
+            embed.add_field(name="member", value=message.author.mention)
+            embed.add_field(name="user_id", value=message.author.id)
+            embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(message)})")
             return embed
         else:
             return None
@@ -179,18 +177,26 @@ class WastelandEmbeds:
     @staticmethod
     async def message_edit(before, after):
         if before:
-            member = before.author
+            contents = f"**Before**:\n"
+            contents += before.content
+            contents += f"\n\n"
+            contents += f"**After:**\n"
+            contents += after.content
             embed = discord.Embed(
-                description=f"**Before**:\n{before.content}\n\n**After:**\n{after.content}",
+                description=contents,
                 color=0x9ACDA5
             )
             embed.set_author(
-                name=f"{member.name}#{member.discriminator} | {member.display_name} | {member.id}",
-                icon_url=member.avatar_url
+                name=before.author.display_name,
+                icon_url=before.author.avatar_url
             )
             embed.set_footer(
-                text=f"Message edited in #{before.channel.name}"
+                text="message edited"
             )
+            embed.add_field(name="channel", value=before.channel.mention)
+            embed.add_field(name="member", value=before.author.mention)
+            embed.add_field(name="user_id", value=before.author.id)
+            embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(before)})")
             return embed
         else:
             return None
@@ -199,16 +205,17 @@ class WastelandEmbeds:
     async def member_join(member):
         if member:
             embed = discord.Embed(
-                description=f"{member.mention}\n{member.id}",
                 color=0x299880
             )
             embed.set_author(
                 name=f"{member.name}#{member.discriminator}"
             )
             embed.set_footer(
-                text="User joined"
+                text="user joined"
             )
             embed.set_thumbnail(url=member.avatar_url)
+            embed.add_field(name="member", value=member.mention)
+            embed.add_field(name="user_id", value=member.id)
             return embed
         else:
             return None
@@ -217,16 +224,17 @@ class WastelandEmbeds:
     async def member_remove(member):
         if member:
             embed = discord.Embed(
-                description=f"{member.mention}\n{member.id}",
                 color=0x523104
             )
             embed.set_author(
                 name=f"{member.name}#{member.discriminator}"
             )
             embed.set_footer(
-                text="User left or got kicked"
+                text="user left or got kicked"
             )
             embed.set_thumbnail(url=member.avatar_url)
+            embed.add_field(name="member", value=member.mention)
+            embed.add_field(name="user_id", value=member.id)
             return embed
         else:
             return None
@@ -234,20 +242,19 @@ class WastelandEmbeds:
     @staticmethod
     async def member_ban(member, reason):
         if member:
-            text = f"{member.mention}"
-            text += f"\n{member.id}"
-            text += f"\n\n{reason}"
             embed = discord.Embed(
-                description=text,
+                description=reason,
                 color=0x800000
             )
             embed.set_author(
                 name=f"{member.name}#{member.discriminator}"
             )
             embed.set_footer(
-                text="Member banned"
+                text="user banned"
             )
             embed.set_thumbnail(url=member.avatar_url)
+            embed.add_field(name="member", value=member.mention)
+            embed.add_field(name="user_id", value=member.id)
             return embed
         else:
             return None
@@ -256,34 +263,51 @@ class WastelandEmbeds:
     async def member_unban(member):
         if member:
             embed = discord.Embed(
-                description=f"{member.mention}\n{member.id}",
                 color=0x00ff00
             )
             embed.set_author(
                 name=f"{member.name}#{member.discriminator}"
             )
             embed.set_footer(
-                text="Member unbanned"
+                text="user unbanned"
             )
             embed.set_thumbnail(url=member.avatar_url)
+            embed.add_field(name="member", value=member.mention)
+            embed.add_field(name="user_id", value=member.id)
             return embed
         else:
             return None
 
     @staticmethod
-    async def role_change(member, desc):
+    async def role_add(member, role):
         if member:
             embed = discord.Embed(
-                description=desc,
-                color=0xAABBBB
-            )
-            embed.set_author(
-                name=f"{member.name}#{member.discriminator} | {member.display_name} | {member.id}",
-                icon_url=member.avatar_url
+                color=0x57b3ff
             )
             embed.set_footer(
-                text="Role Changes"
+                text="role changes"
             )
+            embed.set_thumbnail(url=member.avatar_url)
+            embed.add_field(name="member", value=member.mention)
+            embed.add_field(name="user_id", value=member.id)
+            embed.add_field(name="role added", value=role.name, inline=False)
+            return embed
+        else:
+            return None
+
+    @staticmethod
+    async def role_remove(member, role):
+        if member:
+            embed = discord.Embed(
+                color=0x546a7d
+            )
+            embed.set_footer(
+                text="role changes"
+            )
+            embed.set_thumbnail(url=member.avatar_url)
+            embed.add_field(name="member", value=member.mention)
+            embed.add_field(name="user_id", value=member.id)
+            embed.add_field(name="role removed", value=role.name, inline=False)
             return embed
         else:
             return None
@@ -292,16 +316,16 @@ class WastelandEmbeds:
     async def on_user_update(before, after):
         if after:
             embed = discord.Embed(
-                description=f"**Old Username**:\n{before.name}#{before.discriminator}",
                 color=0xAACCEE
             )
-            embed.set_author(
-                name=f"{after.name}#{after.discriminator} | {after.id}",
-                icon_url=after.avatar_url
-            )
             embed.set_footer(
-                text="Username Change"
+                text="username change"
             )
+            embed.set_thumbnail(url=before.avatar_url)
+            embed.add_field(name="member", value=after.mention)
+            embed.add_field(name="user_id", value=after.id)
+            embed.add_field(name="old username", value=f"{before.name}#{before.discriminator}")
+            embed.add_field(name="new username", value=f"{after.name}#{after.discriminator}")
             return embed
         else:
             return None
