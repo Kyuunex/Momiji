@@ -20,7 +20,7 @@ I am sorry, but this happens when you want to add new features and accounting fo
 2. Clone this repository using this command `git clone https://github.com/Kyuunex/Momiji.git`
 3. Install requirements using this command `python3 -m pip install -r requirements.txt`.
 4. Create a folder named `data`, then create `token.txt` inside it. Then put your bot token in it. 
-5. To start the bot, run `momiji.bat` if you are on windows or `momiji.sh` if you are on linux. Alternatively, you can manually run `momiji.py` file but I recommend using the included launchers because it starts the bot in a loop which is required by the `;restart` and `;update` commands.
+5. To start the bot, run `momiji.py`. I recommend installing the bot as a `systemd` service though.
 
 ---
 
