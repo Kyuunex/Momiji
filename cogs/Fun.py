@@ -1,5 +1,6 @@
 from discord.ext import commands
 import random
+import discord
 import pyminesweeper
 from modules import wrappers
 from modules import cooldown
@@ -58,6 +59,33 @@ class Fun(commands.Cog):
         output = f"{int(size)} x {int(size)} Minesweeper with {instance.num_mines} mines\n\n{board_str}"
 
         await wrappers.send_large_text(ctx.channel, output)
+
+    @commands.command(name="choose", brief="", description="")
+    @commands.check(permissions.is_not_ignored)
+    async def choose(self, ctx, *, choices_str):
+        async with ctx.channel.typing():
+            if " or " in choices_str:
+                choices = choices_str.split(" or ")
+            elif ", " in choices_str:
+                choices = choices_str.split(", ")
+            else:
+                await ctx.send(f"gimme more than one choice pls")
+                return None
+
+            random_choice = random.randint(0, len(choices) - 1)
+
+            how_sure_list = [
+                "definitely",
+                "probably",
+                "most likely",
+                "i prefer",
+                "i choose"
+            ]
+            random_sureness = random.randint(0, len(how_sure_list) - 1)
+
+            embed = discord.Embed(color=0xff6781)
+            contents = f"{how_sure_list[random_sureness]} {choices[random_choice]}"
+        await wrappers.send_large_embed(ctx.channel, embed, contents)
 
 
 def setup(bot):
