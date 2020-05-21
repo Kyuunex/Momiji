@@ -86,7 +86,7 @@ class Fun(commands.Cog):
             contents = f"{how_sure_list[random_sureness]} {choices[random_choice]}"
             embed = discord.Embed(description=contents, color=0xff6781)
 
-        response_msg = await ctx.send(contents=ctx.author.mention, embed=embed)
+        response_msg = await ctx.send(content=ctx.author.mention, embed=embed)
         await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)", [str(ctx.message.id), str(response_msg.id)])
         await self.bot.db.commit()
 
