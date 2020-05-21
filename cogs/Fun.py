@@ -83,9 +83,12 @@ class Fun(commands.Cog):
             ]
             random_sureness = random.randint(0, len(how_sure_list) - 1)
 
-            embed = discord.Embed(color=0xff6781)
             contents = f"{how_sure_list[random_sureness]} {choices[random_choice]}"
-        await wrappers.send_large_embed(ctx.channel, embed, contents)
+            embed = discord.Embed(description=contents, color=0xff6781)
+
+        response_msg = await ctx.send(contents=ctx.author.mention, embed=embed)
+        await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)", [str(ctx.message.id), str(response_msg.id)])
+        await self.bot.db.commit()
 
 
 def setup(bot):
