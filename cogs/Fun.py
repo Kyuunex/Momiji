@@ -72,8 +72,6 @@ class Fun(commands.Cog):
                 await ctx.send(f"gimme more than one choice pls")
                 return None
 
-            random_choice = random.randint(0, len(choices) - 1)
-
             how_sure_list = [
                 "definitely",
                 "probably",
@@ -81,9 +79,8 @@ class Fun(commands.Cog):
                 "i prefer",
                 "i choose"
             ]
-            random_sureness = random.randint(0, len(how_sure_list) - 1)
 
-            contents = f"{how_sure_list[random_sureness]} {choices[random_choice]}"
+            contents = f"{random.choice(how_sure_list)} {random.choice(choices)}"
             embed = discord.Embed(description=contents, color=0xff6781)
 
         response_msg = await ctx.send(content=ctx.author.mention, embed=embed)
