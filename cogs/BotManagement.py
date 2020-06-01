@@ -132,7 +132,7 @@ class BotManagement(commands.Cog):
     @commands.guild_only()
     async def db_dump(self, ctx):
         async with self.bot.db.execute("SELECT * FROM config WHERE setting = ? and value = ?",
-                                     ["db_dump_channel", str(ctx.channel.id)]) as cursor:
+                                       ["db_dump_channel", str(ctx.channel.id)]) as cursor:
             db_dump_channel = await cursor.fetchall()
         if db_dump_channel:
             await ctx.send(file=discord.File(database_file))
