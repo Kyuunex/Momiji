@@ -23,15 +23,25 @@ class BotManagement(commands.Cog):
         await self.bot.db.commit()
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="ignored_users", brief="If you only see this command, you are blacklisted")
+    @commands.command(name="ignored_users", brief="List of users who are blacklisted from using this bot")
     async def ignored_users(self, ctx):
         """
+        This command prints out a list of users
+        who have been explicitly blacklisted from using this bot by the bot owner.
         If this is the only command you see, you are blacklisted from using the bot.
         """
         async with self.bot.db.execute("SELECT * FROM ignored_users") as cursor:
             db_ignored_users = await cursor.fetchall()
 
+        async with self.bot.db.execute("SELECT value FROM config WHERE setting = ?",
+                                       ["ignored_users_description"]) as cursor:
+            ignored_users_description = await cursor.fetchone()
+
         buffer = ":no_entry_sign: **Users who are blacklisted from using the bot.**\n\n"
+
+        if ignored_users_description:
+            buffer += f"{ignored_users_description[0]}\n\n"
+
         for one_ignored_user in db_ignored_users:
             buffer += f"<@{one_ignored_user[0]}> | reason:\n"
             buffer += "```\n"
@@ -39,7 +49,6 @@ class BotManagement(commands.Cog):
             buffer += "```\n"
             buffer += "\n"
         embed = discord.Embed(color=0xf76a8c)
-        embed.set_footer(text="If a BN has rights to deny service to an individual, so do I.")
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="ignore_user", brief="Blacklist a user from using the bot", description="")
