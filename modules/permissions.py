@@ -37,6 +37,10 @@ async def is_not_ignored(ctx):
     return not (str(ctx.author.id) in ignored_users)
 
 
+async def is_ignored(ctx):
+    return str(ctx.author.id) in ignored_users
+
+
 def get_admin_list():
     contents = ""
     for user_id in admin_list:
