@@ -216,15 +216,16 @@ class MomijiSpeak(commands.Cog):
                         condition = one_response[2]  # type startswith, is, in
                         one_in = int(one_response[3])  # chances
 
-                        if self.condition_validate(condition, msg, trigger):
-                            if random.randint(1, one_in) == 1:
-                                if len(response) > 0:
-                                    response_msg = await message.channel.send(response)
-                                    await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)",
-                                                              [str(message.id), str(response_msg.id)])
-                                    await self.bot.db.commit()
-                                else:
-                                    await self.momiji_speak(message)
+            if self.condition_validate(condition, msg, trigger):
+                if random.randint(1, one_in) == 1:
+                    if len(response) > 0:
+                        response_msg = await message.channel.send(response)
+                        await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)",
+                                                  [str(message.id), str(response_msg.id)])
+                        await self.bot.db.commit()
+                    else:
+                        await self.momiji_speak(message)
+                    return None
 
     def condition_validate(self, condition, msg, trigger):
         if condition == "1":
