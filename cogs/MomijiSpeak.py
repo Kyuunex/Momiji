@@ -227,11 +227,11 @@ class MomijiSpeak(commands.Cog):
                                     await self.momiji_speak(message)
 
     def condition_validate(self, condition, msg, trigger):
-        if condition == "startswith":
+        if condition == "1":
             return msg.startswith(trigger)
-        elif condition == "is":
+        elif condition == "2":
             return msg == trigger
-        elif condition == "in":
+        elif condition == "3":
             return trigger in msg
 
 
