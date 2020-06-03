@@ -2,6 +2,7 @@ import random
 import discord
 from discord.ext import commands
 import time
+from modules import permissions
 
 
 class MomijiSpeak(commands.Cog):
@@ -188,6 +189,11 @@ class MomijiSpeak(commands.Cog):
         await self.bot.db.commit()
 
     async def main(self, message):
+        await self.store_message(message)
+
+        if not await permissions.is_not_ignored(message):
+            return None
+        
         if not message.author.bot:
             msg = message.content.lower()
             if "@everyone" in msg:
@@ -219,7 +225,6 @@ class MomijiSpeak(commands.Cog):
                                     await self.bot.db.commit()
                                 else:
                                     await self.momiji_speak(message)
-        await self.store_message(message)
 
     def condition_validate(self, condition, msg, trigger):
         if condition == "startswith":
