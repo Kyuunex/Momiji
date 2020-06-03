@@ -191,30 +191,32 @@ class MomijiSpeak(commands.Cog):
     async def main(self, message):
         await self.store_message(message)
 
-        if not await permissions.is_not_ignored(message):
+        if await permissions.is_ignored(message):
             return None
-        
-        if not message.author.bot:
-            msg = message.content.lower()
-            if "@everyone" in msg:
-                await message.channel.send(file=discord.File("res/pinged.gif"))
-            else:
-                if "momiji" in msg or self.bot.user.mention in message.content:
-                    await self.momiji_speak(message)
-                else:
-                    # await self.join_spam_train(message)
 
-                    if message.content.isupper() and len(message.content) > 2 and random.randint(0, 20) == 1:
-                        await self.momiji_speak(message)
+        if message.author.bot:
+            return None
 
-                    async with self.bot.db.execute("SELECT * FROM mmj_responses") as cursor:
-                        momiji_responses = await cursor.fetchall()
+        msg = message.content.lower()
 
-                    for one_response in momiji_responses:
-                        trigger = one_response[0]
-                        response = one_response[1]
-                        condition = one_response[2]  # type startswith, is, in
-                        one_in = int(one_response[3])  # chances
+        if "@everyone" in msg:
+            await message.channel.send(file=discord.File("res/pinged.gif"))
+            return None
+
+        if "momiji" in msg or self.bot.user.mention in message.content:
+            await self.momiji_speak(message)
+            return
+
+        # await self.join_spam_train(message)
+
+        if message.content.isupper() and len(message.content) > 2 and random.randint(0, 20) == 1:
+            await self.momiji_speak(message)
+
+        async with self.bot.db.execute("SELECT * FROM mmj_responses") as cursor:
+            momiji_responses = await cursor.fetchall()
+
+        for trigger, response, condition, chances in momiji_responses:
+            one_in = int(chances)
 
             if self.condition_validate(condition, msg, trigger):
                 if random.randint(1, one_in) == 1:
