@@ -80,26 +80,31 @@ class BotManagement(commands.Cog):
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def sql(self, ctx, *, query):
-        if len(query) > 0:
-            try:
-                async with await self.bot.db.execute(query) as cursor:
-                    response = await cursor.fetchall()
-                await self.bot.db.commit()
-                if not response:
-                    embed = discord.Embed(description="query executed successfully", color=0xadff2f)
-                    await ctx.send(embed=embed)
-                else:
-                    buffer = ""
-                    for entry in response:
-                        buffer += f"{str(entry)}\n"
+        try:
+            async with await self.bot.db.execute(query) as cursor:
+                response = await cursor.fetchall()
 
-                    embed = discord.Embed(color=0xadff2f)
-                    embed.set_author(name="query results")
-                    await wrappers.send_large_embed(ctx.channel, embed, buffer)
-            except Exception as e:
-                embed = discord.Embed(description=e, color=0xbd3661)
-                embed.set_author(name="error occurred while executing the query")
+            await self.bot.db.commit()
+
+            if not response:
+                embed = discord.Embed(description="query executed successfully", color=0xadff2f)
                 await ctx.send(embed=embed)
+                return
+
+            buffer = ""
+            for entry in response:
+                buffer += f"{str(entry)}\n"
+
+            embed = discord.Embed(color=0xadff2f)
+            embed.set_author(name="query results")
+
+            await wrappers.send_large_embed(ctx.channel, embed, buffer)
+
+        except Exception as e:
+            embed = discord.Embed(description=e, color=0xbd3661)
+            embed.set_author(name="error occurred while executing the query")
+
+            await ctx.send(embed=embed)
 
     @commands.command(name="leave_guild", brief="Leave the current guild", description="")
     @commands.check(permissions.is_owner)
