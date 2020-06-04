@@ -28,6 +28,19 @@ class AIMod(commands.Cog):
 
         await ctx.send(":ok_hand:", delete_after=3)
 
+    @commands.command(name="aimod_remove", brief="Unban a word")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def aimod_remove(self, ctx, *, word):
+        """
+        Un-blacklist a previously blacklisted string.
+        """
+
+        await self.bot.db.execute("DELETE FROM aimod_blacklist WHERE word = ?", [str(word).lower().strip()])
+        await self.bot.db.commit()
+
+        await ctx.send(":ok_hand:")
+
     async def content_filter(self, message):
         async with await self.bot.db.execute("SELECT word FROM aimod_blacklist") as cursor:
             aimod_blacklist = await cursor.fetchall()
