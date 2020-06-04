@@ -1,4 +1,3 @@
-import discord
 from modules.connections import database_file as database_file
 import sqlite3
 
@@ -39,13 +38,6 @@ async def is_not_ignored(ctx):
 
 async def is_ignored(ctx):
     return str(ctx.author.id) in ignored_users
-
-
-def get_admin_list():
-    contents = ""
-    for user_id in admin_list:
-        contents += f"<@{user_id}>\n"
-    return discord.Embed(title="Bot admin list", description=contents, color=0xffffff)
 
 
 def check_admin(user_id):
