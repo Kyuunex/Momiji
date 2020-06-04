@@ -9,7 +9,6 @@ class AIMod(commands.Cog):
     @commands.command(name="aimod_add", brief="Ban a word")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
-    @commands.guild_only()
     async def aimod_add(self, ctx, *, word):
         """
         This command will add a passed string into a blacklist.
