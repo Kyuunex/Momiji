@@ -199,7 +199,7 @@ class BotManagement(commands.Cog):
     async def set_activity(self, ctx, *, string):
         """
         Set "Playing" activity.
-        :param string: Playing what does here.
+        :param string: Playing what goes here.
         """
 
         activity = discord.Game(string)
