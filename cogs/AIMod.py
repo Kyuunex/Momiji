@@ -3,6 +3,10 @@ from discord.ext import commands
 
 
 class AIMod(commands.Cog):
+    """
+    This module is about automatic message moderation.
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
