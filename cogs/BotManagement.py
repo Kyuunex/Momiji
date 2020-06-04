@@ -7,20 +7,46 @@ from modules.connections import database_file as database_file
 
 
 class BotManagement(commands.Cog):
+    """
+    This module contains commands that relate to bot management.
+    """
+
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="admin_list", brief="Show bot admin list", description="")
+    @commands.command(name="admin_list", brief="Show bot admin list")
     @commands.check(permissions.is_not_ignored)
     async def admin_list(self, ctx):
-        await ctx.send(embed=permissions.get_admin_list())
+        """
+        Sends a message containing a list of users who this bot will accept administrative commands from.
+        """
 
-    @commands.command(name="make_admin", brief="Add a user to bot admin list", description="")
+        buffer = ""
+        for user_id in permissions.admin_list:
+            buffer += f"<@{user_id}>\n"
+
+        embed = discord.Embed(title="Bot admin list", color=0xf76a8c)
+
+        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+
+    @commands.command(name="make_admin", brief="Add a user to a bot admin list")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
-    async def make_admin(self, ctx, user_id: str, perms=str("0")):
+    async def make_admin(self, ctx, user_id: str, perms="0"):
+        """
+        Adds a user to a list of users the bot will treat as admins.
+        This will apply after a restart.
+        :param user_id: This must be an ID of a discord account.
+        :param perms: This must be either 0 or 1. 1 gives owner perms. 0 gives admin perms.
+        """
+
+        if not user_id.isdigit():
+            await ctx.send("user_id must be user's id, which is all numbers.")
+            return
+
         await self.bot.db.execute("INSERT INTO admins VALUES (?, ?)", [str(user_id), str(perms)])
         await self.bot.db.commit()
+
         await ctx.send(":ok_hand:")
 
     @commands.command(name="ignored_users", brief="List of users who are blacklisted from using this bot")
@@ -30,6 +56,7 @@ class BotManagement(commands.Cog):
         who have been explicitly blacklisted from using this bot by the bot owner.
         If this is the only command you see, you are blacklisted from using the bot.
         """
+
         async with self.bot.db.execute("SELECT * FROM ignored_users") as cursor:
             db_ignored_users = await cursor.fetchall()
 
@@ -48,38 +75,71 @@ class BotManagement(commands.Cog):
             buffer += f"{one_ignored_user[1]}\n"
             buffer += "```\n"
             buffer += "\n"
+
         embed = discord.Embed(color=0xf76a8c)
+
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
-    @commands.command(name="ignore_user", brief="Blacklist a user from using the bot", description="")
+    @commands.command(name="ignore_user", brief="Blacklist a user from using the bot")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def ignore_user(self, ctx, user_id, *, reason=""):
+        """
+        Add a user to a list of users the bot will ignore commands from.
+        This will apply after a restart.
+        :param user_id: This must be an ID of a discord account.
+        :param reason: Optional parameter, meant to be a reason why the user was blacklisted.
+        """
+
+        if not user_id.isdigit():
+            await ctx.send("user_id must be user's id, which is all numbers.")
+            return
+
         await self.bot.db.execute("INSERT INTO ignored_users VALUES (?, ?)", [str(user_id), str(reason)])
         await self.bot.db.commit()
+
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="restart", brief="Restart the bot", description="")
+    @commands.command(name="restart", brief="Restart the bot")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def restart(self, ctx):
+        """
+        Restart the bot.
+        This relies on the bot running in a loop.
+        """
+
         await ctx.send("Restarting")
+
         await self.bot.close()
         quit()
 
-    @commands.command(name="update", brief="Update the bot", description="it just does git pull")
+    @commands.command(name="update", brief="Update the bot")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def update(self, ctx):
+        """
+        Update the bot.
+        This relies on the bot being installed by cloning the repository
+        and uses "git pull" command to achieve this functionality.
+        This also relies on the bot running in a loop.
+        """
+
         await ctx.send("Updating.")
+
         os.system("git pull")
         await self.bot.close()
         quit()
 
-    @commands.command(name="sql", brief="Execute an SQL query", description="")
+    @commands.command(name="sql", brief="Execute an SQL query")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def sql(self, ctx, *, query):
+        """
+        This executes the passed string as an SQL command.
+        :param query: an SQL command.
+        """
+
         try:
             async with await self.bot.db.execute(query) as cursor:
                 response = await cursor.fetchall()
@@ -106,50 +166,85 @@ class BotManagement(commands.Cog):
 
             await ctx.send(embed=embed)
 
-    @commands.command(name="leave_guild", brief="Leave the current guild", description="")
+    @commands.command(name="leave_guild", brief="Leave the current guild")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def leave_guild(self, ctx):
+        """
+        This command makes the bot leave the guild that the command is being called from.
+        """
+
         await ctx.guild.leave()
 
-    @commands.command(name="echo", brief="Echo a string", description="")
+    @commands.command(name="echo", brief="Echo a string")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def echo(self, ctx, *, string):
+        """
+        Echos back a string that has been passed.
+        Deletes the message that calls the command.
+        """
+
         try:
             await ctx.message.delete()
         except:
             pass
+
         await ctx.send(string)
 
-    @commands.command(name="set_activity", brief="Set an activity", description="")
+    @commands.command(name="set_activity", brief="Set an activity")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def set_activity(self, ctx, *, string):
+        """
+        Set "Playing" activity.
+        :param string: Playing what does here.
+        """
+
         activity = discord.Game(string)
         await self.bot.change_presence(activity=activity)
+
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="config", brief="Insert a config in db", description="")
+    @commands.command(name="config", brief="Insert a config in db")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def config(self, ctx, setting, parent, value, flag="0"):
+        """
+        This inserts a config in the config table in the database.
+        Config table is rarely used though,
+        so this command and the config table may just disappear one day.
+        Read this for more info:
+        https://github.com/Kyuunex/Momiji/blob/master/configuration.md
+        """
+
         await self.bot.db.execute("INSERT INTO config VALUES (?, ?, ?, ?)",
                                   [str(setting), str(parent), str(value), str(flag)])
         await self.bot.db.commit()
+
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="db_dump", brief="Perform a database dump", description="")
+    @commands.command(name="db_dump", brief="Perform a database dump")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def db_dump(self, ctx):
+        """
+        Upload the main database file into a channel that has been approved for this.
+        Useful to back up the database in case something happens.
+        This will fail if the database file size is more than 8 MB.
+        """
+
         async with self.bot.db.execute("SELECT * FROM config WHERE setting = ? and value = ?",
                                        ["db_dump_channel", str(ctx.channel.id)]) as cursor:
             db_dump_channel = await cursor.fetchall()
-        if db_dump_channel:
-            await ctx.send(file=discord.File(database_file))
+
+        if not db_dump_channel:
+            await ctx.send("This channel is not approved for dumping the database.")
+            return
+
+        await ctx.send(file=discord.File(database_file))
 
 
 def setup(bot):
