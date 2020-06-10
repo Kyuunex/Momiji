@@ -106,7 +106,7 @@ class Img(commands.Cog):
             "key": str(google_api_key[0]),
             "searchType": "image",
             "cx": str(google_search_engine_id[0]),
-            "start": str(random.randint(1, 21))
+            "start": str(random.randint(1, 5))
         }
         url = "https://www.googleapis.com/customsearch/v1?" + urllib.parse.urlencode(query)
 
