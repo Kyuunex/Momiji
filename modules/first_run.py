@@ -25,6 +25,7 @@ def create_tables():
         c = conn.cursor()
         c.execute("CREATE TABLE config (setting, parent, value, flag)")
         c.execute("CREATE TABLE admins (user_id, permissions)")
+        c.execute("CREATE TABLE api_keys (service, key)")
         c.execute("CREATE TABLE bridged_extensions (channel_id, extension_name)")
 
         c.execute("CREATE TABLE pinning_history (message_id)")
