@@ -3,8 +3,6 @@ import asyncio
 import aiohttp
 import discord
 from discord.ext import commands
-import time
-import json
 import urllib.request
 from modules import permissions
 
@@ -22,44 +20,84 @@ async def is_dj(ctx):
 class InspiroBot(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.base_url = "http://inspirobot.me/api"
         self.stop_queue = {}
+        self.base_url = "http://inspirobot.me/api"
 
-    @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot", description="")
+    async def api_request(self, **kwargs):
+        try:
+            url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    return await response.json()
+        except Exception as e:
+            print("in inspirobot.request")
+            print(e)
+            return None
+
+    async def api_request_text(self, **kwargs):
+        """
+        The developer of InspiroBot thought it would be a good idea to
+        introduce inconsistency in what format the api responds with,
+        so I'll just copy and paste to account for it.
+        """
+        try:
+            url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url) as response:
+                    return await response.text()
+        except Exception as e:
+            print("in inspirobot.request_text")
+            print(e)
+            return None
+
+    @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot")
     @commands.guild_only()
     @commands.check(is_dj)
     @commands.check(permissions.is_not_ignored)
     async def mindfulness(self, ctx):
-        self.stop_queue[ctx.guild.id] = None
-        session_id = await self.get_session()
-        if session_id:
-            await ctx.send("mindfulness mode of <http://inspirobot.me/>")
-            while True:
-                one_thing = await self.get_mindfulness(session_id)
-                mp3url = one_thing["mp3"]
-                while True:
-                    if self.stop_queue[ctx.guild.id]:
-                        break
-                    if ctx.voice_client:
-                        if ctx.voice_client.is_playing():
-                            await asyncio.sleep(1)
-                        else:
-                            if len(ctx.voice_client.channel.members) > 1:
-                                if not self.stop_queue[ctx.guild.id]:
-                                    try:
-                                        ctx.voice_client.play(discord.FFmpegPCMAudio(mp3url))
-                                    except Exception as e:
-                                        await ctx.send(e)
-                                break
-                            else:
-                                await asyncio.sleep(5)
+        """
+        Momiji will join a voice chat and start the Mindfulness mode of InspiroBot
+        """
 
-    @commands.command(name="mindfulness_stop", brief="Stop the mindfulness mode", description="")
+        # I know this code looks bad, but I honestly have no experience writing things that connect to voice
+        # and this is what I managed to throw together after reading the Documentation
+
+        self.stop_queue[ctx.guild.id] = None
+        session_id = await self.api_request_text(getSessionID="1")
+        if not session_id:
+            return
+
+        await ctx.send("mindfulness mode of <http://inspirobot.me/>")
+        while True:
+            if self.stop_queue[ctx.guild.id]:
+                break
+            one_flow = await self.api_request(generateFlow="1", sessionID=session_id)
+            audio_url = one_flow["mp3"]
+            while True:
+                if self.stop_queue[ctx.guild.id]:
+                    break
+                if ctx.voice_client:
+                    if ctx.voice_client.is_playing():
+                        await asyncio.sleep(1)
+                    else:
+                        if len(ctx.voice_client.channel.members) > 1:
+                            if not self.stop_queue[ctx.guild.id]:
+                                try:
+                                    ctx.voice_client.play(discord.FFmpegPCMAudio(audio_url))
+                                    print(f"playing {audio_url} in {ctx.voice_client.channel.name} right now")
+                                except Exception as e:
+                                    await ctx.send(e)
+                            break
+                        else:
+                            await asyncio.sleep(5)
+
+    @commands.command(name="mindfulness_stop", brief="Stop the mindfulness mode")
     @commands.guild_only()
     @commands.check(is_dj)
     @commands.check(permissions.is_not_ignored)
     async def mindfulness_stop(self, ctx):
         self.stop_queue[ctx.guild.id] = True
+        await asyncio.sleep(2)
         await ctx.voice_client.disconnect()
 
     @mindfulness.before_invoke
@@ -73,7 +111,7 @@ class InspiroBot(commands.Cog):
         elif ctx.voice_client.is_playing():
             ctx.voice_client.stop()
 
-    @commands.command(name="inspire", brief="When you crave some inspiration in your life", description="")
+    @commands.command(name="inspire", brief="When you crave some inspiration in your life")
     @commands.check(permissions.is_not_ignored)
     async def inspire(self, ctx):
         if not await cooldown.check(str(ctx.author.id), "last_inspire_time", 40):
@@ -81,52 +119,9 @@ class InspiroBot(commands.Cog):
                 await ctx.send("slow down bruh")
                 return None
 
-        image_url = await self.get_image()
+        image_url = await self.api_request_text(generate="true")
         if "https://generated.inspirobot.me/a/" in image_url:
             await ctx.send(image_url)
-
-    async def request(self, query):
-        try:
-            url = self.base_url+"?"+urllib.parse.urlencode(query)
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    return await response.text()
-        except Exception as e:
-            print(time.strftime("%X %x %Z"))
-            print("in request")
-            print(e)
-            return None
-
-    async def get_image(self):
-        query = {
-            "generate": "true",
-        }
-        request_object = await self.request(query)
-        if request_object:
-            return request_object
-        else:
-            return None
-
-    async def get_session(self):
-        query = {
-            "getSessionID": "1",
-        }
-        request_object = await self.request(query)
-        if request_object:
-            return str(request_object)
-        else:
-            return None
-
-    async def get_mindfulness(self, session_id):
-        query = {
-            "generateFlow": "1",
-            "sessionID": session_id,
-        }
-        request_object = await self.request(query)
-        if request_object:
-            return json.loads(request_object)
-        else:
-            return None
 
 
 def setup(bot):
