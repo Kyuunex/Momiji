@@ -24,17 +24,17 @@ class Img(commands.Cog):
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
-                return None
+                return
 
         if not os.path.exists(self.art_dir):
             await ctx.send("This command is not enabled")
-            return None
+            return
 
         list_of_art = os.listdir(self.art_dir)
 
         if len(list_of_art) == 0:
             await ctx.send("This command is not enabled")
-            return None
+            return
 
         count = 0
         while True:
@@ -62,7 +62,7 @@ class Img(commands.Cog):
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
-                return None
+                return
 
         url = "https://www.nekos.life/api/v2/img/neko"
         async with aiohttp.ClientSession() as session:
@@ -87,19 +87,19 @@ class Img(commands.Cog):
 
         if not google_api_key:
             await ctx.send("This command is not enabled")
-            return None
+            return
 
         if not ctx.channel.is_nsfw():
             await ctx.send("This command works in NSFW channels only.")
-            return None
+            return
 
         if not await cooldown.check(str(ctx.author.id), "last_gis_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
-                return None
+                return
 
         if len(search_query) < 1:
-            return None
+            return
 
         query = {
             "q": str(search_query),
@@ -113,17 +113,21 @@ class Img(commands.Cog):
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as json_response:
                 response_dict = await json_response.json()
+                if "error" in response_dict:
+                    await ctx.send(response_dict["error"]["message"])
+                    return
                 items = response_dict["items"]
                 random_item_id = random.randint(0, 9)
                 image_url = items[random_item_id]["link"]
+                await ctx.send(image_url)
 
-        if len(image_url) > 1:
-            async with aiohttp.ClientSession() as second_session:
-                async with second_session.get(image_url) as image_response:
-                    buffer = await image_response.read()
-                    ext = imghdr.what("", h=buffer)
-                    # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
-                    await ctx.send(file=discord.File(buffer, f"{search_query}.{ext}"))
+        # if len(image_url) > 1:
+        #     async with aiohttp.ClientSession() as second_session:
+        #         async with second_session.get(image_url) as image_response:
+        #             buffer = await image_response.read()
+        #             ext = imghdr.what("", h=buffer)
+        #             # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
+        #             await ctx.send(file=discord.File(buffer, f"{search_query}.{ext}"))
 
 
 def setup(bot):

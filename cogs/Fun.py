@@ -49,11 +49,11 @@ class Fun(commands.Cog):
         if not await cooldown.check(str(ctx.channel.id), "last_minesweeper_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
-                return None
+                return
 
         if not 3 <= int(size) <= 19:
             await ctx.send("size range is from 3 to 19")
-            return None
+            return
 
         game_instance = pyminesweeper.MinesweeperMap(int(size))
         game_instance.generate_map(int(size) // 2, int(size) // 2)
@@ -93,7 +93,7 @@ class Fun(commands.Cog):
                 choices = choices_str.split(", ")
             else:
                 await ctx.send(f"gimme more than one choice pls")
-                return None
+                return
 
             how_sure_list = [
                 "definitely",
