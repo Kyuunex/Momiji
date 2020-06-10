@@ -15,10 +15,12 @@ class Img(commands.Cog):
         self.bot = bot
         self.art_dir = "data/art/"
 
-    @commands.command(name="art", brief="Post a random picture",
-                      description="Upload a random picture from ./data/art/ folder")
+    @commands.command(name="art", brief="Post a random picture")
     @commands.check(permissions.is_not_ignored)
     async def art(self, ctx):
+        """
+        Upload a random picture from ./data/art/ folder
+        """
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
@@ -34,15 +36,29 @@ class Img(commands.Cog):
             await ctx.send("This command is not enabled")
             return None
 
+        count = 0
         while True:
             random_picture = random.choice(list_of_art)
-            if (random_picture.split("."))[-1] == "png" or (random_picture.split("."))[-1] == "jpg":
+            file_extension = (random_picture.split("."))[-1]
+            if file_extension == "png" or file_extension == "jpg":
                 break
+
+            count += 1
+
+            if count > 10:
+                await ctx.send("i tried 10 times to find an image to post for you something went wrong...")
+                return
+
         await ctx.send(file=discord.File(self.art_dir + random_picture))
 
-    @commands.command(name="neko", brief="Post a random neko", description="Grab an image from nekos.life")
+    @commands.command(name="neko", brief="Post a random neko")
     @commands.check(permissions.is_not_ignored)
     async def neko(self, ctx):
+        """
+        Grab an image from nekos.life
+        Seriously though? WHY ARE THESE NOT REAL??????
+        """
+
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
@@ -55,17 +71,19 @@ class Img(commands.Cog):
                 if "https://cdn.nekos.life/" in image_url:
                     await ctx.send(f"|| {image_url} ||")
 
-    @commands.command(name="gis", brief="Google image search",
-                      description="Search for a phrase on Google images and post a random result")
+    @commands.command(name="gis", brief="Google image search")
     @commands.check(permissions.is_not_ignored)
     async def gis(self, ctx, search_query):
+        """
+        Search for a phrase on Google images and post a random result
+        """
         # This one's for you, UC-sama
 
-        async with self.bot.db.execute("SELECT value FROM config WHERE setting = ?", ["google_api_key"]) as cursor:
-            google_api_key = await cursor.fetchall()
-        async with self.bot.db.execute("SELECT value FROM config WHERE setting = ?",
-                                     ["google_search_engine_id"]) as cursor:
-            google_search_engine_id = await cursor.fetchall()
+        async with self.bot.db.execute("SELECT key FROM api_keys WHERE service = ?", ["google_api_key"]) as cursor:
+            google_api_key = await cursor.fetchone()
+        async with self.bot.db.execute("SELECT key FROM api_keys WHERE service = ?",
+                                       ["google_search_engine_id"]) as cursor:
+            google_search_engine_id = await cursor.fetchone()
 
         if not google_api_key:
             await ctx.send("This command is not enabled")
@@ -85,23 +103,27 @@ class Img(commands.Cog):
 
         query = {
             "q": str(search_query),
-            "key": str(google_api_key[0][0]),
+            "key": str(google_api_key[0]),
             "searchType": "image",
-            "cx": str(google_search_engine_id[0][0]),
+            "cx": str(google_search_engine_id[0]),
             "start": str(random.randint(1, 21))
         }
         url = "https://www.googleapis.com/customsearch/v1?" + urllib.parse.urlencode(query)
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as json_response:
-                image_url = (await json_response.json())["items"][(random.randint(0, 9))]["link"]
-                if len(image_url) > 1:
-                    async with aiohttp.ClientSession() as second_session:
-                        async with second_session.get(image_url) as image_response:
-                            buffer = (await image_response.read())
-                            ext = imghdr.what("", h=buffer)
-                            # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
-                            await ctx.send(file=discord.File(buffer, f"{search_query}.{ext}"))
+                response_dict = await json_response.json()
+                items = response_dict["items"]
+                random_item_id = random.randint(0, 9)
+                image_url = items[random_item_id]["link"]
+
+        if len(image_url) > 1:
+            async with aiohttp.ClientSession() as second_session:
+                async with second_session.get(image_url) as image_response:
+                    buffer = await image_response.read()
+                    ext = imghdr.what("", h=buffer)
+                    # if (any(c in ext for c in ["jpg", "jpeg", "png", "gif"])):
+                    await ctx.send(file=discord.File(buffer, f"{search_query}.{ext}"))
 
 
 def setup(bot):
