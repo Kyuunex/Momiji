@@ -69,12 +69,15 @@ class BotManagement(commands.Cog):
         if ignored_users_description:
             buffer += f"{ignored_users_description[0]}\n\n"
 
-        for one_ignored_user in db_ignored_users:
-            buffer += f"<@{one_ignored_user[0]}> | reason:\n"
-            buffer += "```\n"
-            buffer += f"{one_ignored_user[1]}\n"
-            buffer += "```\n"
-            buffer += "\n"
+        if db_ignored_users:
+            for one_ignored_user in db_ignored_users:
+                buffer += f"<@{one_ignored_user[0]}> | reason:\n"
+                buffer += "```\n"
+                buffer += f"{one_ignored_user[1]}\n"
+                buffer += "```\n"
+                buffer += "\n"
+        else:
+            buffer += "**Ignore list is empty** :innocent: \n"
 
         embed = discord.Embed(color=0xf76a8c)
 
