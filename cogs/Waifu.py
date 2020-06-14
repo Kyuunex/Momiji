@@ -1,4 +1,5 @@
 import discord
+import random
 from modules import wrappers
 from modules import permissions
 from discord.ext import commands
@@ -128,6 +129,29 @@ class Waifu(commands.Cog):
                 contents += f"**{owner_name}** claimed **{waifu_name}**\n"
         embed = discord.Embed(color=0xff6781)
         await wrappers.send_large_embed(ctx.channel, embed, contents)
+
+    @commands.command(name="roll_server_member", aliases=["w"])
+    @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
+    async def roll_server_member(self, ctx):
+        server_member_list = ctx.guild.members
+        member = random.choice(server_member_list)
+        member_rank = server_member_list.index(member)
+        # kakera_worth = 101
+        waifu_description = f"Member since: {member.joined_at}\n"
+        waifu_description += f"Claims: #{member_rank+1}\n"
+        waifu_description += f"Likes: #{member_rank+1}\n"
+        # waifu_description += f"**{kakera_worth}**:kakera:\n"
+        waifu_description += f"this is just a placeholder command\n"
+        waifu_description += f"reacting to the emote will do nothing\n"
+        embed = discord.Embed(
+            color=16751916,
+            description=waifu_description
+        )
+        embed.set_image(url=member.avatar_url)
+        embed.set_author(name=member.display_name)
+        sent_message = await ctx.send(embed=embed)
+        await sent_message.add_reaction("❤")
 
 
 def setup(bot):
