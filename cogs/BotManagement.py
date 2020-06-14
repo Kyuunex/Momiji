@@ -241,7 +241,7 @@ class BotManagement(commands.Cog):
 
         async with self.bot.db.execute("SELECT * FROM config WHERE setting = ? and value = ?",
                                        ["db_dump_channel", str(ctx.channel.id)]) as cursor:
-            db_dump_channel = await cursor.fetchall()
+            db_dump_channel = await cursor.fetchone()
 
         if not db_dump_channel:
             await ctx.send("This channel is not approved for dumping the database.")
