@@ -12,31 +12,34 @@ class MessageStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="user_stats", brief="Show user stats", description="", aliases=["userstats"])
+    @commands.command(name="user_stats", brief="Show user stats", aliases=["userstats"])
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def user_stats(self, ctx, *args):
+        """
+        This command uses the message metadata stored in the database
+        to calculate which members are active in given timescale/channel and etc.
+
+        Passable arguments:
+        month, week, day
+        channel:channel_id
+        limit:40
+        """
+
         if not await cooldown.check(str(ctx.author.id), "last_stat_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
-                return None
+                return
 
         async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
             await ctx.send("MomijiSpeak is not enabled in this guild.")
-            return None
+            return
 
         async with ctx.channel.typing():
-            if "month" in args:
-                after = int(time.time()) - 2592000
-            elif "week" in args:
-                after = int(time.time()) - 604800
-            elif "day" in args:
-                after = int(time.time()) - 86400
-            else:
-                after = 0
+            after = await self.parse_args_timescale(args)
 
             scope_key = "guild_id"
             scope_value = str(ctx.guild.id)
@@ -115,6 +118,15 @@ class MessageStats(commands.Cog):
             embed.set_author(name="User stats")
             embed.set_footer(text=f"Total amount of messages sent: {total_amount}")
         await wrappers.send_large_embed(ctx.channel, embed, contents)
+
+    async def parse_args_timescale(self, args):
+        if "month" in args:
+            return int(time.time()) - 2592000
+        elif "week" in args:
+            return int(time.time()) - 604800
+        elif "day" in args:
+            return int(time.time()) - 86400
+        return 0
 
     @commands.command(name="word_stats", brief="Word statistics", description="")
     @commands.check(permissions.is_owner)
