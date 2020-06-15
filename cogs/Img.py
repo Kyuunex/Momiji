@@ -53,7 +53,7 @@ class Img(commands.Cog):
 
     @commands.command(name="neko", brief="Post a random neko")
     @commands.check(permissions.is_not_ignored)
-    async def neko(self, ctx):
+    async def neko(self, ctx, tag="neko"):
         """
         Grab an image from nekos.life
         Seriously though? WHY ARE THESE NOT REAL??????
@@ -64,12 +64,24 @@ class Img(commands.Cog):
                 await ctx.send("slow down bruh")
                 return
 
-        url = "https://www.nekos.life/api/v2/img/neko"
+        if tag != "neko" and not ctx.channel.is_nsfw():
+            await ctx.send("Tags other than `neko` only work in a NSFW channel.")
+            return
+
+        url = f"https://www.nekos.life/api/v2/img/{tag}"
+
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as json_response:
-                image_url = (await json_response.json())["url"]
-                if "https://cdn.nekos.life/" in image_url:
-                    await ctx.send(f"|| {image_url} ||")
+                api_response = await json_response.json()
+
+                if not api_response:
+                    return
+
+                image_url = api_response["url"]
+                if not "https://cdn.nekos.life/" in image_url:
+                    return
+
+                await ctx.send(f"|| {image_url} ||")
 
     @commands.command(name="gis", brief="Google image search")
     @commands.check(permissions.is_not_ignored)
