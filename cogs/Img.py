@@ -74,14 +74,14 @@ class Img(commands.Cog):
             async with session.get(url) as json_response:
                 api_response = await json_response.json()
 
-                if not api_response:
-                    return
+        if not api_response:
+            return
 
-                image_url = api_response["url"]
-                if not "https://cdn.nekos.life/" in image_url:
-                    return
+        image_url = api_response["url"]
+        if not "https://cdn.nekos.life/" in image_url:
+            return
 
-                await ctx.send(f"|| {image_url} ||")
+        await ctx.send(f"|| {image_url} ||")
 
     @commands.command(name="gis", brief="Google image search")
     @commands.check(permissions.is_not_ignored)
