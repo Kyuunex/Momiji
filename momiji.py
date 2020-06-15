@@ -32,7 +32,8 @@ initial_extensions = [
     "cogs.Img",
     "cogs.InspiroBot", 
     "cogs.MessageStats", 
-    "cogs.Misc", 
+    "cogs.Misc",
+    "cogs.GoodbyeMessage",
     "cogs.Moderation", 
     "cogs.MomijiChannelImporting", 
     "cogs.MomijiCommands", 
@@ -48,9 +49,9 @@ initial_extensions = [
     "cogs.VoiceLogging",
     "cogs.VoiceRoles", 
     "cogs.Waifu",
-    "cogs.Welcome",
     "cogs.Wasteland",
     "cogs.WastelandConfiguration",
+    "cogs.WelcomeMessage",
 ]
 
 
