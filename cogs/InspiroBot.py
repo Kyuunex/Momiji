@@ -117,7 +117,7 @@ class InspiroBot(commands.Cog):
         if not await cooldown.check(str(ctx.author.id), "last_inspire_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
-                return None
+                return
 
         image_url = await self.api_request_text(generate="true")
         if "https://generated.inspirobot.me/a/" in image_url:
