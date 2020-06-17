@@ -95,24 +95,104 @@ class StatsBuilder(commands.Cog):
         embed.set_thumbnail(url=member.avatar_url)
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
-    @commands.command(name="guild", brief="About this guild", description="")
+    @commands.command(name="guild", brief="About this server", aliases=['server'])
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def about_guild(self, ctx):
+        """
+        Show information about the current server
+        """
+
         guild = ctx.guild
-        body = f"name: {guild.name}\n"
-        body += f"region: {guild.region}\n"
-        body += f"id: {guild.id}\n"
-        body += f"owner_id: {guild.owner_id}\n"
-        body += f"max_presences: {guild.max_presences}\n"
-        body += f"max_members: {guild.max_members}\n"
-        body += f"verification_level: {guild.verification_level}\n"
-        body += f"premium_tier: {guild.premium_tier}\n"
-        body += f"premium_subscription_count: {guild.premium_subscription_count}\n"
-        body += f"filesize_limit: {guild.filesize_limit}\n"
-        body += f"created_at: {guild.created_at}\n"
-        embed = discord.Embed(title="Momiji is best wolf.", description=body, color=0xe95e62)
-        await ctx.send(embed=embed)
+        buffer = f"**ID:** {guild.id}\n"
+        buffer += f"**Region:** {guild.region}\n"
+        buffer += f"**Created at:** {guild.created_at}\n"
+        # TODO: Add server age
+        # TODO: Add a cake emote if it's the server's birthday
+
+        # buffer += f"shard_id: {guild.shard_id}\n"
+        buffer += f"**Owner:** {guild.owner.display_name} ({guild.owner_id})\n"
+
+        buffer += "\n"
+
+        buffer += f"**Verification level:** {guild.verification_level}\n"
+        buffer += f"**MFA requirement:** {guild.mfa_level}\n"
+        buffer += f"**Explicit content filter:** {guild.explicit_content_filter}\n"
+        buffer += f"**Default notification setting:** {guild.default_notifications}\n"
+
+        buffer += "\n"
+
+        buffer += f"**Filesize Limit:** {guild.filesize_limit} bytes\n"
+        buffer += f"**AFK timeout:** {guild.afk_timeout}\n"
+        buffer += f"**Emoji limit:** {guild.emoji_limit}\n"
+        buffer += f"**Bitrate limit:** {guild.bitrate_limit}\n"
+
+        if guild.max_presences:
+            buffer += f"**The maximum amount of presences for the guild:** {guild.max_presences}\n"
+        if guild.max_members:
+            buffer += f"**The maximum amount of members for the guild:** {guild.max_members}\n"
+
+        buffer += "\n"
+
+        buffer += f"**Amount of channels:** {len(guild.channels)}\n"
+        buffer += f"**Amount of voice channels:** {len(guild.voice_channels)}\n"
+        buffer += f"**Amount of text channels:** {len(guild.text_channels)}\n"
+        buffer += f"**Amount of categories:** {len(guild.categories)}\n"
+        buffer += f"**Amount of members:** {guild.member_count}\n"
+        buffer += f"**Amount of roles:** {len(guild.roles)}\n"
+        buffer += f"**Is the server considered large:** {guild.large}\n"
+
+        buffer += "\n"
+
+        if guild.system_channel or guild.rules_channel or guild.afk_channel:
+            if guild.system_channel:
+                buffer += f"**System messages channel:** {guild.system_channel}\n"
+            if guild.rules_channel:
+                buffer += f"**Rules channel:** {guild.rules_channel}\n"
+            if guild.afk_channel:
+                buffer += f"**AFK channel:** {guild.afk_channel}\n"
+
+            buffer += "\n"
+
+        if len(guild.emojis) > 0:
+            buffer += "**Emotes:** "
+            for emoji in guild.emojis:
+                buffer += f"{emoji}"
+            buffer += "\n"
+            buffer += "\n"
+
+        if guild.features:
+            buffer += "**Special features:** "
+            for feature in guild.features:
+                buffer += f"{feature} "
+            buffer += "\n"
+
+            if guild.description:
+                buffer += f"**Description:** {guild.description}\n"
+            if guild.discovery_splash:
+                buffer += f"**Discovery splash url:** {guild.discovery_splash_url}\n"
+            if guild.splash_url:
+                buffer += f"**Server splash banner url:** {guild.splash_url}\n"
+
+            buffer += "\n"
+
+        buffer += f"**Nitro boost level:** {guild.premium_tier}\n"
+        buffer += f"**How many users have currently 'boosted' this server:** {guild.premium_subscription_count}\n"
+        if guild.premium_subscription_count > 0:
+            buffer += "**Server boosters:** "
+            for premium_subscriber in guild.premium_subscribers:
+                buffer += f"**{premium_subscriber.display_name}**"
+                if guild.premium_subscribers[-1] != premium_subscriber:
+                    buffer += ", "
+            buffer += "\n"
+
+        embed = discord.Embed(title=guild.name, color=0xe95e62)
+
+        if guild.icon_url:
+            embed.set_thumbnail(url=guild.icon_url)
+        if guild.banner_url:
+            embed.set_image(url=guild.banner_url)
+        await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="about", brief="About this bot", description="")
     @commands.check(permissions.is_not_ignored)
