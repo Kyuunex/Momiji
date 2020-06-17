@@ -98,9 +98,10 @@ class StatsBuilder(commands.Cog):
     @commands.command(name="guild", brief="About this server", aliases=['server'])
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
-    async def about_guild(self, ctx):
+    async def about_guild(self, ctx, *args):
         """
         Show information about the current server
+        with_emotes is an optional arg you can pass
         """
 
         guild = ctx.guild
@@ -154,13 +155,6 @@ class StatsBuilder(commands.Cog):
 
             buffer += "\n"
 
-        if len(guild.emojis) > 0:
-            buffer += "**Emotes:** "
-            for emoji in guild.emojis:
-                buffer += f"{emoji}"
-            buffer += "\n"
-            buffer += "\n"
-
         if guild.features:
             buffer += "**Special features:** "
             for feature in guild.features:
@@ -192,7 +186,17 @@ class StatsBuilder(commands.Cog):
             embed.set_thumbnail(url=guild.icon_url)
         if guild.banner_url:
             embed.set_image(url=guild.banner_url)
+
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
+
+        if "with_emotes" in args:
+            if len(guild.emojis) > 0:
+                buffer2 = "**Emotes:** \n"
+                for emoji in guild.emojis:
+                    buffer2 += f"{emoji}"
+                    if (guild.emojis.index(emoji) + 1) % 10 == 0:
+                        buffer2 += "\n"
+                await wrappers.send_large_embed(ctx.channel, embed, buffer2)
 
     @commands.command(name="about", brief="About this bot", description="")
     @commands.check(permissions.is_not_ignored)
