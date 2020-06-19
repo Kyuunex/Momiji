@@ -171,11 +171,11 @@ class StatsBuilder(commands.Cog):
             buffer += "\n"
 
         buffer += f"**Nitro boost level:** {guild.premium_tier}\n"
-        buffer += f"**How many users have currently 'boosted' this server:** {guild.premium_subscription_count}\n"
+        buffer += f"**Amount of boosts:** {guild.premium_subscription_count}\n"
         if guild.premium_subscription_count > 0:
             buffer += "**Server boosters:** "
             for premium_subscriber in guild.premium_subscribers:
-                buffer += f"**{premium_subscriber.display_name}**"
+                buffer += f"{premium_subscriber.display_name}"
                 if guild.premium_subscribers[-1] != premium_subscriber:
                     buffer += ", "
             buffer += "\n"
