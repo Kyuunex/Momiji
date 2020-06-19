@@ -198,33 +198,46 @@ class StatsBuilder(commands.Cog):
                         buffer2 += "\n"
                 await wrappers.send_large_embed(ctx.channel, embed, buffer2)
 
-    @commands.command(name="about", brief="About this bot", description="")
+    @commands.command(name="about", brief="About this bot", aliases=['bot', 'info'])
     @commands.check(permissions.is_not_ignored)
     async def about_bot(self, ctx):
+        """
+        Shows various information about this bot and the instance of it.
+        """
+
         app_info = await self.bot.application_info()
+
         process = psutil.Process(os.getpid())
         memory_usage = process.memory_info().rss / 1024 / 1024
-        guild_amount = len(self.bot.guilds)
-        user_amount = len(self.bot.users)
+
         script_now_time = time.time()
         uptime = self.measure_time(script_start_time, script_now_time)
-        body = "__**Stats:**__\n"
+
+        buffer = ""
         if app_info.team:
-            bot_owner_string = ""
+            buffer += f"**Bot owner(s):** "
             for bot_owner in app_info.team.members:
-                bot_owner_string += f"<@{bot_owner.id}> "
+                buffer += f"<@{bot_owner.id}>"
+                if app_info.team.members[-1] != bot_owner:
+                    buffer += ", "
+            buffer += f"\n"
         else:
-            bot_owner = app_info.owner
-            bot_owner_string = f"<@{bot_owner.id}>"
-        body += f"**Bot owner(s):** {bot_owner_string}\n"
-        body += f"**Current version:** {self.bot.app_version}\n"
-        body += f"**Amount of guilds serving:** {guild_amount}\n"
-        body += f"**Amount of users serving:** {user_amount}\n"
-        body += "**Lib used:** [discord.py](https://github.com/Rapptz/discord.py/)\n"
-        body += f"**Uptime:** {uptime}\n"
-        body += f"**Memory usage:** {memory_usage} MB\n"
-        embed = discord.Embed(title="Momiji is best wolf.", description=body, color=0xe95e62)
-        await ctx.send(embed=embed)
+            buffer += f"**Bot owner:** <@{app_info.owner.id}>\n"
+
+        buffer += f"\n"
+
+        buffer += f"**Current version:** {self.bot.app_version}\n"
+        buffer += f"**Amount of guilds serving:** {len(self.bot.guilds)}\n"
+        buffer += f"**Amount of users serving:** {len(self.bot.users)}\n"
+        buffer += f"\n"
+
+        buffer += "**Library used:** [discord.py](https://github.com/Rapptz/discord.py/)\n"
+        buffer += f"\n"
+
+        buffer += f"**Uptime:** {uptime}\n"
+        buffer += f"**Memory usage:** {memory_usage} MB\n"
+        embed = discord.Embed(title="About this bot", color=0xe95e62)
+        await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
     def measure_time(self, start_time, end_time):
         duration = int(end_time - start_time)
