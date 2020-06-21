@@ -100,6 +100,12 @@ class MomijiSpeak(commands.Cog):
                 await message.channel.send(message.content)
 
     async def check_privacy(self, message):
+        """
+        Checks if the message belongs to a private guild or a channel
+        :param message: discord.py's message object
+        :return: True if the message belongs to a private guild or a channel, False if not.
+        """
+
         if message.guild:
             async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
                                            [str(message.guild.id)]) as cursor:
