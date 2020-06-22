@@ -1,8 +1,10 @@
 import discord
 import random
+import time
 from modules import wrappers
 from modules import permissions
 from discord.ext import commands
+from discord.utils import escape_markdown
 
 
 class Waifu(commands.Cog):
@@ -16,6 +18,8 @@ class Waifu(commands.Cog):
 
     def __init__(self, bot):
         self.bot = bot
+        self.marry_cache = []
+        self.roll_count_cache = []
 
     def guaranteed_member_string(self, ctx, lookup):
         if len(ctx.message.mentions) > 0:
@@ -134,6 +138,9 @@ class Waifu(commands.Cog):
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def roll_server_member(self, ctx):
+        if self.count_roll_amount(ctx.author) > 12:
+            await ctx.send("u rolled too much")
+            return
         server_member_list = ctx.guild.members
         member = random.choice(server_member_list)
         member_rank = server_member_list.index(member)
@@ -141,6 +148,7 @@ class Waifu(commands.Cog):
         waifu_description = f"Member since: {member.joined_at}\n"
         waifu_description += f"Claims: #{member_rank+1}\n"
         waifu_description += f"Likes: #{member_rank+1}\n"
+        waifu_description += f"\n"
         # waifu_description += f"**{kakera_worth}**:kakera:\n"
         waifu_description += f"this is just a placeholder command\n"
         waifu_description += f"reacting to the emote will do nothing\n"
@@ -151,7 +159,33 @@ class Waifu(commands.Cog):
         embed.set_image(url=member.avatar_url)
         embed.set_author(name=member.display_name)
         sent_message = await ctx.send(embed=embed)
+        self.marry_cache.append([time.time(), member, sent_message])
+        self.roll_count_cache.append([time.time(), ctx.author])
         await sent_message.add_reaction("❤")
+
+    def count_roll_amount(self, author):
+        count = 0
+        for roll in self.roll_count_cache:
+            if roll[1] == author:
+                count += 1
+        return count
+
+    @commands.Cog.listener()
+    async def on_reaction_add(self, reaction, user):
+        if user.bot:
+            return
+        if reaction.emoji != "❤":
+            return
+
+        for marry in self.marry_cache:
+            if reaction.message.id == marry[2].id:
+                if time.time() > marry[0] + 30:
+                    self.marry_cache.remove(marry)
+                    break
+                await marry[2].channel.send(f"`{escape_markdown(user.display_name)}"
+                                            f" and {escape_markdown(marry[1].display_name)} are now married!`")
+                self.marry_cache.remove(marry)
+                break
 
 
 def setup(bot):
