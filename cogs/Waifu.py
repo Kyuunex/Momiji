@@ -163,6 +163,19 @@ class Waifu(commands.Cog):
         self.roll_count_cache.append([time.time(), ctx.author])
         await sent_message.add_reaction("❤")
 
+    @commands.command(name="debug_reset_rolls")
+    @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
+    async def debug_reset_rolls(self, ctx, user_id):
+        if user_id:
+            member = wrappers.get_member_guaranteed(ctx, user_id)
+        else:
+            member = ctx.author
+        for roll in self.roll_count_cache:
+            if roll[1].id == member.id:
+                self.marry_cache.remove(roll)
+        await ctx.send(f"rolls reset for `{member.display_name}`")
+
     def count_roll_amount(self, author):
         count = 0
         for roll in self.roll_count_cache:
