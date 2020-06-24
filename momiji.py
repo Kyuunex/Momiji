@@ -27,7 +27,7 @@ initial_extensions = [
     "cogs.AIMod",
     "cogs.BotManagement",
     "cogs.ChannelExporting", 
-    "cogs.Covid19Statistics",
+    "cogs.COVID19",
     "cogs.CRPair",
     "cogs.Fun",
     "cogs.Img",
