@@ -5,3 +5,4 @@ youtube_dl
 aiosqlite
 feedparser
 python-minesweeper
+python-dateutil
