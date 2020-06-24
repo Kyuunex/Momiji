@@ -9,6 +9,7 @@ from modules import permissions
 from modules import wrappers
 from modules import cooldown
 import dateutil.parser
+import operator
 
 
 class COVID19(commands.Cog):
@@ -22,9 +23,10 @@ class COVID19(commands.Cog):
 
     @commands.command(name="c19summary", brief="Get COVID-19 summary", aliases=['c19s'])
     @commands.check(permissions.is_not_ignored)
-    async def c19summary(self, ctx):
+    async def c19summary(self, ctx, *args):
         """
         Shows a summary of COVID-19 worldwide.
+        Example args: sort, limit:50
         """
 
         # TODO: Add sort by something with optional args
@@ -39,7 +41,7 @@ class COVID19(commands.Cog):
             return
 
         summary = self.summary_cache
-        buffer = f"Global info:\n"
+        buffer = f"**Global info:**\n"
 
         buffer += f":thermometer_face: **Confirmed:** {summary.Global.TotalConfirmed} "
         buffer += f"({summary.Global.NewConfirmed} recent)\n"
@@ -51,13 +53,31 @@ class COVID19(commands.Cog):
         buffer += f"({summary.Global.NewRecovered} recent)\n"
 
         buffer += f"\n"
-        buffer += f"Countries:\n"
-        for country in summary.Countries:
-            buffer += f":flag_{country.CountryCode.lower()}: {country.Country} "
+        buffer += f"**Countries:**\n"
+
+        if "sort" in args:
+            correct_sort = sorted(summary.Countries, key=operator.attrgetter('TotalConfirmed'), reverse=True)
+        else:
+            correct_sort = summary.Countries
+
+        max_results = 0
+        for arg in args:
+            if "limit" in arg:
+                if ":" in arg:
+                    sub_args = arg.split(":")
+                    max_results = int(sub_args[1])
+
+        count = 1
+        for country in correct_sort:
+            if max_results:
+                if count >= max_results:
+                    break
+            buffer += f":flag_{country.CountryCode.lower()}: **{country.Country}:** "
             buffer += f":thermometer_face: {country.TotalConfirmed} ({country.NewConfirmed}) / "
             buffer += f":coffin: {country.TotalDeaths} ({country.NewDeaths}) / "
             buffer += f":ok_hand: {country.TotalRecovered} ({country.NewRecovered})"
             buffer += f"\n"
+            count += 1
 
         embed = discord.Embed(
             color=0xAD6F49,
