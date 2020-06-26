@@ -11,7 +11,7 @@ class VoiceRoles(commands.Cog):
     so that if a user joins it, they will be given the role.
     And when they leave, the role will be taken away.
     """
-    
+
     def __init__(self, bot):
         self.bot = bot
 
