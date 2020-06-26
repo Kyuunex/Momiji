@@ -47,6 +47,8 @@ class VoiceRoles(commands.Cog):
         await self.bot.db.commit()
         await ctx.send(f"Tied {channel.mention} channel to {role.name} role")
 
+        await ctx.author.add_roles(role)
+
     @commands.command(name="vr_remove", brief="Untie a role from the voice channel")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
@@ -75,6 +77,8 @@ class VoiceRoles(commands.Cog):
                                   [str(ctx.guild.id), str(channel.id), str(role.id)])
         await self.bot.db.commit()
         await ctx.send(f"Untied {channel.mention} channel from {role.name} role")
+        
+        await ctx.author.remove_roles(role)
 
     @commands.command(name="vr_list", brief="List voice voles in this server")
     @commands.check(permissions.is_admin)
@@ -108,34 +112,40 @@ class VoiceRoles(commands.Cog):
         if (not before.channel) and after.channel:  # Member joined a channel
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
                                            [str(after.channel.id)]) as cursor:
-                role_id = await cursor.fetchall()
-            if role_id:
-                role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
-                await member.add_roles(role)
+                role_id_list = await cursor.fetchall()
+            if role_id_list:
+                for role_id in role_id_list:
+                    role = discord.utils.get(member.guild.roles, id=int(role_id[0]))
+                    await member.add_roles(role)
             return
 
         if before.channel and (not after.channel):  # Member left channel
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
                                            [str(before.channel.id)]) as cursor:
-                role_id = await cursor.fetchall()
-            if role_id:
-                role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
-                await member.remove_roles(role)
+                role_id_list = await cursor.fetchall()
+            if role_id_list:
+                for role_id in role_id_list:
+                    role = discord.utils.get(member.guild.roles, id=int(role_id[0]))
+                    await member.remove_roles(role)
             return
 
         if before.channel and after.channel and (before.channel != after.channel):  # Member switched channel
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
                                            [str(before.channel.id)]) as cursor:
-                role_id = await cursor.fetchall()
+                before_role_id_list = await cursor.fetchall()
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
                                            [str(after.channel.id)]) as cursor:
-                role_id_after = await cursor.fetchall()
-            if role_id != role_id_after:
-                if role_id:
-                    role = discord.utils.get(member.guild.roles, id=int(role_id[0][0]))
+                after_role_id_list = await cursor.fetchall()
+            if before_role_id_list == after_role_id_list:
+                return
+
+            if before_role_id_list:
+                for before_role_id in before_role_id_list:
+                    role = discord.utils.get(member.guild.roles, id=int(before_role_id[0]))
                     await member.remove_roles(role)
-                if role_id_after:
-                    role_after = discord.utils.get(member.guild.roles, id=int(role_id_after[0][0]))
+            if after_role_id_list:
+                for after_role_id in after_role_id_list:
+                    role_after = discord.utils.get(member.guild.roles, id=int(after_role_id[0]))
                     await member.add_roles(role_after)
             return
 
