@@ -77,7 +77,7 @@ class VoiceRoles(commands.Cog):
                                   [str(ctx.guild.id), str(channel.id), str(role.id)])
         await self.bot.db.commit()
         await ctx.send(f"Untied {channel.mention} channel from {role.name} role")
-        
+
         await ctx.author.remove_roles(role)
 
     @commands.command(name="vr_list", brief="List voice voles in this server")
