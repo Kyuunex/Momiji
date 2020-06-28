@@ -85,7 +85,7 @@ class RegularRole(commands.Cog):
                 buffer += "**New Regulars**:\n"
                 for added_user in users_added:
                     try:
-                        await member.add_roles(role)
+                        await added_user.add_roles(role)
                     except:
                         pass
                     buffer += f"{added_user.mention} : {added_user.display_name}\n"
@@ -93,7 +93,7 @@ class RegularRole(commands.Cog):
                 buffer += "**Removed Regulars**:\n"
                 for removed_user in users_removed:
                     try:
-                        await member.remove_roles(role, reason="pruned role")
+                        await removed_user.remove_roles(role, reason="pruned role")
                     except:
                         pass
                     buffer += f"{removed_user.mention} : {removed_user.display_name}\n"
