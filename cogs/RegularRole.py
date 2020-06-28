@@ -82,21 +82,28 @@ class RegularRole(commands.Cog):
                 users_removed = list(set(previous_members) - set(new_members))
 
                 buffer = ""
-                buffer += "**New Regulars**:\n"
-                for added_user in users_added:
-                    try:
-                        await added_user.add_roles(role)
-                    except:
-                        pass
-                    buffer += f"{added_user.mention} : {added_user.display_name}\n"
-                buffer += "\n"
-                buffer += "**Removed Regulars**:\n"
-                for removed_user in users_removed:
-                    try:
-                        await removed_user.remove_roles(role, reason="pruned role")
-                    except:
-                        pass
-                    buffer += f"{removed_user.mention} : {removed_user.display_name}\n"
+                
+                if users_added:
+                    buffer += "**New Regulars**:\n"
+                    for added_user in users_added:
+                        try:
+                            await added_user.add_roles(role)
+                        except:
+                            pass
+                        buffer += f"{added_user.mention} : {added_user.display_name}\n"
+                    buffer += "\n"
+
+                if users_removed:
+                    buffer += "**Removed Regulars**:\n"
+                    for removed_user in users_removed:
+                        try:
+                            await removed_user.remove_roles(role, reason="pruned role")
+                        except:
+                            pass
+                        buffer += f"{removed_user.mention} : {removed_user.display_name}\n"
+
+                if len(buffer) == 0:
+                    buffer += "no changes"
 
                 embed = discord.Embed(color=0xadff2f)
                 embed.set_author(name="Regular Role changes")
