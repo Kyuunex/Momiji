@@ -82,7 +82,7 @@ class RegularRole(commands.Cog):
                 users_removed = list(set(previous_members) - set(new_members))
 
                 buffer = ""
-                
+
                 if users_added:
                     buffer += "**New Regulars**:\n"
                     for added_user in users_added:
