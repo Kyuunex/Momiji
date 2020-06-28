@@ -21,6 +21,11 @@ if not os.path.exists(user_extensions_directory):
 if not os.path.exists(bridged_extensions_directory):
     os.makedirs(bridged_extensions_directory)
 
+if os.environ.get('MOMIJI_PREFIX'):
+    command_prefix = os.environ.get('MOMIJI_PREFIX')
+else:
+    command_prefix = ";"
+
 first_run.create_tables()
 
 initial_extensions = [
@@ -115,5 +120,5 @@ class Momiji(commands.Bot):
         await first_run.add_admins(self)
 
 
-client = Momiji(command_prefix=";")
+client = Momiji(command_prefix=command_prefix)
 client.run(bot_token)
