@@ -61,7 +61,7 @@ class BotManagement(commands.Cog):
         If this is the only command you see, you are blacklisted from using the bot.
         """
 
-        async with self.bot.db.execute("SELECT * FROM ignored_users") as cursor:
+        async with self.bot.db.execute("SELECT user_id, reason FROM ignored_users") as cursor:
             db_ignored_users = await cursor.fetchall()
 
         async with self.bot.db.execute("SELECT value FROM config WHERE setting = ?",
@@ -243,7 +243,7 @@ class BotManagement(commands.Cog):
         This will fail if the database file size is more than 8 MB.
         """
 
-        async with self.bot.db.execute("SELECT * FROM config WHERE setting = ? and value = ?",
+        async with self.bot.db.execute("SELECT value FROM config WHERE setting = ? and value = ?",
                                        ["db_dump_channel", str(ctx.channel.id)]) as cursor:
             db_dump_channel = await cursor.fetchone()
 
