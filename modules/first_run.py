@@ -4,7 +4,7 @@ import os
 
 
 async def add_admins(self):
-    async with await self.db.execute("SELECT * FROM admins") as cursor:
+    async with await self.db.execute("SELECT user_id, permissions FROM admins") as cursor:
         admin_list = await cursor.fetchall()
 
     if not admin_list:

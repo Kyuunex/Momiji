@@ -31,7 +31,7 @@ class MessageStats(commands.Cog):
                 await ctx.send("slow down bruh")
                 return
 
-        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+        async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
@@ -59,7 +59,7 @@ class MessageStats(commands.Cog):
             query_str = f"SELECT user_id FROM mmj_message_logs WHERE {scope_key} = ? AND bot = ? AND timestamp > ?"
 
             if "all_channels" not in args:
-                async with self.bot.db.execute("SELECT * FROM mmj_stats_channel_blacklist") as cursor:
+                async with self.bot.db.execute("SELECT channel_id FROM mmj_stats_channel_blacklist") as cursor:
                     no_xp_channel_list = await cursor.fetchall()
                 if no_xp_channel_list:
                     for one_no_xp_channel in no_xp_channel_list:
@@ -74,7 +74,7 @@ class MessageStats(commands.Cog):
             rank = 0
             contents = ""
 
-            async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
+            async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                            [str(ctx.guild.id)]) as cursor:
                 guild_privacy_check = await cursor.fetchall()
             if guild_privacy_check:
@@ -133,7 +133,7 @@ class MessageStats(commands.Cog):
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def word_stats(self, ctx, *args):
-        async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
+        async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             is_private_guild = await cursor.fetchall()
         if is_private_guild:
@@ -141,7 +141,7 @@ class MessageStats(commands.Cog):
                            "and I don\'t store messages from here")
             return None
 
-        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+        async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:

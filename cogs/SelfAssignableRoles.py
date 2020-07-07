@@ -101,7 +101,7 @@ class SelfAssignableRoles(commands.Cog):
                 await ctx.send(f"{ctx.author.mention}, bruh, this role is not self assignable")
             return
 
-        async with self.bot.db.execute("SELECT * FROM assignable_roles_user_blacklist "
+        async with self.bot.db.execute("SELECT user_id, role_id FROM assignable_roles_user_blacklist "
                                        "WHERE user_id = ? AND role_id = ?",
                                        [str(ctx.author.id), str(role.id)]) as cursor:
             blacklist_check = await cursor.fetchone()

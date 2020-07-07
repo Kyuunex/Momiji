@@ -65,12 +65,12 @@ class MomijiChannelImporting(commands.Cog):
         """
 
         if message.guild:
-            async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
+            async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                            [str(message.guild.id)]) as cursor:
                 private_guild_check = await cursor.fetchall()
             if private_guild_check:
                 return True
-        async with self.bot.db.execute("SELECT * FROM mmj_private_channels WHERE channel_id = ?",
+        async with self.bot.db.execute("SELECT channel_id FROM mmj_private_channels WHERE channel_id = ?",
                                        [str(message.channel.id)]) as cursor:
             private_channel_check = await cursor.fetchall()
         if private_channel_check:

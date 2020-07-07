@@ -27,24 +27,24 @@ class RSSFeed(commands.Cog):
             await ctx.send("can't check to this url")
             return None
 
-        async with await self.bot.db.execute("SELECT * FROM rssfeed_tracklist WHERE url = ?", [str(url)]) as cursor:
-            check_is_already_tracked = await cursor.fetchall()
+        async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist WHERE url = ?", [str(url)]) as cursor:
+            check_is_already_tracked = await cursor.fetchone()
         if not check_is_already_tracked:
             await self.bot.db.execute("INSERT INTO rssfeed_tracklist VALUES (?)", [str(url)])
 
         for entry_metadata in feed_entries:
             entry_id = entry_metadata["link"]
-            async with await self.bot.db.execute("SELECT * FROM rssfeed_history WHERE url = ? AND entry_id = ?",
+            async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history WHERE url = ? AND entry_id = ?",
                                                  [str(url), str(entry_id)]) as cursor:
-                check_is_entry_in_history = await cursor.fetchall()
+                check_is_entry_in_history = await cursor.fetchone()
             if not check_is_entry_in_history:
                 await self.bot.db.execute("INSERT INTO rssfeed_history VALUES (?, ?)", [str(url), str(entry_id)])
 
         await self.bot.db.commit()
 
-        async with await self.bot.db.execute("SELECT * FROM rssfeed_channels WHERE channel_id = ? AND url = ?",
+        async with await self.bot.db.execute("SELECT channel_id FROM rssfeed_channels WHERE channel_id = ? AND url = ?",
                                              [str(ctx.channel.id), str(url)]) as cursor:
-            check_is_channel_already_tracked = await cursor.fetchall()
+            check_is_channel_already_tracked = await cursor.fetchone()
         if check_is_channel_already_tracked:
             await ctx.send(f"Feed `{url}` is already tracked in this channel")
             return None
@@ -66,7 +66,7 @@ class RSSFeed(commands.Cog):
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def tracklist(self, ctx, everywhere=None):
-        async with await self.bot.db.execute("SELECT * FROM rssfeed_tracklist") as cursor:
+        async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist") as cursor:
             tracklist = await cursor.fetchall()
         if not tracklist:
             await ctx.send("RSS tracklist is empty")
@@ -154,10 +154,10 @@ class RSSFeed(commands.Cog):
 
                     for one_entry in online_entries["entries"]:
                         entry_id = one_entry["link"]
-                        async with await self.bot.db.execute("SELECT * FROM rssfeed_history "
+                        async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history "
                                                              "WHERE url = ? AND entry_id = ?",
                                                              [str(url), str(entry_id)]) as cursor:
-                            check_is_already_in_history = await cursor.fetchall()
+                            check_is_already_in_history = await cursor.fetchone()
                         if check_is_already_in_history:
                             continue
 

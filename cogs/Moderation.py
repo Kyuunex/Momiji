@@ -106,7 +106,8 @@ class Moderation(commands.Cog):
 
         # TODO: Currently, this may break if we try to filter out with an ID of a user who left. fix
 
-        async with self.bot.db.execute("SELECT * FROM mod_notes WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
+        async with self.bot.db.execute("SELECT guild_id, user_id, note, timestamp FROM mod_notes "
+                                       "WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
             all_mod_notes = await cursor.fetchall()
 
         if user_id:

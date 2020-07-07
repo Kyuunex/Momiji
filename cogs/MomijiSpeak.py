@@ -19,7 +19,7 @@ class MomijiSpeak(commands.Cog):
                     return None
 
         if message.guild:
-            async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+            async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                            [str(message.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
@@ -37,7 +37,7 @@ class MomijiSpeak(commands.Cog):
                     return None
 
         if message.guild:
-            async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+            async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                            [str(message.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
@@ -57,7 +57,7 @@ class MomijiSpeak(commands.Cog):
                     return None
 
         if after.guild:
-            async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+            async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                            [str(after.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
@@ -77,7 +77,7 @@ class MomijiSpeak(commands.Cog):
                 if str(bridge[0]) == str(deleted_channel.id):
                     return None
 
-        async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ?",
+        async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                        [str(deleted_channel.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
@@ -107,12 +107,12 @@ class MomijiSpeak(commands.Cog):
         """
 
         if message.guild:
-            async with self.bot.db.execute("SELECT * FROM mmj_private_guilds WHERE guild_id = ?",
+            async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                            [str(message.guild.id)]) as cursor:
                 private_guild_check = await cursor.fetchall()
             if private_guild_check:
                 return True
-        async with self.bot.db.execute("SELECT * FROM mmj_private_channels WHERE channel_id = ?",
+        async with self.bot.db.execute("SELECT channel_id FROM mmj_private_channels WHERE channel_id = ?",
                                        [str(message.channel.id)]) as cursor:
             private_channel_check = await cursor.fetchall()
         if private_channel_check:
@@ -138,7 +138,9 @@ class MomijiSpeak(commands.Cog):
         return False
 
     async def pick_message(self, message, depended_channel_id):
-        async with self.bot.db.execute("SELECT * FROM mmj_message_logs "
+        async with self.bot.db.execute("SELECT guild_id, channel_id, user_id, message_id, "
+                                       "username, bot, contents, timestamp, deleted "
+                                       "FROM mmj_message_logs "
                                        "WHERE channel_id = ? AND bot = ? AND deleted = ?",
                                        [str(depended_channel_id), "0", "0"]) as cursor:
             all_potential_messages = await cursor.fetchall()
@@ -218,7 +220,7 @@ class MomijiSpeak(commands.Cog):
         if message.content.isupper() and len(message.content) > 2 and random.randint(0, 20) == 1:
             await self.momiji_speak(message)
 
-        async with self.bot.db.execute("SELECT * FROM mmj_responses") as cursor:
+        async with self.bot.db.execute("SELECT trigger, response, type, one_in FROM mmj_responses") as cursor:
             momiji_responses = await cursor.fetchall()
 
         for trigger, response, condition, chances in momiji_responses:
