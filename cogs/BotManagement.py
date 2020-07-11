@@ -291,6 +291,13 @@ class BotManagement(commands.Cog):
 
         buffer += f"**Uptime:** {uptime}\n"
         buffer += f"**Memory usage:** {memory_usage} MB\n"
+        buffer += f"\n"
+
+        buffer += f"**Bot contributors:**\n"
+        buffer += f"```\n"
+        buffer += f"{os.popen('git shortlog -sn').read()}\n"
+        buffer += f"```\n"
+
         embed = discord.Embed(title="About this bot", color=0xe95e62)
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
