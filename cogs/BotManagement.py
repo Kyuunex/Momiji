@@ -2,6 +2,7 @@ import discord
 import os
 import time
 import psutil
+import subprocess
 from discord.ext import commands
 from modules import permissions
 from modules import wrappers
@@ -293,9 +294,10 @@ class BotManagement(commands.Cog):
         buffer += f"**Memory usage:** {memory_usage} MB\n"
         buffer += f"\n"
 
+        contributors_str = subprocess.check_output("git shortlog -sn", shell=True)
         buffer += f"**Bot contributors:**\n"
         buffer += f"```\n"
-        buffer += f"{os.popen('git shortlog -sn').read()}\n"
+        buffer += f"{contributors_str.decode('UTF-8')}\n"
         buffer += f"```\n"
 
         embed = discord.Embed(title="About this bot", color=0xe95e62)
