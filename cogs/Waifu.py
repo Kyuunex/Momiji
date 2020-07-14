@@ -171,7 +171,7 @@ class Waifu(commands.Cog):
             member = wrappers.get_member_guaranteed(ctx, user_id)
         else:
             member = ctx.author
-        for roll in self.roll_count_cache:
+        for roll in reversed(self.roll_count_cache):
             if roll[1].id == member.id:
                 self.roll_count_cache.remove(roll)
         await ctx.send(f"rolls reset for `{member.display_name}`")
