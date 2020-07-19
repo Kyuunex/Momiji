@@ -106,7 +106,8 @@ class RSSFeed(commands.Cog):
 
     async def fetch(self, url):
         try:
-            async with aiohttp.ClientSession() as session:
+            headers = {"Connection": "Upgrade", "Upgrade": "http/1.1"}
+            async with aiohttp.ClientSession(headers=headers) as session:
                 async with session.get(url) as response:
                     http_contents = (await response.text())
                     if len(http_contents) > 4:
