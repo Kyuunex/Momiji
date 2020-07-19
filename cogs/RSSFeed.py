@@ -18,14 +18,20 @@ class RSSFeed(commands.Cog):
             self.bot.loop.create_task(self.rssfeed_background_loop())
         )
 
-    @commands.command(name="rss_add", brief="Subscribe to an RSS feed in the current channel", description="")
+    @commands.command(name="rss_add", brief="Subscribe to an RSS feed in the current channel")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def add(self, ctx, *, url):
-        feed_entries = (feedparser.parse(await self.fetch(url)))["entries"]
+        """
+        Subscribe to an RSS feed in the current channel.
+        """
+
+        url_raw_contents = await self.fetch(url)
+        url_parsed_contents = feedparser.parse(url_raw_contents)
+        feed_entries = url_parsed_contents["entries"]
         if not feed_entries:
             await ctx.send("can't check to this url")
-            return None
+            return
 
         async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist WHERE url = ?", [str(url)]) as cursor:
             check_is_already_tracked = await cursor.fetchone()
@@ -47,30 +53,39 @@ class RSSFeed(commands.Cog):
             check_is_channel_already_tracked = await cursor.fetchone()
         if check_is_channel_already_tracked:
             await ctx.send(f"Feed `{url}` is already tracked in this channel")
-            return None
+            return
 
         await self.bot.db.execute("INSERT INTO rssfeed_channels VALUES (?, ?)", [str(url), str(ctx.channel.id)])
         await ctx.send(f"Feed `{url}` is now tracked in this channel")
         await self.bot.db.commit()
 
-    @commands.command(name="rss_remove", brief="Unsubscribe to an RSS feed in the current channel", description="")
+    @commands.command(name="rss_remove", brief="Unsubscribe to an RSS feed in the current channel")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def remove(self, ctx, *, url):
+        """
+        Unsubscribe to an RSS feed in the current channel
+        """
+
         await self.bot.db.execute("DELETE FROM rssfeed_channels WHERE url = ? AND channel_id = ? ",
                                   [str(url), str(ctx.channel.id)])
         await self.bot.db.commit()
+
         await ctx.send(f"Feed `{url}` is no longer tracked in this channel")
 
-    @commands.command(name="rss_list", brief="Show a list of all RSS feeds being tracked", description="")
+    @commands.command(name="rss_list", brief="Show a list of all RSS feeds being tracked")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def tracklist(self, ctx, everywhere=None):
+        """
+        Show a list of all RSS feeds being tracked
+        """
+
         async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist") as cursor:
             tracklist = await cursor.fetchall()
         if not tracklist:
             await ctx.send("RSS tracklist is empty")
-            return None
+            return
 
         buffer = ":notepad_spiral: **Track list**\n\n"
         for one_entry in tracklist:
@@ -109,7 +124,7 @@ class RSSFeed(commands.Cog):
             headers = {"Connection": "Upgrade", "Upgrade": "http/1.1"}
             async with aiohttp.ClientSession(headers=headers) as session:
                 async with session.get(url) as response:
-                    http_contents = (await response.text())
+                    http_contents = await response.text()
                     if len(http_contents) > 4:
                         return http_contents
                     else:
@@ -147,13 +162,18 @@ class RSSFeed(commands.Cog):
 
                     print(f"checking {url}")
 
-                    online_entries = feedparser.parse(await self.fetch(url))
-                    if not online_entries:
+                    url_raw_contents = await self.fetch(url)
+
+                    url_parsed_contents = feedparser.parse(url_raw_contents)
+
+                    if not url_parsed_contents:
                         print(f"RSSFeed connection issues with {url} ???")
                         await asyncio.sleep(10)
                         continue
 
-                    for one_entry in online_entries["entries"]:
+                    online_entries = url_parsed_contents["entries"]
+
+                    for one_entry in online_entries:
                         entry_id = one_entry["link"]
                         async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history "
                                                              "WHERE url = ? AND entry_id = ?",
