@@ -30,10 +30,10 @@ class Waifu(commands.Cog):
                 return result.display_name
         return f"user who is not in this server"
 
-    @commands.command(name="claim_waifu", brief="Claim a server member as a waifu", description="")
+    @commands.command(name="legacy_claim_waifu", brief="Claim a server member as a waifu")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
-    async def claim_waifu(self, ctx, *, user_id):
+    async def legacy_claim_waifu(self, ctx, *, user_id):
         member = wrappers.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
@@ -69,10 +69,10 @@ class Waifu(commands.Cog):
             return None
         await ctx.send(f"you claimed `{member.display_name}` as your waifu")
 
-    @commands.command(name="unclaim_waifu", brief="Unclaim a server member as a waifu", description="")
+    @commands.command(name="legacy_unclaim_waifu", brief="Unclaim a server member as a waifu")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
-    async def unclaim_waifu(self, ctx, *, user_id):
+    async def legacy_unclaim_waifu(self, ctx, *, user_id):
         member = wrappers.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
@@ -92,10 +92,10 @@ class Waifu(commands.Cog):
             await self.bot.db.commit()
             await ctx.send(f"you unclaimed `{member.display_name}` as your waifu")
 
-    @commands.command(name="show_my_waifu", brief="Show who is my waifu", description="")
+    @commands.command(name="legacy_show_my_waifu", brief="Show who is my waifu")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
-    async def show_my_waifu(self, ctx):
+    async def legacy_show_my_waifu(self, ctx):
         async with self.bot.db.execute("SELECT owner_id FROM waifu_claims WHERE waifu_id = ?",
                                        [str(ctx.author.id)]) as cursor:
             your_owner_id = await cursor.fetchall()
@@ -117,10 +117,10 @@ class Waifu(commands.Cog):
             contents += f"you claimed `{waifu_name}` as your waifu\n"
         await ctx.send(contents)
 
-    @commands.command(name="waifu_chart", brief="Waifu chart", description="")
+    @commands.command(name="legacy_waifu_chart", brief="Waifu chart")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
-    async def waifu_chart(self, ctx):
+    async def legacy_waifu_chart(self, ctx):
         contents = ":revolving_hearts: **Waifu Claim Records**\n\n"
         async with self.bot.db.execute("SELECT owner_id, waifu_id FROM waifu_claims") as cursor:
             waifu_claims = await cursor.fetchall()
