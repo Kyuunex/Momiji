@@ -123,13 +123,20 @@ class Gatekeeper(commands.Cog):
 
     async def get_cached_username(self, ctx, user_id):
         member = ctx.guild.get_member(int(user_id))
-        if not member:
-            async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
-                                           [str(user_id)]) as cursor:
-                user_info = await cursor.fetchone()
-            return user_info[0]
-        else:
+        if member:
             return member.name
+
+        user = self.bot.get_user(user_id)
+        if user:
+            return user.name
+
+        async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
+                                       [str(user_id)]) as cursor:
+            user_info = await cursor.fetchone()
+        if user_info:
+            return user_info[0]
+
+        return ""
 
 
 def setup(bot):
