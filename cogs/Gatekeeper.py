@@ -7,15 +7,14 @@ from discord.ext import commands
 
 
 class Gatekeeper(commands.Cog):
+    """
+    The Gatekeeper module is designed to enforce the invite-only nature of a given server.
+    With this enabled, if a user who is not whitelisted joins the server,
+    they will be removed there and then.
+    To enable this functionality, at least one user must be in a whitelist.
+    Having an empty whitelist will disable this functionality.
+    """
     def __init__(self, bot):
-        """
-        The Gatekeeper module is designed to enforce the invite-only nature of a given server.
-        With this enabled, if a user who is not whitelisted joins the server,
-        they will be removed there and then.
-        To enable this functionality, at least one user must be in a whitelist.
-        Having an empty whitelist will disable this functionality.
-        """
-
         self.bot = bot
 
     @commands.command(name="gatekeeper_whitelist_user", brief="Whitelist a user to join this server")
