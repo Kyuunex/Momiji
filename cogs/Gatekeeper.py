@@ -135,7 +135,7 @@ class Gatekeeper(commands.Cog):
         if user_info:
             return user_info[0]
 
-        return ""
+        return ":"
 
 
 def setup(bot):
