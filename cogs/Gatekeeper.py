@@ -75,6 +75,38 @@ class Gatekeeper(commands.Cog):
 
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
+    @commands.command(name="get_getekeeper_delta", brief="Get users who are in the server but forgot to be whitelisted")
+    @commands.check(permissions.channel_ban_members)
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def get_getekeeper_delta(self, ctx):
+        """
+        Print out users who are in the server but forgot to be whitelisted
+        """
+
+        async with self.bot.db.execute("SELECT user_id FROM gatekeeper_whitelist WHERE guild_id = ?",
+                                       [str(ctx.guild.id)]) as cursor:
+            whitelisted_users = await cursor.fetchall()
+
+        if whitelisted_users:
+            member_list = ctx.guild.members
+            buffer = ":wave: **Users who are in this server but have been forgotten to be whitelisted.**\n\n"
+            for member in member_list:
+                async with self.bot.db.execute("SELECT * FROM gatekeeper_whitelist "
+                                               "WHERE guild_id = ? AND user_id = ?",
+                                               [str(ctx.guild.id), str(member.id)]) as cursor:
+                    is_whitelisted = await cursor.fetchone()
+                if not is_whitelisted:
+                    buffer += f"{member.mention} "
+                    buffer += f"`{member.id}` "
+                    buffer += "\n"
+        else:
+            buffer = "Gatekeeper is disabled in this server because nobody is whitelisted.\n"
+
+        embed = discord.Embed(color=0xf76a8c)
+
+        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+
     @commands.Cog.listener()
     async def on_member_join(self, member):
         if member.bot:
