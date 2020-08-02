@@ -41,6 +41,10 @@ def create_tables():
         c.execute("CREATE TABLE welcome_messages (guild_id, channel_id, message)")
         c.execute("CREATE TABLE goodbye_messages (guild_id, channel_id, message)")
 
+        c.execute("CREATE TABLE gatekeeper_whitelist (guild_id, user_id)")
+
+        c.execute("CREATE TABLE guild_event_report_channels (guild_id, channel_id)")
+
         c.execute("CREATE TABLE rssfeed_tracklist (url)")
         c.execute("CREATE TABLE rssfeed_channels (url, channel_id)")
         c.execute("CREATE TABLE rssfeed_history (url, entry_id)")

@@ -35,6 +35,7 @@ initial_extensions = [
     "cogs.COVID19",
     "cogs.CRPair",
     "cogs.Fun",
+    "cogs.Gatekeeper",
     "cogs.Img",
     "cogs.InspiroBot", 
     "cogs.MessageStats", 
