@@ -129,14 +129,8 @@ class Gatekeeper(commands.Cog):
 
         # if we are here, the user is not allowed here
 
-        deny_message = "i saw you coming from a thousand ri away. " \
-                       "unfortunately for you, this is a private server and " \
-                       "you are not allowed to join this server because " \
-                       "it has a whitelist enabled in which you are not in. " \
-                       "if you think you should be whitelisted, contact an admin."
-
         try:
-            await member.send(content=deny_message)
+            await member.send(embed=await self.deny_embed(member.guild))
             await member.ban(reason="banned by the gatekeeper for not being whitelisted")
         except Exception as e:
             print(e)
@@ -168,6 +162,24 @@ class Gatekeeper(commands.Cog):
             return user_info[0]
 
         return ":"
+
+    async def deny_embed(self, guild):
+        deny_message = "the server you just joined is a private server that has a member whitelist enabled. " \
+                       "unfortunately you are not in it, so you are not allowed to join. " \
+                       "if you think you should be whitelisted, contact an admin."
+
+        embed = discord.Embed(
+            description=deny_message,
+            color=0x800000
+        )
+        embed.set_author(
+            name=guild.name,
+            icon_url=guild.icon_url
+        )
+        embed.set_footer(
+            text="i saw you coming from a thousand ri away."
+        )
+        return embed
 
 
 def setup(bot):
