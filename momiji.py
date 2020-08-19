@@ -69,6 +69,7 @@ class Momiji(commands.Bot):
         self.app_version = (open(".version", "r+").read()).strip()
         self.description = f"Momiji {self.app_version}"
         self.database_file = database_file
+        self.shadow_guild = None
 
         conn = sqlite3.connect(self.database_file)
         c = conn.cursor()
@@ -111,8 +112,9 @@ class Momiji(commands.Bot):
         await self.db.close()
 
         # Run actual discord.py close.
-        await super().close()
+        # await super().close()
 
+        # for now let's just quit() since the thing above does not work :c
         quit()
 
     async def on_ready(self):
