@@ -8,25 +8,34 @@ class VoiceLogging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM voice_logging_channels") as cursor:
+        async with self.bot.db.execute("SELECT channel_id FROM voice_logging_channels "
+                                       "WHERE guild_id = ?", [str(member.guild.id)]) as cursor:
             voice_logging_channels = await cursor.fetchall()
 
         for voice_logging_channel in voice_logging_channels:
-            if str(voice_logging_channel[0]) == str(member.guild.id):
-                channel = self.bot.get_channel(int(voice_logging_channel[1]))
-                if before.channel == after.channel:
-                    return None
+            channel = self.bot.get_channel(int(voice_logging_channel[0]))
+            if not channel:
+                # channel seems to be deleted
+                await self.bot.db.execute("DELETE FROM voice_logging_channels "
+                                          "WHERE channel_id = ?", [str(voice_logging_channel[0])])
+                await self.bot.db.commit()
+                continue
 
-                if not before.channel:
-                    await channel.send(embed=self.member_voice_join_left(member, after.channel, "joined"),
-                                       delete_after=1800)
-                else:
-                    if not after.channel:
-                        await channel.send(embed=self.member_voice_join_left(member, before.channel, "left"),
-                                           delete_after=1800)
-                    else:
-                        await channel.send(embed=self.member_voice_switch(member, before.channel, after.channel),
-                                           delete_after=1800)
+            if before.channel == after.channel:
+                continue
+
+            if not before.channel:
+                await channel.send(embed=self.member_voice_join_left(member, after.channel, "joined"),
+                                   delete_after=1800)
+                continue
+
+            if not after.channel:
+                await channel.send(embed=self.member_voice_join_left(member, before.channel, "left"),
+                                   delete_after=1800)
+                continue
+
+            await channel.send(embed=self.member_voice_switch(member, before.channel, after.channel),
+                               delete_after=1800)
 
     def member_voice_join_left(self, member, channel, action):
         if member:
@@ -42,12 +51,12 @@ class VoiceLogging(commands.Cog):
         else:
             return None
 
-    def member_voice_switch(self, member, before, after):
+    def member_voice_switch(self, member, before_channel, after_channel):
         if member:
             description = f"{member.mention}\n"
             description += "has switched\n"
-            description += f"from **{before.name}**\n"
-            description += f"to **{after.name}**"
+            description += f"from **{before_channel.name}**\n"
+            description += f"to **{after_channel.name}**"
             embed = discord.Embed(
                 color=0x419400,
                 description=description,
