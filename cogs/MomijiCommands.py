@@ -6,24 +6,36 @@ class MomijiCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="bridge", brief="Bridge the channel", description="")
+    @commands.command(name="bridge", brief="Bridge the channel")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     async def bridge(self, ctx, bridge_type: str, value: str):
-        if bridge_type == "channel":
+        """
+        Bridge the current channel with another channel or a cog/extension
+        :param bridge_type: channel / extension
+        :param value: channel_id / extension_name
+        """
+
+        if bridge_type == "channel":  # TODO: validate if the specified channel exists
             await self.bot.db.execute("INSERT INTO mmj_channel_bridges VALUES (?, ?)",
                                       [str(ctx.channel.id), str(value)])
-        elif bridge_type == "extension":
+        elif bridge_type == "extension":  # TODO: validate if the specified user extension exists
             await self.bot.db.execute("INSERT INTO bridged_extensions VALUES (?, ?)",
                                       [str(ctx.channel.id), str(value)])
+
         await self.bot.db.commit()
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="sayonara", brief="Leave the current guild and forget it", description="")
+    @commands.command(name="sayonara", brief="Leave the current guild and forget it")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def sayonara(self, ctx):
+        """
+        This command will make the bot leave the current server
+        and forget about everything that references it in the database
+        """
+
         await ctx.send("sayonara...")
         await ctx.guild.leave()
         await self.bot.db.execute("DELETE FROM pinning_channels WHERE guild_id = ?", [str(ctx.guild.id)])
