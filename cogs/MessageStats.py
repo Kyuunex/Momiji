@@ -128,25 +128,29 @@ class MessageStats(commands.Cog):
             return int(time.time()) - 86400
         return 0
 
-    @commands.command(name="word_stats", brief="Word statistics", description="")
+    @commands.command(name="word_stats", brief="Word statistics")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def word_stats(self, ctx, *args):
+        """
+        Show what are the most popular words spoken in this server.
+        """
+
         async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             is_private_guild = await cursor.fetchall()
         if is_private_guild:
             await ctx.send("impossible to do this in this guild because this is a private area "
                            "and I don\'t store messages from here")
-            return None
+            return
 
         async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                        [str(ctx.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
             await ctx.send("MomijiSpeak is not enabled in this guild.")
-            return None
+            return
 
         async with ctx.channel.typing():
             max_results = 40

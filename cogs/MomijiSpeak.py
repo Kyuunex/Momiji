@@ -16,14 +16,14 @@ class MomijiSpeak(commands.Cog):
         if bridged_extensions:
             for bridge in bridged_extensions:
                 if str(bridge[0]) == str(message.channel.id):
-                    return None
+                    return
 
         if message.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                            [str(message.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
-                return None
+                return
 
         await self.main(message)
 
@@ -34,14 +34,14 @@ class MomijiSpeak(commands.Cog):
         if bridged_extensions:
             for bridge in bridged_extensions:
                 if str(bridge[0]) == str(message.channel.id):
-                    return None
+                    return
 
         if message.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                            [str(message.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
-                return None
+                return
 
         await self.bot.db.execute("UPDATE mmj_message_logs SET deleted = ? WHERE message_id = ?",
                                   [str("1"), str(message.id)])
@@ -54,14 +54,14 @@ class MomijiSpeak(commands.Cog):
         if bridged_extensions:
             for bridge in bridged_extensions:
                 if str(bridge[0]) == str(after.channel.id):
-                    return None
+                    return
 
         if after.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                            [str(after.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
-                return None
+                return
 
         if not await self.check_privacy(after):
             await self.bot.db.execute("UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
@@ -75,13 +75,13 @@ class MomijiSpeak(commands.Cog):
         if bridged_extensions:
             for bridge in bridged_extensions:
                 if str(bridge[0]) == str(deleted_channel.id):
-                    return None
+                    return
 
         async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
                                        [str(deleted_channel.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
-            return None
+            return
 
         await self.bot.db.execute("UPDATE mmj_message_logs SET deleted = ? WHERE channel_id = ?",
                                   [str("1"), str(deleted_channel.id)])
@@ -200,16 +200,16 @@ class MomijiSpeak(commands.Cog):
         await self.store_message(message)
 
         if await permissions.is_ignored(message):
-            return None
+            return
 
         if message.author.bot:
-            return None
+            return
 
         msg = message.content.lower()
 
         if "@everyone" in msg:
             await message.channel.send(file=discord.File("res/pinged.gif"))
-            return None
+            return
 
         if "momiji" in msg or self.bot.user.mention in message.content:
             await self.momiji_speak(message)
@@ -235,7 +235,7 @@ class MomijiSpeak(commands.Cog):
                         await self.bot.db.commit()
                     else:
                         await self.momiji_speak(message)
-                    return None
+                    return
 
     def condition_validate(self, condition, msg, trigger):
         if condition == "1":

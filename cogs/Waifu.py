@@ -37,7 +37,7 @@ class Waifu(commands.Cog):
         member = wrappers.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
-            return None
+            return
 
         async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ?",
                                        [str(ctx.author.id)]) as cursor:
@@ -52,7 +52,7 @@ class Waifu(commands.Cog):
                 else:
                     await ctx.send(f"you already claimed `{waifu_name}` as your waifu. "
                                    f"you can only claim one at a time")
-            return None
+            return
 
         async with self.bot.db.execute("SELECT owner_id FROM waifu_claims WHERE waifu_id = ?",
                                        [str(member.id)]) as cursor:
@@ -60,13 +60,13 @@ class Waifu(commands.Cog):
         if owner_id:
             owner_name = self.guaranteed_member_string(ctx, owner_id[0][0])
             await ctx.send(f"`{member.display_name}` is already claimed by `{owner_name}`")
-            return None
+            return
 
         await self.bot.db.execute("INSERT INTO waifu_claims VALUES (?,?)", [str(ctx.author.id), str(member.id)])
         await self.bot.db.commit()
         if str(ctx.author.id) == str(member.id):
             await ctx.send("you claimed yourself as your waifu. nice.")
-            return None
+            return
         await ctx.send(f"you claimed `{member.display_name}` as your waifu")
 
     @commands.command(name="legacy_unclaim_waifu", brief="Unclaim a server member as a waifu")
@@ -81,7 +81,7 @@ class Waifu(commands.Cog):
                                           [str(ctx.author.id), str(user_id)])
                 await self.bot.db.commit()
                 await ctx.send("but i tried to unclaim whoever you claimed")
-            return None
+            return
 
         async with self.bot.db.execute("SELECT waifu_id FROM waifu_claims WHERE owner_id = ? AND waifu_id = ?",
                                        [str(ctx.author.id), str(member.id)]) as cursor:
@@ -104,10 +104,10 @@ class Waifu(commands.Cog):
             your_waifu_id = await cursor.fetchall()
         if (not your_waifu_id) and (not your_owner_id):
             await ctx.send("you claimed no one and no one claimed you")
-            return None
+            return
         if your_owner_id == your_waifu_id:
             await ctx.send("you claimed yourself as your waifu")
-            return None
+            return
         contents = f"{ctx.author.mention}\n"
         if your_owner_id:
             owner_name = self.guaranteed_member_string(ctx, your_owner_id[0][0])

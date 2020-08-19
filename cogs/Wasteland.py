@@ -60,13 +60,13 @@ class Wasteland(commands.Cog):
         if wasteland_ignore_channels:
             for ignore_channel in wasteland_ignore_channels:
                 if str(ignore_channel[0]) == str(before.channel.id):
-                    return None
+                    return
 
         if wasteland_ignore_users:
             for ignore_user in wasteland_ignore_users:
                 if str(ignore_user[0]) == str(before.guild.id):
                     if str(ignore_user[1]) == str(before.author.id):
-                        return None
+                        return
 
         if not before.author.bot:
             if before.content != after.content:
@@ -87,13 +87,13 @@ class Wasteland(commands.Cog):
         if wasteland_ignore_channels:
             for ignore_channel in wasteland_ignore_channels:
                 if str(ignore_channel[0]) == str(message.channel.id):
-                    return None
+                    return
 
         if wasteland_ignore_users:
             for ignore_user in wasteland_ignore_users:
                 if str(ignore_user[0]) == str(message.guild.id):
                     if str(ignore_user[1]) == str(message.author.id):
-                        return None
+                        return
 
         if not message.author.bot:
             for wasteland_channel in wasteland_channels:

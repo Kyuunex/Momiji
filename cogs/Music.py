@@ -68,48 +68,67 @@ class Music(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="m_join", brief="Join a voice channel", description="")
+    @commands.command(name="m_join", brief="Join a voice channel")
     @commands.guild_only()
     @commands.check(is_dj)
     @commands.check(permissions.is_not_ignored)
     async def m_join(self, ctx):
+        """
+        Make the bot join the same voice channel the message author is in
+        """
+
         pass
 
-    @commands.command(name="m_leave", brief="Disconnect from a voice channel", description="")
+    @commands.command(name="m_leave", brief="Disconnect from a voice channel")
     @commands.guild_only()
     @commands.check(is_dj)
     @commands.check(permissions.is_not_ignored)
     async def m_leave(self, ctx):
+        """
+        Make the bot disconnect from the voice channel it is in, in the given server
+        """
+
         await ctx.voice_client.disconnect()
 
-    @commands.command(name="m_play", brief="Plays from a url (almost anything youtube_dl supports)", description="")
+    @commands.command(name="m_play", brief="Plays from a url")
     @commands.guild_only()
     @commands.check(is_dj)
     @commands.check(permissions.is_not_ignored)
     async def m_play(self, ctx, *, url):
+        """
+        Plays an audio from a url.
+        Supports almost anything youtube_dl supports
+        """
+
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop)
             ctx.voice_client.play(player, after=lambda e: print("Player error: %s" % e) if e else None)
         await ctx.send(f"Now playing: `{player.title}`")
 
-    @commands.command(name="m_stream",
-                      brief="Streams from a url",
-                      description="Same as m_play, but doesn't pre-download")
+    @commands.command(name="m_stream", brief="Streams from a url")
     @commands.guild_only()
     @commands.check(is_dj)
     @commands.check(permissions.is_not_ignored)
     async def m_stream(self, ctx, *, url):
+        """
+        Same as m_play, but doesn't pre-download the audio. It will stream as it downloads.
+        """
+
         async with ctx.typing():
             player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
             ctx.voice_client.play(player, after=lambda e: print("Player error: %s" % e) if e else None)
 
         await ctx.send(f"Now playing: `{player.title}`")
 
-    @commands.command(name="m_stop", brief="Stop the music", description="")
+    @commands.command(name="m_stop", brief="Stop the music")
     @commands.guild_only()
     @commands.check(is_dj)
     @commands.check(permissions.is_not_ignored)
     async def m_stop(self, ctx):
+        """
+        Stop playing the music
+        """
+
         ctx.voice_client.stop()
 
     @m_play.before_invoke

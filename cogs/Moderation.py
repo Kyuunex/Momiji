@@ -10,7 +10,7 @@ class Moderation(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(name="purge", brief="Purge X amount of messages", description="")
+    @commands.command(name="purge", brief="Purge X amount of messages")
     @commands.guild_only()
     @commands.check(permissions.channel_manage_messages)
     @commands.check(permissions.is_not_ignored)
