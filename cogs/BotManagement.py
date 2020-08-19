@@ -132,10 +132,9 @@ class BotManagement(commands.Cog):
         This also relies on the bot running in a loop.
         """
 
-        await ctx.send("Updating.")
-
         os.system("git pull")
-        await self.bot.close()
+
+        await ctx.send("Updates fetched, restart to apply")
 
     @commands.command(name="sql", brief="Execute an SQL query")
     @commands.check(permissions.is_owner)
