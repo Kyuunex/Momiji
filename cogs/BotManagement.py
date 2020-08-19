@@ -120,7 +120,6 @@ class BotManagement(commands.Cog):
         await ctx.send("Restarting")
 
         await self.bot.close()
-        quit()
 
     @commands.command(name="update", brief="Update the bot")
     @commands.check(permissions.is_owner)
@@ -137,7 +136,6 @@ class BotManagement(commands.Cog):
 
         os.system("git pull")
         await self.bot.close()
-        quit()
 
     @commands.command(name="sql", brief="Execute an SQL query")
     @commands.check(permissions.is_owner)

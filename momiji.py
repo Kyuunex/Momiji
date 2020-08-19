@@ -113,6 +113,8 @@ class Momiji(commands.Bot):
         # Run actual discord.py close.
         await super().close()
 
+        quit()
+
     async def on_ready(self):
         print("Logged in as")
         print(self.user.name)
