@@ -20,14 +20,14 @@ class TraceMoe(commands.Cog):
         Attach an image to the message containing the command to look it up
         """
 
+        if not ctx.message.attachments:
+            await ctx.send("the message has no attachments")
+            return
+
         if not await cooldown.check(str(ctx.author.id), "last_trace_time", 600):
             if not await permissions.is_admin(ctx):
                 await ctx.send("one use per 10 minutes per user")
-                return None
-
-        if not ctx.message.attachments:
-            await ctx.send("the message has no attachments")
-            return None
+                return
 
         async with ctx.channel.typing():
             attachment = ctx.message.attachments[0]
@@ -36,7 +36,7 @@ class TraceMoe(commands.Cog):
 
             if not search_results:
                 await ctx.send("nothing found")
-                return None
+                return
 
             first_result = search_results.docs[0]
             embed = TraceEmbeds.result(first_result)
