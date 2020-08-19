@@ -81,10 +81,14 @@ class SelfAssignableRoles(commands.Cog):
         embed.set_author(name="Self-assignable roles:")
         await wrappers.send_large_embed(ctx.channel, embed, buffer)
 
-    @commands.command(name="join", brief="Assign a self-assignable role", description="")
+    @commands.command(name="join", brief="Assign a self-assignable role")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def join(self, ctx, *, role_name):
+        """
+        Assign yourself one of the roles that you are allowed to assign yourself
+        """
+
         role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
         if not role:
             await ctx.send(f"{ctx.author.mention}, bruh, this role does not exist.")
@@ -116,10 +120,14 @@ class SelfAssignableRoles(commands.Cog):
             except Exception as e:
                 await ctx.send(e)
 
-    @commands.command(name="leave", brief="Remove a self-assignable a role", description="")
+    @commands.command(name="leave", brief="Remove a self-assignable a role")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def leave(self, ctx, *, role_name):
+        """
+        Remove a self-assignable role yopu already have
+        """
+
         role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
         if not role:
             await ctx.send(f"{ctx.author.mention}, bruh, this role does not exist.")
