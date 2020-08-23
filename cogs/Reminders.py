@@ -57,15 +57,20 @@ class Reminders(commands.Cog):
 
         response_message = await ctx.send(embed=embed)
 
+        if ctx.guild:
+            guild_id = ctx.guild.id
+        else:
+            guild_id = 0
+
         await self.bot.db.execute("INSERT INTO reminders VALUES (?, ?, ?, ?, ?, ?, ?)",
                                   [str(when), str(ctx.message.id), str(response_message.id),
-                                   str(ctx.channel.id), str(ctx.guild.id), str(ctx.author.id), str(contents)])
+                                   str(ctx.channel.id), str(guild_id), str(ctx.author.id), str(contents)])
         await self.bot.db.commit()
 
         self.bot.background_tasks.append(
             self.bot.loop.create_task(self.reminder_task(str(when), str(ctx.message.id),
                                                          str(response_message.id),
-                                                         str(ctx.channel.id), str(ctx.guild.id),
+                                                         str(ctx.channel.id), str(guild_id),
                                                          str(ctx.author.id), str(contents)))
         )
 
@@ -138,14 +143,19 @@ class Reminders(commands.Cog):
 
         if is_not_deleted:
 
-            guild = self.bot.get_guild(int(guild_id))
-            channel = guild.get_channel(int(channel_id))
-            member = guild.get_member(int(user_id))
+            if int(guild_id) != 0:
+                guild = self.bot.get_guild(int(guild_id))
+                channel = guild.get_channel(int(channel_id))
+                member = guild.get_member(int(user_id))
 
-            if not channel:
-                await member.send(f"<@{user_id}>, reminder!", embed=await self.message_embed(member, contents))
+                if not channel:
+                    await member.send(f"<@{user_id}>, reminder!", embed=await self.message_embed(member, contents))
+                else:
+                    await channel.send(f"<@{user_id}>, reminder!", embed=await self.message_embed(member, contents))
             else:
-                await channel.send(f"<@{user_id}>, reminder!", embed=await self.message_embed(member, contents))
+                member = self.bot.get_user(int(user_id))
+                if member:
+                    await member.send(f"<@{user_id}>, reminder!", embed=await self.message_embed(member, contents))
 
         await self.bot.db.execute("DELETE FROM reminders WHERE message_id = ?", [str(message_id)])
         await self.bot.db.commit()
