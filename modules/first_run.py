@@ -45,6 +45,9 @@ def create_tables():
 
         c.execute("CREATE TABLE guild_event_report_channels (guild_id, channel_id)")
 
+        c.execute("CREATE TABLE reminders (timestamp, message_id, response_message_id, "
+                  "channel_id, guild_id, user_id, contents)")
+
         c.execute("CREATE TABLE rssfeed_tracklist (url)")
         c.execute("CREATE TABLE rssfeed_channels (url, channel_id)")
         c.execute("CREATE TABLE rssfeed_history (url, entry_id)")

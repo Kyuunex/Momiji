@@ -11,7 +11,13 @@ from modules import wrappers
 
 class Reminders(commands.Cog):
     """
-    CREATE TABLE reminders (timestamp, message_id, response_message_id, channel_id, guild_id, user_id, contents)
+    This set of functions/commands manage reminders.
+
+    Reminder create examples:
+    ;remind_me 55s time's up lol
+    ;remind_me 75m it's time to mod that map
+    ;remind_me 2h look at that song X has sent
+    ;remind_me 2d deadline for that mod is today
     """
 
     def __init__(self, bot):
@@ -36,6 +42,7 @@ class Reminders(commands.Cog):
         """
         Set a reminder
         """
+        
         try:
             when = self.user_input_to_posix_time(length)
         except Exception as e:
