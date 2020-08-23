@@ -95,7 +95,8 @@ class Reminders(commands.Cog):
 
         if my_reminders:
             for my_reminder in my_reminders:
-                buffer += f"{my_reminder[0]} | <#{my_reminder[1]}> | reason:\n"
+                when_datetime = datetime.datetime.utcfromtimestamp(int(my_reminder[0]))
+                buffer += f"{when_datetime.isoformat(' ')} UTC+0 | <#{my_reminder[1]}> | reason:\n"
                 buffer += "```\n"
                 buffer += f"{my_reminder[2]}\n"
                 buffer += "```\n"
