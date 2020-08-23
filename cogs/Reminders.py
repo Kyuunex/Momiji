@@ -42,7 +42,7 @@ class Reminders(commands.Cog):
         """
         Set a reminder
         """
-        
+
         try:
             when = self.user_input_to_posix_time(length)
         except Exception as e:
