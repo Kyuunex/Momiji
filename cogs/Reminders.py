@@ -87,7 +87,8 @@ class Reminders(commands.Cog):
         List all your reminders
         """
 
-        async with self.bot.db.execute("SELECT timestamp, channel_id, contents FROM reminders") as cursor:
+        async with self.bot.db.execute("SELECT timestamp, channel_id, contents FROM reminders "
+                                       "WHERE user_id = ?", [str(ctx.author.id)]) as cursor:
             my_reminders = await cursor.fetchall()
 
         buffer = f":no_entry_sign: **{ctx.author.display_name}'s reminders.**\n\n"
