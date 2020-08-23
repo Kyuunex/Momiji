@@ -51,9 +51,9 @@ class Reminders(commands.Cog):
 
         embed = await self.message_embed(ctx.author, contents)
 
-        when_datetime = datetime.datetime.fromtimestamp(when)
+        when_datetime = datetime.datetime.utcfromtimestamp(when)
 
-        embed.set_footer(text=f"Will be set off on {when_datetime.isoformat(' ')}")
+        embed.set_footer(text=f"Will be set off on {when_datetime.isoformat(' ')} UTC+0")
 
         response_message = await ctx.send(embed=embed)
 
