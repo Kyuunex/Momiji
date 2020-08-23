@@ -48,6 +48,7 @@ initial_extensions = [
     "cogs.Music", 
     "cogs.Pinning", 
     "cogs.RegularRole",
+    "cogs.Reminders",
     "cogs.RSSFeed",
     "cogs.SelfAssignableRoles",
     "cogs.StatsBuilder", 
