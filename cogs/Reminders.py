@@ -80,7 +80,9 @@ class Reminders(commands.Cog):
         await self.bot.db.execute("DELETE FROM reminders WHERE message_id = ?", [str(payload.message_id)])
         await self.bot.db.commit()
 
-    @commands.command(name="list_my_reminders", brief="List all your reminders")
+    @commands.command(name="list_my_reminders",
+                      brief="List all your reminders",
+                      aliases=["my_reminders", "reminders", "show_my_reminders"])
     @commands.check(permissions.is_not_ignored)
     async def list_my_reminders(self, ctx):
         """
