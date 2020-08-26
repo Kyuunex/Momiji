@@ -30,11 +30,12 @@ Inside it, put the following:
 ```ini
 [Unit]
 Description=Momiji
-After=multi-user.target
+After=network.target
+StartLimitIntervalSec=0
 
 [Service]
-Restart=on-failure
-RestartSec=5s
+Restart=always
+RestartSec=5
 User=pi
 Type=simple
 WorkingDirectory=/home/pi/Momiji/
