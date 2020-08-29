@@ -195,7 +195,7 @@ class RegularRole(commands.Cog):
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
-    async def regular_role_blacklist_remove(self, ctx):
+    async def regular_role_blacklist(self, ctx):
         """
         List all members blacklisted from being a regular.
         """
