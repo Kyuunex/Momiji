@@ -126,7 +126,7 @@ class InspiroBot(commands.Cog):
                 if not len(message_to_send) > 200:
                     await asyncio.sleep(1)
 
-        await ctx.send(message_to_send.replace("@", "").replace("[pause 1]", "\n"))
+        await ctx.send(message_to_send.replace("@", "").replace("[pause 1]", ""))
 
     @mindfulness.before_invoke
     async def ensure_voice(self, ctx):
