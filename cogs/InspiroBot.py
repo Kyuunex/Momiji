@@ -100,6 +100,31 @@ class InspiroBot(commands.Cog):
         await asyncio.sleep(2)
         await ctx.voice_client.disconnect()
 
+    @commands.command(name="story", brief="Tells you a story")
+    @commands.check(permissions.is_not_ignored)
+    async def story(self, ctx):
+        """
+        Tells you a story
+        """
+
+        session_id = await self.api_request_text(getSessionID="1")
+        if not session_id:
+            return
+
+        message_to_send = "i looked for a story for you for a long time, but couldn't get anything :c"
+
+        async with ctx.channel.typing():
+            for i in range(10):
+                one_flow = await self.api_request(generateFlow="1", sessionID=session_id)
+                segments = one_flow["data"]
+                for segment in segments:
+                    if segment["type"] == "quote":
+                        if len(segment['text']) > 200:
+                            message_to_send = segment['text']
+                            break
+
+        await ctx.send(message_to_send.replace("@", "").replace("[pause 1]", "\n"))
+
     @mindfulness.before_invoke
     async def ensure_voice(self, ctx):
         if ctx.voice_client is None:
