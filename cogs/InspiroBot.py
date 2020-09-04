@@ -123,7 +123,8 @@ class InspiroBot(commands.Cog):
                             message_to_send = segment['text']
                             break
 
-                await asyncio.sleep(2)
+                if not len(message_to_send) > 200:
+                    await asyncio.sleep(1)
 
         await ctx.send(message_to_send.replace("@", "").replace("[pause 1]", "\n"))
 
