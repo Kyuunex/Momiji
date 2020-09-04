@@ -149,9 +149,17 @@ class COVID19Embeds:
     @staticmethod
     def CountryInfo(country):
         if country:
-            description = f":thermometer_face: **Confirmed:** {country.TotalConfirmed} ({country.NewConfirmed} recent)\n"
-            description += f":coffin: **Dead:** {country.TotalDeaths} ({country.NewDeaths} recent)\n"
-            description += f":ok_hand: **Recovered:** {country.TotalRecovered} ({country.NewRecovered} recent)\n"
+            death_percentage = round(float(country.TotalDeaths * 100 / country.TotalConfirmed), 3)
+            recovery_percentage = round(float(country.TotalRecovered * 100 / country.TotalConfirmed), 3)
+
+            description = f":thermometer_face: **Confirmed:** " \
+                          f"{country.TotalConfirmed} ({country.NewConfirmed} recent)\n"
+            description += f":coffin: **Dead:** " \
+                           f"{country.TotalDeaths} ({death_percentage}% of total) " \
+                           f"({country.NewDeaths} recent)\n"
+            description += f":ok_hand: **Recovered:** " \
+                           f"{country.TotalRecovered} ({recovery_percentage}% of total) " \
+                           f"({country.NewRecovered} recent)\n"
 
             embed = discord.Embed(
                 description=description,
