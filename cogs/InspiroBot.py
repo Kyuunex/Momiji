@@ -114,7 +114,7 @@ class InspiroBot(commands.Cog):
         message_to_send = "i looked for a story for you for a long time, but couldn't get anything :c"
 
         async with ctx.channel.typing():
-            for i in range(10):
+            for i in range(20):
                 one_flow = await self.api_request(generateFlow="1", sessionID=session_id)
                 segments = one_flow["data"]
                 for segment in segments:
