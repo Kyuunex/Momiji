@@ -123,6 +123,8 @@ class InspiroBot(commands.Cog):
                             message_to_send = segment['text']
                             break
 
+                await asyncio.sleep(2)
+
         await ctx.send(message_to_send.replace("@", "").replace("[pause 1]", "\n"))
 
     @mindfulness.before_invoke
