@@ -12,7 +12,7 @@ class Wasteland(commands.Cog):
         async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
-            if str(wasteland_channel[0]) == str(guild.id):
+            if int(wasteland_channel[0]) == int(guild.id):
                 channel = self.bot.get_channel(int(wasteland_channel[1]))
                 try:
                     about_this_ban = await guild.fetch_ban(member)
@@ -26,7 +26,7 @@ class Wasteland(commands.Cog):
         async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
-            if str(wasteland_channel[0]) == str(guild.id):
+            if int(wasteland_channel[0]) == int(guild.id):
                 channel = self.bot.get_channel(int(wasteland_channel[1]))
                 await channel.send(embed=await WastelandEmbeds.member_unban(user))
 
@@ -35,7 +35,7 @@ class Wasteland(commands.Cog):
         async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
-            if str(wasteland_channel[0]) == str(member.guild.id):
+            if int(wasteland_channel[0]) == int(member.guild.id):
                 channel = self.bot.get_channel(int(wasteland_channel[1]))
                 await channel.send(embed=await WastelandEmbeds.member_remove(member))
 
@@ -44,7 +44,7 @@ class Wasteland(commands.Cog):
         async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
-            if str(wasteland_channel[0]) == str(member.guild.id):
+            if int(wasteland_channel[0]) == int(member.guild.id):
                 channel = self.bot.get_channel(int(wasteland_channel[1]))
                 await channel.send(embed=await WastelandEmbeds.member_join(member))
 
@@ -59,19 +59,19 @@ class Wasteland(commands.Cog):
 
         if wasteland_ignore_channels:
             for ignore_channel in wasteland_ignore_channels:
-                if str(ignore_channel[0]) == str(before.channel.id):
+                if int(ignore_channel[0]) == int(before.channel.id):
                     return
 
         if wasteland_ignore_users:
             for ignore_user in wasteland_ignore_users:
-                if str(ignore_user[0]) == str(before.guild.id):
-                    if str(ignore_user[1]) == str(before.author.id):
+                if int(ignore_user[0]) == int(before.guild.id):
+                    if int(ignore_user[1]) == int(before.author.id):
                         return
 
         if not before.author.bot:
             if before.content != after.content:
                 for wasteland_channel in wasteland_channels:
-                    if str(wasteland_channel[0]) == str(before.guild.id):
+                    if int(wasteland_channel[0]) == int(before.guild.id):
                         channel = self.bot.get_channel(int(wasteland_channel[1]))
                         await channel.send(embed=await WastelandEmbeds.message_edit(before, after))
 
@@ -86,18 +86,18 @@ class Wasteland(commands.Cog):
 
         if wasteland_ignore_channels:
             for ignore_channel in wasteland_ignore_channels:
-                if str(ignore_channel[0]) == str(message.channel.id):
+                if int(ignore_channel[0]) == int(message.channel.id):
                     return
 
         if wasteland_ignore_users:
             for ignore_user in wasteland_ignore_users:
-                if str(ignore_user[0]) == str(message.guild.id):
-                    if str(ignore_user[1]) == str(message.author.id):
+                if int(ignore_user[0]) == int(message.guild.id):
+                    if int(ignore_user[1]) == int(message.author.id):
                         return
 
         if not message.author.bot:
             for wasteland_channel in wasteland_channels:
-                if str(wasteland_channel[0]) == str(message.guild.id):
+                if int(wasteland_channel[0]) == int(message.guild.id):
                     channel = self.bot.get_channel(int(wasteland_channel[1]))
                     await channel.send(embed=await WastelandEmbeds.message_delete(message))
 
@@ -108,7 +108,7 @@ class Wasteland(commands.Cog):
 
         if before.roles != after.roles:
             for wasteland_channel in wasteland_channels:
-                if str(wasteland_channel[0]) == str(after.guild.id):
+                if int(wasteland_channel[0]) == int(after.guild.id):
                     added = await self.compare_roles(after.roles, before.roles)
                     removed = await self.compare_roles(before.roles, after.roles)
 
@@ -118,10 +118,10 @@ class Wasteland(commands.Cog):
                         role = removed[0]
 
                     async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE role_id = ?",
-                                                   [str(role.id)]) as cursor:
+                                                   [int(role.id)]) as cursor:
                         voice_role = await cursor.fetchall()
                     async with self.bot.db.execute("SELECT role_id FROM regular_roles WHERE role_id = ?",
-                                                   [str(role.id)]) as cursor:
+                                                   [int(role.id)]) as cursor:
                         regulars_role = await cursor.fetchall()
                     if (not voice_role) and (not regulars_role):
                         channel = self.bot.get_channel(int(wasteland_channel[1]))

@@ -28,7 +28,7 @@ class RegularRole(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT guild_id, role_id, threshold FROM regular_roles "
-                                       "WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
+                                       "WHERE guild_id = ?", [int(ctx.guild.id)]) as cursor:
             regular_roles = await cursor.fetchall()
 
         if not regular_roles:
@@ -36,7 +36,7 @@ class RegularRole(commands.Cog):
             return
 
         async with self.bot.db.execute("SELECT user_id FROM regular_roles_user_blacklist "
-                                       "WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
+                                       "WHERE guild_id = ?", [int(ctx.guild.id)]) as cursor:
             user_blacklist = await cursor.fetchall()
 
         async with self.bot.db.execute("SELECT channel_id FROM mmj_stats_channel_blacklist") as cursor:
@@ -54,9 +54,9 @@ class RegularRole(commands.Cog):
                 query_str = "SELECT user_id FROM mmj_message_logs WHERE guild_id = ? AND timestamp > ? AND bot = ?"
 
                 for one_no_xp_channel in no_xp_channel_list:
-                    query_str += f" AND channel_id != '{one_no_xp_channel[0]}'"
+                    query_str += f" AND channel_id != {one_no_xp_channel[0]}"
 
-                async with self.bot.db.execute(query_str, (str(ctx.guild.id), str(after), str("0"))) as cursor:
+                async with self.bot.db.execute(query_str, (int(ctx.guild.id), int(after), 0)) as cursor:
                     messages = await cursor.fetchall()
 
                 stats = await self.list_sorter(messages)
@@ -68,7 +68,7 @@ class RegularRole(commands.Cog):
                 for member_id in stats:
                     member = ctx.guild.get_member(int(member_id[0][0]))
                     for blacklisted_user in user_blacklist:
-                        if str(member_id[0][0]) == str(blacklisted_user[0]):
+                        if int(member_id[0][0]) == int(blacklisted_user[0]):
                             member = None
                             break
                     if member:
@@ -113,11 +113,12 @@ class RegularRole(commands.Cog):
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
-    async def regular_role_add(self, ctx, role_name="Regular", threshold="10"):
+    async def regular_role_add(self, ctx, role_name="Regular", threshold="10", refresh_interval="172800"):
         """
         Register a Regulars role.
         :param role_name: The name of the role
         :param threshold: The top X amount of people who get the role
+        :param refresh_interval: Interval in seconds to wait before updating the role members again
         """
 
         role = discord.utils.get(ctx.guild.roles, name=role_name)
@@ -125,8 +126,8 @@ class RegularRole(commands.Cog):
             await ctx.send("no role found with that name")
             return
 
-        await self.bot.db.execute("INSERT INTO regular_roles VALUES (?,?,?)",
-                                  [str(ctx.guild.id), str(role.id), str(threshold)])
+        await self.bot.db.execute("INSERT INTO regular_roles VALUES (?,?,?,?)",
+                                  [int(ctx.guild.id), int(role.id), int(threshold), int(refresh_interval)])
         await self.bot.db.commit()
 
         await ctx.send(f"{role.name} role is now regular role with top {threshold} getting the role")
@@ -146,7 +147,7 @@ class RegularRole(commands.Cog):
             return
 
         await self.bot.db.execute("DELETE FROM regular_roles WHERE guild_id = ? AND role_id = ?",
-                                  [str(ctx.guild.id), str(role.id)])
+                                  [int(ctx.guild.id), int(role.id)])
         await self.bot.db.commit()
 
         await ctx.send(f"{role.name} is no longer the regular role")
@@ -166,7 +167,7 @@ class RegularRole(commands.Cog):
             return
 
         await self.bot.db.execute("INSERT INTO regular_roles_user_blacklist VALUES (?,?)",
-                                  [str(ctx.guild.id), str(member.id)])
+                                  [int(ctx.guild.id), int(member.id)])
         await self.bot.db.commit()
 
         await ctx.send(f"{member.display_name} is now no longer be allowed to be a regular")
@@ -186,7 +187,7 @@ class RegularRole(commands.Cog):
             return
 
         await self.bot.db.execute("DELETE FROM regular_roles_user_blacklist WHERE guild_id = ? AND user_id = ?",
-                                  [str(ctx.guild.id), str(member.id)])
+                                  [int(ctx.guild.id), int(member.id)])
         await self.bot.db.commit()
 
         await ctx.send(f"{member.name} is now allowed to be a regular again")
@@ -201,7 +202,7 @@ class RegularRole(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT user_id FROM regular_roles_user_blacklist WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             regular_blacklist = await cursor.fetchall()
 
         if not regular_blacklist:
@@ -222,7 +223,7 @@ class RegularRole(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role):
-        await self.bot.db.execute("DELETE FROM regular_roles WHERE role_id = ?", [str(role.id)])
+        await self.bot.db.execute("DELETE FROM regular_roles WHERE role_id = ?", [int(role.id)])
         await self.bot.db.commit()
 
 

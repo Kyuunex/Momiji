@@ -17,7 +17,7 @@ class WastelandConfiguration(commands.Cog):
         """
 
         await self.bot.db.execute("INSERT INTO wasteland_ignore_channels VALUES (?, ?)",
-                                  [str(ctx.guild.id), str(ctx.channel.id)])
+                                  [int(ctx.guild.id), int(ctx.channel.id)])
         await self.bot.db.commit()
         await ctx.send(":ok_hand:")
 
@@ -30,7 +30,7 @@ class WastelandConfiguration(commands.Cog):
         """
 
         await self.bot.db.execute("INSERT INTO wasteland_ignore_users VALUES (?, ?)",
-                                  [str(ctx.guild.id), str(user_id)])
+                                  [int(ctx.guild.id), int(user_id)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")
@@ -45,7 +45,7 @@ class WastelandConfiguration(commands.Cog):
         """
 
         await self.bot.db.execute("INSERT INTO wasteland_channels VALUES (?,?)",
-                                  [str(ctx.guild.id), str(ctx.channel.id)])
+                                  [int(ctx.guild.id), int(ctx.channel.id)])
         await self.bot.db.commit()
 
         await ctx.send("This channel is now a wasteland channel.")
@@ -60,10 +60,10 @@ class WastelandConfiguration(commands.Cog):
         """
 
         if "guild" in args:
-            await self.bot.db.execute("DELETE FROM wasteland_channels WHERE guild_id = ?", [str(ctx.guild.id)])
+            await self.bot.db.execute("DELETE FROM wasteland_channels WHERE guild_id = ?", [int(ctx.guild.id)])
             await ctx.send("If this server had a wasteland channel, there are none now.")
         else:
-            await self.bot.db.execute("DELETE FROM wasteland_channels WHERE channel_id = ?", [str(ctx.channel.id)])
+            await self.bot.db.execute("DELETE FROM wasteland_channels WHERE channel_id = ?", [int(ctx.channel.id)])
             await ctx.send("If this channel was a wasteland channel, it is not more.")
         await self.bot.db.commit()
 
@@ -77,7 +77,7 @@ class WastelandConfiguration(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT channel_id FROM wasteland_channels WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             wasteland_channels = await cursor.fetchall()
 
         buffer = ":wastebasket: **Wasteland channels in this server.**\n\n"

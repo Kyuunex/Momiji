@@ -15,12 +15,12 @@ class MomijiSpeak(commands.Cog):
             bridged_extensions = await cursor.fetchall()
         if bridged_extensions:
             for bridge in bridged_extensions:
-                if str(bridge[0]) == str(message.channel.id):
+                if int(bridge[0]) == int(message.channel.id):
                     return
 
         if message.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                           [str(message.guild.id)]) as cursor:
+                                           [int(message.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
                 return
@@ -33,18 +33,18 @@ class MomijiSpeak(commands.Cog):
             bridged_extensions = await cursor.fetchall()
         if bridged_extensions:
             for bridge in bridged_extensions:
-                if str(bridge[0]) == str(message.channel.id):
+                if int(bridge[0]) == int(message.channel.id):
                     return
 
         if message.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                           [str(message.guild.id)]) as cursor:
+                                           [int(message.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
                 return
 
         await self.bot.db.execute("UPDATE mmj_message_logs SET deleted = ? WHERE message_id = ?",
-                                  [str("1"), str(message.id)])
+                                  [1, int(message.id)])
         await self.bot.db.commit()
 
     @commands.Cog.listener()
@@ -53,19 +53,19 @@ class MomijiSpeak(commands.Cog):
             bridged_extensions = await cursor.fetchall()
         if bridged_extensions:
             for bridge in bridged_extensions:
-                if str(bridge[0]) == str(after.channel.id):
+                if int(bridge[0]) == int(after.channel.id):
                     return
 
         if after.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                           [str(after.guild.id)]) as cursor:
+                                           [int(after.guild.id)]) as cursor:
                 is_enabled_guild = await cursor.fetchall()
             if not is_enabled_guild:
                 return
 
         if not await self.check_privacy(after):
             await self.bot.db.execute("UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
-                                      [str(after.content), str(after.id)])
+                                      [int(after.content), int(after.id)])
             await self.bot.db.commit()
 
     @commands.Cog.listener()
@@ -74,17 +74,17 @@ class MomijiSpeak(commands.Cog):
             bridged_extensions = await cursor.fetchall()
         if bridged_extensions:
             for bridge in bridged_extensions:
-                if str(bridge[0]) == str(deleted_channel.id):
+                if int(bridge[0]) == int(deleted_channel.id):
                     return
 
         async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                       [str(deleted_channel.guild.id)]) as cursor:
+                                       [int(deleted_channel.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
             return
 
         await self.bot.db.execute("UPDATE mmj_message_logs SET deleted = ? WHERE channel_id = ?",
-                                  [str("1"), str(deleted_channel.id)])
+                                  [1, int(deleted_channel.id)])
         await self.bot.db.commit()
 
     async def join_spam_train(self, message):
@@ -108,12 +108,12 @@ class MomijiSpeak(commands.Cog):
 
         if message.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
-                                           [str(message.guild.id)]) as cursor:
+                                           [int(message.guild.id)]) as cursor:
                 private_guild_check = await cursor.fetchall()
             if private_guild_check:
                 return True
         async with self.bot.db.execute("SELECT channel_id FROM mmj_private_channels WHERE channel_id = ?",
-                                       [str(message.channel.id)]) as cursor:
+                                       [int(message.channel.id)]) as cursor:
             private_channel_check = await cursor.fetchall()
         if private_channel_check:
             return True
@@ -121,12 +121,12 @@ class MomijiSpeak(commands.Cog):
 
     async def bridge_check(self, channel_id):
         async with self.bot.db.execute("SELECT depended_channel_id FROM mmj_channel_bridges "
-                                       "WHERE channel_id = ?", [str(channel_id)]) as cursor:
+                                       "WHERE channel_id = ?", [int(channel_id)]) as cursor:
             bridged_channel = await cursor.fetchall()
         if bridged_channel:
-            return str(bridged_channel[0][0])
+            return int(bridged_channel[0][0])
         else:
-            return str(channel_id)
+            return int(channel_id)
 
     async def check_message_contents(self, string):
         if len(string) > 0:
@@ -142,7 +142,7 @@ class MomijiSpeak(commands.Cog):
                                        "username, bot, contents, timestamp, deleted "
                                        "FROM mmj_message_logs "
                                        "WHERE channel_id = ? AND bot = ? AND deleted = ?",
-                                       [str(depended_channel_id), "0", "0"]) as cursor:
+                                       [int(depended_channel_id), 0, 0]) as cursor:
             all_potential_messages = await cursor.fetchall()
         if all_potential_messages:
             counter = 0
@@ -174,7 +174,7 @@ class MomijiSpeak(commands.Cog):
 
         if message_contents_to_send:
             sent_message = await channel.send(message_contents_to_send)
-            await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)", [str(message.id), str(sent_message.id)])
+            await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)", [int(message.id), int(sent_message.id)])
             await self.bot.db.commit()
             return True
         else:
@@ -188,12 +188,12 @@ class MomijiSpeak(commands.Cog):
         if message.guild:
             message_guild_id = message.guild.id
         else:
-            message_guild_id = "0"
+            message_guild_id = 0
 
         await self.bot.db.execute("INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                  [str(message_guild_id), str(message.channel.id), str(message.author.id),
-                                   str(message.id), str(message.author.name), str(int(message.author.bot)), content,
-                                   str(int(time.mktime(message.created_at.timetuple()))), str("0")])
+                                  [int(message_guild_id), int(message.channel.id), int(message.author.id),
+                                   int(message.id), str(message.author.name), int(message.author.bot), content,
+                                   int(time.mktime(message.created_at.timetuple())), 0])
         await self.bot.db.commit()
 
     async def main(self, message):
@@ -231,18 +231,18 @@ class MomijiSpeak(commands.Cog):
                     if len(response) > 0:
                         response_msg = await message.channel.send(response)
                         await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)",
-                                                  [str(message.id), str(response_msg.id)])
+                                                  [int(message.id), int(response_msg.id)])
                         await self.bot.db.commit()
                     else:
                         await self.momiji_speak(message)
                     return
 
     def condition_validate(self, condition, msg, trigger):
-        if condition == "1":
+        if int(condition) == 1:
             return msg.startswith(trigger)
-        elif condition == "2":
+        elif int(condition) == 2:
             return msg == trigger
-        elif condition == "3":
+        elif int(condition) == 3:
             return trigger in msg
 
 

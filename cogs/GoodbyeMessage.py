@@ -29,7 +29,7 @@ class GoodbyeMessage(commands.Cog):
             pass
 
         await self.bot.db.execute("INSERT INTO goodbye_messages VALUES (?,?,?)",
-                                  [str(ctx.guild.id), str(ctx.channel.id), str(goodbye_message)])
+                                  [int(ctx.guild.id), int(ctx.channel.id), str(goodbye_message)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:", delete_after=3)
@@ -49,7 +49,7 @@ class GoodbyeMessage(commands.Cog):
         except:
             pass
 
-        await self.bot.db.execute("DELETE FROM goodbye_messages WHERE channel_id = ?", [str(ctx.channel.id)])
+        await self.bot.db.execute("DELETE FROM goodbye_messages WHERE channel_id = ?", [int(ctx.channel.id)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:", delete_after=3)
@@ -64,7 +64,7 @@ class GoodbyeMessage(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT channel_id, message FROM goodbye_messages WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             goodbye_messages = await cursor.fetchall()
 
         buffer = ":wave: **Goodbye messages in this guild.**\n\n"
@@ -90,7 +90,7 @@ class GoodbyeMessage(commands.Cog):
         #  it may be a problem
 
         async with self.bot.db.execute("SELECT channel_id, message FROM goodbye_messages WHERE guild_id = ?",
-                                       [str(member.guild.id)]) as cursor:
+                                       [int(member.guild.id)]) as cursor:
             goodbye_messages = await cursor.fetchall()
         if not goodbye_messages:
             return

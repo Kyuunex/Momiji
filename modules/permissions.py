@@ -10,7 +10,7 @@ def fetch_users_from_db():
     conn = sqlite3.connect(database_file)
     c = conn.cursor()
     db_admin_list = tuple(c.execute("SELECT user_id FROM admins"))
-    db_owner_list = tuple(c.execute("SELECT user_id FROM admins WHERE permissions = ?", [str(1)]))
+    db_owner_list = tuple(c.execute("SELECT user_id FROM admins WHERE permissions = ?", [1]))
     db_ignored_users = tuple(c.execute("SELECT user_id FROM ignored_users"))
     conn.commit()
     conn.close()

@@ -43,7 +43,7 @@ class VoiceRoles(commands.Cog):
         # TODO: add a check to make sure it is not already tied
 
         await self.bot.db.execute("INSERT INTO voice_roles VALUES (?,?,?)",
-                                  [str(ctx.guild.id), str(channel.id), str(role.id)])
+                                  [int(ctx.guild.id), int(channel.id), int(role.id)])
         await self.bot.db.commit()
         await ctx.send(f"Tied {channel.mention} channel to {role.name} role")
 
@@ -74,7 +74,7 @@ class VoiceRoles(commands.Cog):
 
         await self.bot.db.execute("DELETE FROM voice_roles "
                                   "WHERE guild_id = ? AND channel_id = ? AND role_id = ?",
-                                  [str(ctx.guild.id), str(channel.id), str(role.id)])
+                                  [int(ctx.guild.id), int(channel.id), int(role.id)])
         await self.bot.db.commit()
         await ctx.send(f"Untied {channel.mention} channel from {role.name} role")
 
@@ -90,7 +90,7 @@ class VoiceRoles(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT channel_id, role_id FROM voice_roles WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             voice_roles = await cursor.fetchall()
         if not voice_roles:
             await ctx.send("There are no voice role bindings in this server")
@@ -111,7 +111,7 @@ class VoiceRoles(commands.Cog):
 
         if (not before.channel) and after.channel:  # Member joined a channel
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                           [str(after.channel.id)]) as cursor:
+                                           [int(after.channel.id)]) as cursor:
                 role_id_list = await cursor.fetchall()
             if role_id_list:
                 for role_id in role_id_list:
@@ -121,7 +121,7 @@ class VoiceRoles(commands.Cog):
 
         if before.channel and (not after.channel):  # Member left channel
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                           [str(before.channel.id)]) as cursor:
+                                           [int(before.channel.id)]) as cursor:
                 role_id_list = await cursor.fetchall()
             if role_id_list:
                 for role_id in role_id_list:
@@ -131,10 +131,10 @@ class VoiceRoles(commands.Cog):
 
         if before.channel and after.channel and (before.channel != after.channel):  # Member switched channel
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                           [str(before.channel.id)]) as cursor:
+                                           [int(before.channel.id)]) as cursor:
                 before_role_id_list = await cursor.fetchall()
             async with self.bot.db.execute("SELECT role_id FROM voice_roles WHERE channel_id = ?",
-                                           [str(after.channel.id)]) as cursor:
+                                           [int(after.channel.id)]) as cursor:
                 after_role_id_list = await cursor.fetchall()
             if before_role_id_list == after_role_id_list:
                 return

@@ -13,7 +13,7 @@ class Pinning(commands.Cog):
         async with self.bot.db.execute("SELECT guild_id, channel_id, threshold FROM pinning_channels") as cursor:
             pinning_channels = await cursor.fetchall()
         for pinning_channel in pinning_channels:
-            if str(pinning_channel[0]) == str(raw_reaction.guild_id):
+            if int(pinning_channel[0]) == int(raw_reaction.guild_id):
                 if int(pinning_channel[1]) == raw_reaction.channel_id:
                     return
 
@@ -36,20 +36,20 @@ class Pinning(commands.Cog):
                     if reaction.count >= int(pinning_channel[2]):
                         async with self.bot.db.execute("SELECT channel_id FROM pinning_channel_blacklist "
                                                        "WHERE channel_id = ?",
-                                                       [str(raw_reaction.channel_id)]) as cursor:
+                                                       [int(raw_reaction.channel_id)]) as cursor:
                             pinning_channel_blacklist = await cursor.fetchall()
 
                         if pinning_channel_blacklist:
                             return
 
                         async with self.bot.db.execute("SELECT message_id FROM pinning_history WHERE message_id = ?",
-                                                       [str(raw_reaction.message_id)]) as cursor:
+                                                       [int(raw_reaction.message_id)]) as cursor:
                             is_already_pinned = await cursor.fetchall()
                         if is_already_pinned:
                             return
 
                         await self.bot.db.execute("INSERT INTO pinning_history VALUES (?)",
-                                                  [str(raw_reaction.message_id)])
+                                                  [int(raw_reaction.message_id)])
                         await self.bot.db.commit()
                         pin_channel = self.bot.get_channel(int(pinning_channel[1]))
                         content = f"<#{raw_reaction.channel_id}> {reaction.emoji}"

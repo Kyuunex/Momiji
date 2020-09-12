@@ -7,8 +7,9 @@ class CRPair(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
+        # TODO: maybe use raw version of this at some point?
         async with self.bot.db.execute("SELECT response_id FROM cr_pair WHERE command_id = ?",
-                                       [str(message.id)]) as cursor:
+                                       [int(message.id)]) as cursor:
             lookup = await cursor.fetchone()
         if not lookup:
             return
@@ -19,7 +20,7 @@ class CRPair(commands.Cog):
 
         try:
             await response_message.delete()
-            await self.bot.db.execute("DELETE FROM cr_pair WHERE command_id = ?", [str(message.id)])
+            await self.bot.db.execute("DELETE FROM cr_pair WHERE command_id = ?", [int(message.id)])
             await self.bot.db.commit()
         except:
             pass

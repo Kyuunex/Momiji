@@ -31,8 +31,8 @@ class Reminders(commands.Cog):
         conn.close()
         for reminder in reminders:
             self.bot.background_tasks.append(
-                self.bot.loop.create_task(self.reminder_task(str(reminder[0]), str(reminder[1]), str(reminder[2]),
-                                                             str(reminder[3]), str(reminder[4]), str(reminder[5]),
+                self.bot.loop.create_task(self.reminder_task(int(reminder[0]), int(reminder[1]), int(reminder[2]),
+                                                             int(reminder[3]), int(reminder[4]), int(reminder[5]),
                                                              str(reminder[6])))
             )
 
@@ -63,21 +63,21 @@ class Reminders(commands.Cog):
             guild_id = 0
 
         await self.bot.db.execute("INSERT INTO reminders VALUES (?, ?, ?, ?, ?, ?, ?)",
-                                  [str(when), str(ctx.message.id), str(response_message.id),
-                                   str(ctx.channel.id), str(guild_id), str(ctx.author.id), str(contents)])
+                                  [int(when), int(ctx.message.id), int(response_message.id),
+                                   int(ctx.channel.id), int(guild_id), int(ctx.author.id), str(contents)])
         await self.bot.db.commit()
 
         self.bot.background_tasks.append(
-            self.bot.loop.create_task(self.reminder_task(str(when), str(ctx.message.id),
-                                                         str(response_message.id),
-                                                         str(ctx.channel.id), str(guild_id),
-                                                         str(ctx.author.id), str(contents)))
+            self.bot.loop.create_task(self.reminder_task(int(when), int(ctx.message.id),
+                                                         int(response_message.id),
+                                                         int(ctx.channel.id), int(guild_id),
+                                                         int(ctx.author.id), str(contents)))
         )
 
     @commands.Cog.listener()
     async def on_raw_message_delete(self, payload):
         # TODO: delete response message too
-        await self.bot.db.execute("DELETE FROM reminders WHERE message_id = ?", [str(payload.message_id)])
+        await self.bot.db.execute("DELETE FROM reminders WHERE message_id = ?", [int(payload.message_id)])
         await self.bot.db.commit()
 
     @commands.command(name="list_my_reminders",
@@ -90,7 +90,7 @@ class Reminders(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT timestamp, channel_id, contents FROM reminders "
-                                       "WHERE user_id = ?", [str(ctx.author.id)]) as cursor:
+                                       "WHERE user_id = ?", [int(ctx.author.id)]) as cursor:
             my_reminders = await cursor.fetchall()
 
         buffer = f":no_entry_sign: **{ctx.author.display_name}'s reminders.**\n\n"
@@ -142,7 +142,7 @@ class Reminders(commands.Cog):
 
         await asyncio.sleep(delay_amount)
 
-        async with self.bot.db.execute("SELECT * FROM reminders WHERE message_id = ?", [str(message_id)]) as cursor:
+        async with self.bot.db.execute("SELECT * FROM reminders WHERE message_id = ?", [int(message_id)]) as cursor:
             is_not_deleted = await cursor.fetchall()
 
         if is_not_deleted:
@@ -161,7 +161,7 @@ class Reminders(commands.Cog):
                 if member:
                     await member.send(f"<@{user_id}>, reminder!", embed=await self.message_embed(member, contents))
 
-        await self.bot.db.execute("DELETE FROM reminders WHERE message_id = ?", [str(message_id)])
+        await self.bot.db.execute("DELETE FROM reminders WHERE message_id = ?", [int(message_id)])
         await self.bot.db.commit()
 
 

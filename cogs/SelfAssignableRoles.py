@@ -30,7 +30,7 @@ class SelfAssignableRoles(commands.Cog):
             return
 
         # TODO: check if the role is already in the self assignable list
-        await self.bot.db.execute("INSERT INTO assignable_roles VALUES (?,?)", [str(ctx.guild.id), str(role.id)])
+        await self.bot.db.execute("INSERT INTO assignable_roles VALUES (?,?)", [int(ctx.guild.id), int(role.id)])
         await self.bot.db.commit()
         await ctx.send(f"`{role.name}` role is now self-assignable")
 
@@ -50,7 +50,7 @@ class SelfAssignableRoles(commands.Cog):
             return
 
         # TODO: check if the role is actually in the self assignable list
-        await self.bot.db.execute("DELETE FROM assignable_roles WHERE role_id = ?", [str(role.id)])
+        await self.bot.db.execute("DELETE FROM assignable_roles WHERE role_id = ?", [int(role.id)])
         await self.bot.db.commit()
         await ctx.send(f"`{role.name}` role is no longer self-assignable")
 
@@ -63,7 +63,7 @@ class SelfAssignableRoles(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             all_roles = await cursor.fetchall()
         if not all_roles:
             await ctx.send(f"there are no self assignable roles in this server")
@@ -95,7 +95,7 @@ class SelfAssignableRoles(commands.Cog):
             return
 
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE role_id = ?",
-                                       [str(role.id)]) as cursor:
+                                       [int(role.id)]) as cursor:
             check = await cursor.fetchone()
         if not check:
             if role.permissions.administrator:
@@ -107,13 +107,13 @@ class SelfAssignableRoles(commands.Cog):
 
         async with self.bot.db.execute("SELECT user_id, role_id FROM assignable_roles_user_blacklist "
                                        "WHERE user_id = ? AND role_id = ?",
-                                       [str(ctx.author.id), str(role.id)]) as cursor:
+                                       [int(ctx.author.id), int(role.id)]) as cursor:
             blacklist_check = await cursor.fetchone()
         if blacklist_check:
             await ctx.send(f"{ctx.author.mention}, *you* are not allowed to self assign this role")
             return
 
-        if str(role.id) == str(check[0]):
+        if int(role.id) == int(check[0]):
             try:
                 await ctx.author.add_roles(role)
                 await ctx.send(f"{ctx.author.mention} you now have the `{role.name}` role")
@@ -125,7 +125,7 @@ class SelfAssignableRoles(commands.Cog):
     @commands.check(permissions.is_not_ignored)
     async def leave(self, ctx, *, role_name):
         """
-        Remove a self-assignable role yopu already have
+        Remove a self-assignable role you already have
         """
 
         role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
@@ -134,13 +134,13 @@ class SelfAssignableRoles(commands.Cog):
             return
 
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE role_id = ?",
-                                       [str(role.id)]) as cursor:
+                                       [int(role.id)]) as cursor:
             check = await cursor.fetchone()
         if not check:
             await ctx.send(f"{ctx.author.mention}, bruh, this role is not self assignable or removable")
             return
 
-        if str(role.id) == str(check[0]):
+        if int(role.id) == int(check[0]):
             try:
                 await ctx.author.remove_roles(role)
                 await ctx.send(f"{ctx.author.mention} you no longer have the `{role.name}` role")

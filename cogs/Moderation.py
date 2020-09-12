@@ -89,7 +89,7 @@ class Moderation(commands.Cog):
             return
 
         await self.bot.db.execute("INSERT INTO mod_notes VALUES (?, ?, ?, ?)",
-                                  [str(ctx.guild.id), str(member.id), note, str(int(time.time()))])
+                                  [int(ctx.guild.id), int(member.id), note, int(time.time())])
         await self.bot.db.commit()
 
         await ctx.send(f"note added for {member.name}")
@@ -107,7 +107,7 @@ class Moderation(commands.Cog):
         # TODO: Currently, this may break if we try to filter out with an ID of a user who left. fix
 
         async with self.bot.db.execute("SELECT guild_id, user_id, note, timestamp FROM mod_notes "
-                                       "WHERE guild_id = ?", [str(ctx.guild.id)]) as cursor:
+                                       "WHERE guild_id = ?", [int(ctx.guild.id)]) as cursor:
             all_mod_notes = await cursor.fetchall()
 
         if user_id:

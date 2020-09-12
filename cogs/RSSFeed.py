@@ -49,13 +49,13 @@ class RSSFeed(commands.Cog):
         await self.bot.db.commit()
 
         async with await self.bot.db.execute("SELECT channel_id FROM rssfeed_channels WHERE channel_id = ? AND url = ?",
-                                             [str(ctx.channel.id), str(url)]) as cursor:
+                                             [int(ctx.channel.id), str(url)]) as cursor:
             check_is_channel_already_tracked = await cursor.fetchone()
         if check_is_channel_already_tracked:
             await ctx.send(f"Feed `{url}` is already tracked in this channel")
             return
 
-        await self.bot.db.execute("INSERT INTO rssfeed_channels VALUES (?, ?)", [str(url), str(ctx.channel.id)])
+        await self.bot.db.execute("INSERT INTO rssfeed_channels VALUES (?, ?)", [str(url), int(ctx.channel.id)])
         await ctx.send(f"Feed `{url}` is now tracked in this channel")
         await self.bot.db.commit()
 
@@ -68,7 +68,7 @@ class RSSFeed(commands.Cog):
         """
 
         await self.bot.db.execute("DELETE FROM rssfeed_channels WHERE url = ? AND channel_id = ? ",
-                                  [str(url), str(ctx.channel.id)])
+                                  [str(url), int(ctx.channel.id)])
         await self.bot.db.commit()
 
         await ctx.send(f"Feed `{url}` is no longer tracked in this channel")
@@ -191,7 +191,7 @@ class RSSFeed(commands.Cog):
                             channel = self.bot.get_channel(int(one_channel[0]))
                             if not channel:
                                 await self.bot.db.execute("DELETE FROM rssfeed_channels WHERE channel_id = ?",
-                                                          [str(one_channel[0])])
+                                                          [int(one_channel[0])])
                                 await self.bot.db.commit()
                                 print(f"channel with id {one_channel[0]} no longer exists "
                                       "so I am removing it from the list")

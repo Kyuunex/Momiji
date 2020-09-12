@@ -21,7 +21,7 @@ class MomijiChannelImporting(commands.Cog):
             if type(channel) is discord.TextChannel:
                 await self.import_channel(ctx, channel)
 
-        await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?)", [str(ctx.guild.id)])
+        await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?)", [int(ctx.guild.id)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")
@@ -50,9 +50,9 @@ class MomijiChannelImporting(commands.Cog):
                 else:
                     content = str(message.content)
                 await self.bot.db.execute("INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                          [str(message.guild.id), str(message.channel.id), str(message.author.id),
-                                           str(message.id), str(message.author.name), str(int(message.author.bot)),
-                                           content, str(int(time.mktime(message.created_at.timetuple()))), str("0")])
+                                          [int(message.guild.id), int(message.channel.id), int(message.author.id),
+                                           int(message.id), str(message.author.name), int(message.author.bot),
+                                           content, int(time.mktime(message.created_at.timetuple())), 0])
             await self.bot.db.commit()
         except Exception as e:
             print(e)
@@ -66,12 +66,12 @@ class MomijiChannelImporting(commands.Cog):
 
         if message.guild:
             async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
-                                           [str(message.guild.id)]) as cursor:
+                                           [int(message.guild.id)]) as cursor:
                 private_guild_check = await cursor.fetchall()
             if private_guild_check:
                 return True
         async with self.bot.db.execute("SELECT channel_id FROM mmj_private_channels WHERE channel_id = ?",
-                                       [str(message.channel.id)]) as cursor:
+                                       [int(message.channel.id)]) as cursor:
             private_channel_check = await cursor.fetchall()
         if private_channel_check:
             return True

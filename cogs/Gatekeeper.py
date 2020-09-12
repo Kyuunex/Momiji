@@ -1,4 +1,3 @@
-import random
 import discord
 from modules import permissions
 from modules import wrappers
@@ -27,8 +26,30 @@ class Gatekeeper(commands.Cog):
         """
 
         for user_id in user_id_list:
-            await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?)",
-                                      [str(ctx.guild.id), str(user_id)])
+            await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
+                                      [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
+        await self.bot.db.commit()
+
+        await ctx.send("done")
+
+    @commands.command(name="vouch", brief="Vouch for a user to be allowed on this server")
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def vouch(self, ctx, *user_id_list):
+        """
+        Vouch for a user to be allowed on this server
+        """
+
+        async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_vouchable_guilds WHERE guild_id = ?",
+                                       [int(ctx.guild.id)]) as cursor:
+            is_guild_vouchable = await cursor.fetchall()
+        if not is_guild_vouchable:
+            await ctx.send("this is not configured in this guild")
+            return
+
+        for user_id in user_id_list:
+            await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
+                                      [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
         await self.bot.db.commit()
 
         await ctx.send("done")
@@ -43,7 +64,7 @@ class Gatekeeper(commands.Cog):
         """
 
         for user_id in user_id_list:
-            await self.bot.db.execute("DELETE FROM gatekeeper_whitelist WHERE user_id = ?", [str(user_id)])
+            await self.bot.db.execute("DELETE FROM gatekeeper_whitelist WHERE user_id = ?", [int(user_id)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")
@@ -57,8 +78,8 @@ class Gatekeeper(commands.Cog):
         Print out users IDs of everyone who is whitelisted in this server
         """
 
-        async with self.bot.db.execute("SELECT user_id FROM gatekeeper_whitelist WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+        async with self.bot.db.execute("SELECT user_id, vouched_by_id FROM gatekeeper_whitelist WHERE guild_id = ?",
+                                       [int(ctx.guild.id)]) as cursor:
             whitelisted_users = await cursor.fetchall()
 
         if whitelisted_users:
@@ -66,10 +87,18 @@ class Gatekeeper(commands.Cog):
             for whitelisted_user in whitelisted_users:
                 buffer += f"<@{whitelisted_user[0]}> "
                 buffer += f"`{whitelisted_user[0]}` "
-                buffer += f"`{await self.get_cached_username(ctx, whitelisted_user[0])}`"
+                buffer += f"`{await self.get_cached_username(ctx, whitelisted_user[0])}` "
+                buffer += f"vouched by `{await self.get_cached_username(ctx, whitelisted_user[1])}` "
                 buffer += "\n"
         else:
-            buffer = "Gatekeeper is disabled in this server because nobody is whitelisted.\n"
+            buffer = "Gatekeeper whitelist is empty.\n"
+
+        async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
+                                       [int(ctx.guild.id)]) as cursor:
+            is_gatekeeper_enabled = await cursor.fetchall()
+        if not is_gatekeeper_enabled:
+            buffer += "\nAlso, Gatekeeper whitelist is disabled for this guild.\n"
+            return
 
         embed = discord.Embed(color=0xf76a8c)
 
@@ -85,7 +114,7 @@ class Gatekeeper(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT user_id FROM gatekeeper_whitelist WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             whitelisted_users = await cursor.fetchall()
 
         if whitelisted_users:
@@ -94,14 +123,14 @@ class Gatekeeper(commands.Cog):
             for member in member_list:
                 async with self.bot.db.execute("SELECT * FROM gatekeeper_whitelist "
                                                "WHERE guild_id = ? AND user_id = ?",
-                                               [str(ctx.guild.id), str(member.id)]) as cursor:
+                                               [int(ctx.guild.id), int(member.id)]) as cursor:
                     is_whitelisted = await cursor.fetchone()
                 if not is_whitelisted:
                     buffer += f"{member.mention} "
                     buffer += f"`{member.id}` "
                     buffer += "\n"
         else:
-            buffer = "Gatekeeper is disabled in this server because nobody is whitelisted.\n"
+            buffer = "Gatekeeper whitelist is empty.\n"
 
         embed = discord.Embed(color=0xf76a8c)
 
@@ -112,8 +141,8 @@ class Gatekeeper(commands.Cog):
         if member.bot:
             return
 
-        async with self.bot.db.execute("SELECT user_id FROM gatekeeper_whitelist WHERE guild_id = ?",
-                                       [str(member.guild.id)]) as cursor:
+        async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
+                                       [int(member.guild.id)]) as cursor:
             is_gatekeeper_enabled = await cursor.fetchall()
         if not is_gatekeeper_enabled:
             # gatekeeper is disabled
@@ -121,7 +150,7 @@ class Gatekeeper(commands.Cog):
 
         async with self.bot.db.execute("SELECT * FROM gatekeeper_whitelist "
                                        "WHERE guild_id = ? AND user_id = ?",
-                                       [str(member.guild.id), str(member.id)]) as cursor:
+                                       [int(member.guild.id), int(member.id)]) as cursor:
             is_user_whitelisted = await cursor.fetchone()
         if is_user_whitelisted:
             # user is whitelisted and allowed to remain here
@@ -136,7 +165,7 @@ class Gatekeeper(commands.Cog):
             print(e)
 
         async with self.bot.db.execute("SELECT channel_id FROM guild_event_report_channels WHERE guild_id = ?",
-                                       [str(member.guild.id)]) as cursor:
+                                       [int(member.guild.id)]) as cursor:
             event_report_channel_id = await cursor.fetchone()
         if not event_report_channel_id:
             return
@@ -156,7 +185,7 @@ class Gatekeeper(commands.Cog):
             return user.name
 
         async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
-                                       [str(user_id)]) as cursor:
+                                       [int(user_id)]) as cursor:
             user_info = await cursor.fetchone()
         if user_info:
             return user_info[0]

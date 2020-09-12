@@ -32,7 +32,7 @@ class MessageStats(commands.Cog):
                 return
 
         async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
             await ctx.send("MomijiSpeak is not enabled in this guild.")
@@ -42,15 +42,15 @@ class MessageStats(commands.Cog):
             after = await self.parse_args_timescale(args)
 
             scope_key = "guild_id"
-            scope_value = str(ctx.guild.id)
+            scope_value = int(ctx.guild.id)
             max_results = 40
             for arg in args:
                 if "channel" in arg:
                     scope_key = "channel_id"
-                    scope_value = str(ctx.channel.id)
+                    scope_value = int(ctx.channel.id)
                     if ":" in arg:
                         sub_args = arg.split(":")
-                        scope_value = str(sub_args[1])
+                        scope_value = int(sub_args[1])
                 if "limit" in arg:
                     if ":" in arg:
                         sub_args = arg.split(":")
@@ -63,9 +63,9 @@ class MessageStats(commands.Cog):
                     no_xp_channel_list = await cursor.fetchall()
                 if no_xp_channel_list:
                     for one_no_xp_channel in no_xp_channel_list:
-                        query_str += f" AND channel_id != '{one_no_xp_channel[0]}'"
+                        query_str += f" AND channel_id != {one_no_xp_channel[0]}"
 
-            async with self.bot.db.execute(query_str, [str(scope_value), str("0"), str(after)]) as cursor:
+            async with self.bot.db.execute(query_str, [int(scope_value), 0, int(after)]) as cursor:
                 messages = await cursor.fetchall()
 
             stats = await self.list_sorter(messages)
@@ -75,7 +75,7 @@ class MessageStats(commands.Cog):
             contents = ""
 
             async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
-                                           [str(ctx.guild.id)]) as cursor:
+                                           [int(ctx.guild.id)]) as cursor:
                 guild_privacy_check = await cursor.fetchall()
             if guild_privacy_check:
                 contents += "I'm only collecting metadata from this server\n\n"
@@ -84,13 +84,13 @@ class MessageStats(commands.Cog):
                 member = ctx.guild.get_member(int(member_id[0][0]))
                 if not member:
                     async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
-                                                   [str(member_id[0][0])]) as cursor:
+                                                   [int(member_id[0][0])]) as cursor:
                         user_info = await cursor.fetchone()
                     member_name = user_info[0]
                 else:
                     member_name = member.name
 
-                if not str(member_id[0][0]) == "456226577798135808":
+                if not int(member_id[0][0]) == 456226577798135808:
 
                     rank += 1
                     contents += f"**[{rank}]**"
@@ -138,7 +138,7 @@ class MessageStats(commands.Cog):
         """
 
         async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             is_private_guild = await cursor.fetchall()
         if is_private_guild:
             await ctx.send("impossible to do this in this guild because this is a private area "
@@ -146,7 +146,7 @@ class MessageStats(commands.Cog):
             return
 
         async with self.bot.db.execute("SELECT guild_id FROM mmj_enabled_guilds WHERE guild_id = ?",
-                                       [str(ctx.guild.id)]) as cursor:
+                                       [int(ctx.guild.id)]) as cursor:
             is_enabled_guild = await cursor.fetchall()
         if not is_enabled_guild:
             await ctx.send("MomijiSpeak is not enabled in this guild.")
@@ -162,7 +162,7 @@ class MessageStats(commands.Cog):
 
             title = f"Here are {max_results} most used words in server all time:"
             async with self.bot.db.execute("SELECT contents FROM mmj_message_logs WHERE guild_id = ?",
-                                           [str(ctx.guild.id)]) as cursor:
+                                           [int(ctx.guild.id)]) as cursor:
                 messages = await cursor.fetchall()
 
             individual_words = []

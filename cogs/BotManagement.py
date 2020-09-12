@@ -37,7 +37,7 @@ class BotManagement(commands.Cog):
     @commands.command(name="make_admin", brief="Add a user to a bot admin list")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
-    async def make_admin(self, ctx, user_id: str, perms="0"):
+    async def make_admin(self, ctx, user_id: str, perms=0):
         """
         Adds a user to a list of users the bot will treat as admins.
         This will apply after a restart.
@@ -49,7 +49,7 @@ class BotManagement(commands.Cog):
             await ctx.send("user_id must be user's id, which is all numbers.")
             return
 
-        await self.bot.db.execute("INSERT INTO admins VALUES (?, ?)", [str(user_id), str(perms)])
+        await self.bot.db.execute("INSERT INTO admins VALUES (?, ?)", [int(user_id), int(perms)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")
@@ -91,7 +91,7 @@ class BotManagement(commands.Cog):
     @commands.command(name="ignore_user", brief="Blacklist a user from using the bot")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
-    async def ignore_user(self, ctx, user_id, *, reason=""):
+    async def ignore_user(self, ctx, user_id: str, *, reason="No reason provided"):
         """
         Add a user to a list of users the bot will ignore commands from.
         This will apply after a restart.
@@ -103,7 +103,7 @@ class BotManagement(commands.Cog):
             await ctx.send("user_id must be user's id, which is all numbers.")
             return
 
-        await self.bot.db.execute("INSERT INTO ignored_users VALUES (?, ?)", [str(user_id), str(reason)])
+        await self.bot.db.execute("INSERT INTO ignored_users VALUES (?, ?)", [int(user_id), str(reason)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")
@@ -212,24 +212,6 @@ class BotManagement(commands.Cog):
 
         await ctx.send(":ok_hand:")
 
-    @commands.command(name="config", brief="Insert a config in db")
-    @commands.check(permissions.is_owner)
-    @commands.check(permissions.is_not_ignored)
-    async def config(self, ctx, setting, parent, value, flag="0"):
-        """
-        This inserts a config in the config table in the database.
-        Config table is rarely used though,
-        so this command and the config table may just disappear one day.
-        Read this for more info:
-        https://github.com/Kyuunex/Momiji/blob/master/configuration.md
-        """
-
-        await self.bot.db.execute("INSERT INTO config VALUES (?, ?, ?, ?)",
-                                  [str(setting), str(parent), str(value), str(flag)])
-        await self.bot.db.commit()
-
-        await ctx.send(":ok_hand:")
-
     @commands.command(name="db_dump", brief="Perform a database dump")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
@@ -241,8 +223,8 @@ class BotManagement(commands.Cog):
         This will fail if the database file size is more than 8 MB.
         """
 
-        async with self.bot.db.execute("SELECT value FROM config WHERE setting = ? and value = ?",
-                                       ["db_dump_channel", str(ctx.channel.id)]) as cursor:
+        async with self.bot.db.execute("SELECT channel_id FROM channels WHERE setting = ? and channel_id = ?",
+                                       ["db_dump", int(ctx.channel.id)]) as cursor:
             db_dump_channel = await cursor.fetchone()
 
         if not db_dump_channel:

@@ -107,7 +107,7 @@ class Fun(commands.Cog):
             embed = discord.Embed(description=contents, color=0xff6781)
 
         response_msg = await ctx.send(content=ctx.author.mention, embed=embed)
-        await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)", [str(ctx.message.id), str(response_msg.id)])
+        await self.bot.db.execute("INSERT INTO cr_pair VALUES (?, ?)", [int(ctx.message.id), int(response_msg.id)])
         await self.bot.db.commit()
 
 

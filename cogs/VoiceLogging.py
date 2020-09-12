@@ -9,7 +9,7 @@ class VoiceLogging(commands.Cog):
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
         async with self.bot.db.execute("SELECT channel_id FROM voice_logging_channels "
-                                       "WHERE guild_id = ?", [str(member.guild.id)]) as cursor:
+                                       "WHERE guild_id = ?", [int(member.guild.id)]) as cursor:
             voice_logging_channels = await cursor.fetchall()
 
         for voice_logging_channel in voice_logging_channels:
@@ -17,7 +17,7 @@ class VoiceLogging(commands.Cog):
             if not channel:
                 # channel seems to be deleted
                 await self.bot.db.execute("DELETE FROM voice_logging_channels "
-                                          "WHERE channel_id = ?", [str(voice_logging_channel[0])])
+                                          "WHERE channel_id = ?", [int(voice_logging_channel[0])])
                 await self.bot.db.commit()
                 continue
 
