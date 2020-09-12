@@ -65,7 +65,7 @@ class MomijiSpeak(commands.Cog):
 
         if not await self.check_privacy(after):
             await self.bot.db.execute("UPDATE mmj_message_logs SET contents = ? WHERE message_id = ?",
-                                      [int(after.content), int(after.id)])
+                                      [str(after.content), int(after.id)])
             await self.bot.db.commit()
 
     @commands.Cog.listener()
