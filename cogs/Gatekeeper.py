@@ -35,7 +35,7 @@ class Gatekeeper(commands.Cog):
     @commands.command(name="vouch", brief="Vouch for a user to be allowed on this server")
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
-    async def vouch(self, ctx, *user_id_list):
+    async def vouch(self, ctx, user_id):
         """
         Vouch for a user to be allowed on this server
         """
@@ -47,12 +47,15 @@ class Gatekeeper(commands.Cog):
             await ctx.send("this is not configured in this guild")
             return
 
-        for user_id in user_id_list:
-            await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
-                                      [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
+        if not user_id.isdigit():
+            await ctx.send("user_id must be all digits")
+            return
+
+        await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
+                                  [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
         await self.bot.db.commit()
 
-        await ctx.send("done")
+        await ctx.send(f"you have sucessfully vouched for user with id `{user_id}` to be allowed on this server")
 
     @commands.command(name="gatekeeper_unwhitelist_user", brief="Unwhitelist a user from joining this server")
     @commands.check(permissions.channel_ban_members)
