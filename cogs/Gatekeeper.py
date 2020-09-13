@@ -13,6 +13,7 @@ class Gatekeeper(commands.Cog):
     To enable this functionality, at least one user must be in a whitelist.
     Having an empty whitelist will disable this functionality.
     """
+
     def __init__(self, bot):
         self.bot = bot
 
