@@ -12,8 +12,9 @@ class MomijiCommands(commands.Cog):
     async def bridge(self, ctx, bridge_type: str, value: str):
         """
         Bridge the current channel with another channel or a cog/extension
-        :param bridge_type: channel / extension
-        :param value: channel_id / extension_name
+        
+        bridge_type: channel / extension
+        value: channel_id / extension_name
         """
 
         if bridge_type == "channel":  # TODO: validate if the specified channel exists

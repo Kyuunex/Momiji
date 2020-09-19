@@ -15,8 +15,9 @@ class ChannelExporting(commands.Cog):
     async def export_channel(self, ctx, channel_id="", amount=999999999):
         """
         Exports a channel into a json file and puts it in 'data' folder
-        :param channel_id: ID of the channel.
-        :param amount: Amount of messages to export.
+        
+        channel_id: ID of the channel.
+        amount: Amount of messages to export.
         """
 
         async with ctx.channel.typing():

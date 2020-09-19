@@ -116,9 +116,10 @@ class RegularRole(commands.Cog):
     async def regular_role_add(self, ctx, role_name="Regular", threshold="10", refresh_interval="172800"):
         """
         Register a Regulars role.
-        :param role_name: The name of the role
-        :param threshold: The top X amount of people who get the role
-        :param refresh_interval: Interval in seconds to wait before updating the role members again
+        
+        role_name: The name of the role
+        threshold: The top X amount of people who get the role
+        refresh_interval: Interval in seconds to wait before updating the role members again
         """
 
         role = discord.utils.get(ctx.guild.roles, name=role_name)

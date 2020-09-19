@@ -17,8 +17,9 @@ class Moderation(commands.Cog):
     async def purge(self, ctx, amount, *authors):
         """
         The purge command
-        :param amount: amount of messages to cycle through
-        :param authors: optional mention(s) of users this purge should only apply to
+
+        amount: amount of messages to cycle through
+        authors: optional mention(s) of users this purge should only apply to
         """
 
         if not amount.isdigit():
@@ -50,8 +51,9 @@ class Moderation(commands.Cog):
     async def regex_purge(self, ctx, amount, string):
         """
         Purge messages based on their content aligning with the regex string
-        :param amount: amount of messages to cycle through
-        :param string: the regex string
+        
+        amount: amount of messages to cycle through
+        string: the regex string
         """
 
         if not amount.isdigit():
@@ -78,8 +80,9 @@ class Moderation(commands.Cog):
     async def mod_note(self, ctx, user_id, *, note):
         """
         Stores information about a specific server member in the database for later retrieval
-        :param user_id: user_id, name or nickname
-        :param note: the note to store
+
+        user_id: user_id, name or nickname
+        note: the note to store
         """
 
         member = wrappers.get_member_guaranteed(ctx, user_id)
@@ -101,7 +104,8 @@ class Moderation(commands.Cog):
     async def mod_notes(self, ctx, *, user_id=""):
         """
         Print mod notes for this server
-        :param user_id: filter by a specific user
+        
+        user_id: filter by a specific user
         """
 
         # TODO: Currently, this may break if we try to filter out with an ID of a user who left. fix

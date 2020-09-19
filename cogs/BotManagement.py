@@ -41,8 +41,9 @@ class BotManagement(commands.Cog):
         """
         Adds a user to a list of users the bot will treat as admins.
         This will apply after a restart.
-        :param user_id: This must be an ID of a discord account.
-        :param perms: This must be either 0 or 1. 1 gives owner perms. 0 gives admin perms.
+
+        user_id: This must be an ID of a discord account.
+        perms: This must be either 0 or 1. 1 gives owner perms. 0 gives admin perms.
         """
 
         if not user_id.isdigit():
@@ -95,8 +96,9 @@ class BotManagement(commands.Cog):
         """
         Add a user to a list of users the bot will ignore commands from.
         This will apply after a restart.
-        :param user_id: This must be an ID of a discord account.
-        :param reason: Optional parameter, meant to be a reason why the user was blacklisted.
+
+        user_id: This must be an ID of a discord account.
+        reason: Optional parameter, meant to be a reason why the user was blacklisted.
         """
 
         if not user_id.isdigit():
@@ -142,7 +144,8 @@ class BotManagement(commands.Cog):
     async def sql(self, ctx, *, query):
         """
         This executes the passed string as an SQL command.
-        :param query: an SQL command.
+
+        query: an SQL command.
         """
 
         try:
@@ -204,7 +207,8 @@ class BotManagement(commands.Cog):
     async def set_activity(self, ctx, *, string):
         """
         Set "Playing" activity.
-        :param string: Playing what goes here.
+        
+        string: Playing what goes here.
         """
 
         activity = discord.Game(string)
