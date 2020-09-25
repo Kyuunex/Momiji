@@ -191,8 +191,9 @@ def create_tables():
 
         c.execute("""
         CREATE TABLE "voice_logging_channels" (
-            "guild_id"    INTEGER NOT NULL, 
-            "channel_id"    INTEGER NOT NULL UNIQUE
+            "guild_id"    INTEGER NOT NULL,
+            "channel_id"    INTEGER NOT NULL UNIQUE,
+            "delete_after"    INTEGER NOT NULL
         )
         """)
         c.execute("""

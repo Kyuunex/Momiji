@@ -8,12 +8,18 @@ class VoiceLogging(commands.Cog):
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):
-        async with self.bot.db.execute("SELECT channel_id FROM voice_logging_channels "
+        async with self.bot.db.execute("SELECT channel_id, delete_after FROM voice_logging_channels "
                                        "WHERE guild_id = ?", [int(member.guild.id)]) as cursor:
             voice_logging_channels = await cursor.fetchall()
 
         for voice_logging_channel in voice_logging_channels:
             channel = self.bot.get_channel(int(voice_logging_channel[0]))
+
+            if voice_logging_channel[1]:
+                delete_after = int(voice_logging_channel[1])
+            else:
+                delete_after = None
+
             if not channel:
                 # channel seems to be deleted
                 await self.bot.db.execute("DELETE FROM voice_logging_channels "
@@ -26,16 +32,16 @@ class VoiceLogging(commands.Cog):
 
             if not before.channel:
                 await channel.send(embed=self.member_voice_join_left(member, after.channel, "joined"),
-                                   delete_after=1800)
+                                   delete_after=delete_after)
                 continue
 
             if not after.channel:
                 await channel.send(embed=self.member_voice_join_left(member, before.channel, "left"),
-                                   delete_after=1800)
+                                   delete_after=delete_after)
                 continue
 
             await channel.send(embed=self.member_voice_switch(member, before.channel, after.channel),
-                               delete_after=1800)
+                               delete_after=delete_after)
 
     def member_voice_join_left(self, member, channel, action):
         if member:
