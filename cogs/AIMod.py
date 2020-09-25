@@ -58,13 +58,8 @@ class AIMod(commands.Cog):
         await ctx.send(":ok_hand:")
 
     async def content_filter(self, message):
-        if message.guild:
-            guild_id = message.guild.id
-        else:
-            guild_id = 0
-
         async with await self.bot.db.execute("SELECT word FROM aimod_blacklist "
-                                             "WHERE guild_id = ? OR guild_id = 0", [int(guild_id)]) as cursor:
+                                             "WHERE guild_id = ? OR guild_id = 0", [int(message.guild.id)]) as cursor:
             aimod_blacklist = await cursor.fetchall()
 
         for word in aimod_blacklist:
@@ -78,10 +73,16 @@ class AIMod(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
+        if not message.guild:
+            return
+
         await self.content_filter(message)
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
+        if not after.guild:
+            return
+
         await self.content_filter(after)
 
 
