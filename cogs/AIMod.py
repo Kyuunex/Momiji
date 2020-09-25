@@ -22,12 +22,18 @@ class AIMod(commands.Cog):
         Checks are case-insensitive.
         """
 
+        if ctx.guild:
+            guild_id = ctx.guild.id
+        else:
+            guild_id = 0
+
         try:
             await ctx.message.delete()
         except:
             pass
 
-        await self.bot.db.execute("INSERT INTO aimod_blacklist VALUES (?)", [str(word).lower().strip()])
+        await self.bot.db.execute("INSERT INTO aimod_blacklist VALUES (?, ?)",
+                                  [(str(word).lower().strip()), int(guild_id)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:", delete_after=3)
@@ -40,13 +46,25 @@ class AIMod(commands.Cog):
         Un-blacklist a previously blacklisted string.
         """
 
-        await self.bot.db.execute("DELETE FROM aimod_blacklist WHERE word = ?", [str(word).lower().strip()])
+        if ctx.guild:
+            guild_id = ctx.guild.id
+        else:
+            guild_id = 0
+
+        await self.bot.db.execute("DELETE FROM aimod_blacklist WHERE word = ?",
+                                  [(str(word).lower().strip()), int(guild_id)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")
 
     async def content_filter(self, message):
-        async with await self.bot.db.execute("SELECT word FROM aimod_blacklist") as cursor:
+        if message.guild:
+            guild_id = message.guild.id
+        else:
+            guild_id = 0
+
+        async with await self.bot.db.execute("SELECT word FROM aimod_blacklist "
+                                             "WHERE guild_id = ? OR guild_id = 0", [int(guild_id)]) as cursor:
             aimod_blacklist = await cursor.fetchall()
 
         for word in aimod_blacklist:
