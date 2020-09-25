@@ -67,7 +67,7 @@ class AIMod(commands.Cog):
                 continue
 
             try:
-                await self.perform_actions(message, word[0])
+                await self.perform_actions(message, word[1])
             except Exception as e:
                 print(e)
 
