@@ -100,7 +100,8 @@ def create_tables():
         c.execute("""
         CREATE TABLE "aimod_blacklist" (
             "word"    TEXT NOT NULL,
-            "guild_id"    INTEGER
+            "guild_id"    INTEGER,
+            "action"    INTEGER NOT NULL
         )
         """)
         c.execute("""

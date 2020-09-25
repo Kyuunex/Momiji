@@ -32,8 +32,8 @@ class AIMod(commands.Cog):
         except:
             pass
 
-        await self.bot.db.execute("INSERT INTO aimod_blacklist VALUES (?, ?)",
-                                  [(str(word).lower().strip()), int(guild_id)])
+        await self.bot.db.execute("INSERT INTO aimod_blacklist VALUES (?, ?, ?)",
+                                  [(str(word).lower().strip()), int(guild_id), 1])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:", delete_after=3)
@@ -58,7 +58,7 @@ class AIMod(commands.Cog):
         await ctx.send(":ok_hand:")
 
     async def content_filter(self, message):
-        async with await self.bot.db.execute("SELECT word FROM aimod_blacklist "
+        async with await self.bot.db.execute("SELECT word, action FROM aimod_blacklist "
                                              "WHERE guild_id = ? OR guild_id = 0", [int(message.guild.id)]) as cursor:
             aimod_blacklist = await cursor.fetchall()
 
@@ -67,9 +67,13 @@ class AIMod(commands.Cog):
                 continue
 
             try:
-                await message.delete()
+                await self.perform_actions(message, word[0])
             except Exception as e:
                 print(e)
+
+    async def perform_actions(self, message, action_id):
+        if action_id == 1:
+            await message.delete()
 
     @commands.Cog.listener()
     async def on_message(self, message):
