@@ -66,21 +66,24 @@ def create_tables():
 
         c.execute("""
         CREATE TABLE "pinning_history" (
-            "message_id"    INTEGER NOT NULL UNIQUE
+            "message_id"    );INTEGER NOT NULL UNIQUE
         )
         """)
         c.execute("""
         CREATE TABLE "pinning_channel_blacklist" (
+            "guild_id"    INTEGER NOT NULL UNIQUE,
             "channel_id"    INTEGER NOT NULL UNIQUE
         )
         """)
         c.execute("""
-        CREATE TABLE "pinning_guild_blacklist" (
-            "guild_id"    INTEGER NOT NULL UNIQUE
+        CREATE TABLE "pinning_category_blacklist" (
+            "guild_id"    INTEGER NOT NULL UNIQUE,
+            "category_id"    INTEGER NOT NULL UNIQUE
         )
         """)
         c.execute("""
         CREATE TABLE "pinning_channel_whitelist" (
+            "guild_id"    INTEGER NOT NULL UNIQUE,
             "channel_id"    INTEGER NOT NULL UNIQUE
         )
         """)
@@ -93,7 +96,8 @@ def create_tables():
         CREATE TABLE "pinning_channels" (
             "guild_id"    INTEGER NOT NULL, 
             "channel_id"    INTEGER NOT NULL UNIQUE, 
-            "threshold"    INTEGER NOT NULL
+            "threshold"    INTEGER NOT NULL,
+            "mode"    INTEGER NOT NULL
         )
         """)
 
