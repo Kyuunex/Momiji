@@ -100,7 +100,7 @@ class MessageStats(commands.Cog):
                     contents += f"**[{rank}]**"
                     contents += " : "
 
-                    contents += f"`{escape_markdown(member_name)}`"
+                    contents += f"{escape_markdown(member_name)}"
                     contents += " : "
 
                     if "show_id" in args:
@@ -114,7 +114,7 @@ class MessageStats(commands.Cog):
                         else:
                             if member.nick:
                                 if member.nick != member_name:
-                                    contents += f"`{escape_markdown(member.nick)}`"
+                                    contents += f"{escape_markdown(member.nick)}"
                                     contents += " : "
 
                     contents += f"{member_id[1]} msgs"
