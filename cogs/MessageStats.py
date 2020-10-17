@@ -99,6 +99,10 @@ class MessageStats(commands.Cog):
                     contents += f"`{member_name.replace('`', '')}`"
                     contents += " : "
 
+                    if "show_id" in args:
+                        contents += f"`{member_id[0][0]}`"
+                        contents += " : "
+
                     if member:
                         if "mention" in args:
                             contents += f"{member.mention}"
