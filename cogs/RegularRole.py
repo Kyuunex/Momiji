@@ -27,7 +27,7 @@ class RegularRole(commands.Cog):
         Reassign the Regular role.
         """
 
-        async with self.bot.db.execute("SELECT guild_id, role_id, threshold FROM regular_roles "
+        async with self.bot.db.execute("SELECT guild_id, role_id, member_limit, amount_of_days FROM regular_roles "
                                        "WHERE guild_id = ?", [int(ctx.guild.id)]) as cursor:
             regular_roles = await cursor.fetchall()
 
@@ -50,7 +50,8 @@ class RegularRole(commands.Cog):
                     await ctx.send("The regular role for this server seems to have been manually deleted")
                     continue
 
-                after = int(time.time()) - 2592000
+                amount_of_days = int(regular_role[3])
+                after = int(time.time()) - (86400 * amount_of_days)
                 query_str = "SELECT user_id FROM mmj_message_logs WHERE guild_id = ? AND timestamp > ? AND bot = ?"
 
                 for one_no_xp_channel in no_xp_channel_list:
@@ -113,12 +114,13 @@ class RegularRole(commands.Cog):
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
-    async def regular_role_add(self, ctx, role_name="Regular", threshold="10", refresh_interval="172800"):
+    async def regular_role_add(self, ctx, role_name="Regular", amount_of_days="30",
+                               member_limit="10", refresh_interval="172800"):
         """
         Register a Regulars role.
         
         role_name: The name of the role
-        threshold: The top X amount of people who get the role
+        member_limit: The top X amount of people who get the role
         refresh_interval: Interval in seconds to wait before updating the role members again
         """
 
@@ -127,11 +129,12 @@ class RegularRole(commands.Cog):
             await ctx.send("no role found with that name")
             return
 
-        await self.bot.db.execute("INSERT INTO regular_roles VALUES (?,?,?,?)",
-                                  [int(ctx.guild.id), int(role.id), int(threshold), int(refresh_interval)])
+        await self.bot.db.execute("INSERT INTO regular_roles VALUES (?,?,?,?,?)",
+                                  [int(ctx.guild.id), int(role.id), int(amount_of_days),
+                                   int(refresh_interval), int(member_limit)])
         await self.bot.db.commit()
 
-        await ctx.send(f"{role.name} role is now regular role with top {threshold} getting the role")
+        await ctx.send(f"{role.name} role is now regular role with top {member_limit} getting the role")
 
     @commands.command(name="regular_role_remove", brief="Unregister a Regular role")
     @commands.check(permissions.is_admin)

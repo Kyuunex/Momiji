@@ -223,8 +223,9 @@ def create_tables():
         CREATE TABLE "regular_roles" (
             "guild_id"    INTEGER NOT NULL, 
             "role_id"    INTEGER NOT NULL UNIQUE, 
-            "threshold"    INTEGER NOT NULL, 
-            "refresh_interval"    INTEGER NOT NULL
+            "amount_of_days"    INTEGER NOT NULL, 
+            "refresh_interval"    INTEGER NOT NULL,
+            "member_limit"    INTEGER NOT NULL
         )
         """)
         c.execute("""
