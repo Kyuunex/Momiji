@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 from collections import Counter
 import operator
+from discord.utils import escape_markdown
 
 
 class MessageStats(commands.Cog):
@@ -83,7 +84,8 @@ class MessageStats(commands.Cog):
             for member_id in stats:
                 member = ctx.guild.get_member(int(member_id[0][0]))
                 if not member:
-                    async with self.bot.db.execute("SELECT username FROM mmj_message_logs WHERE user_id = ?",
+                    async with self.bot.db.execute("SELECT username FROM mmj_message_logs "
+                                                   "WHERE user_id = ? ORDER BY timestamp DESC",
                                                    [int(member_id[0][0])]) as cursor:
                         user_info = await cursor.fetchone()
                     member_name = user_info[0]
@@ -93,10 +95,12 @@ class MessageStats(commands.Cog):
                 if not int(member_id[0][0]) == 456226577798135808:
 
                     rank += 1
+                    if not member:
+                        contents += f"~~"
                     contents += f"**[{rank}]**"
                     contents += " : "
 
-                    contents += f"`{member_name.replace('`', '')}`"
+                    contents += f"`{escape_markdown(member_name)}`"
                     contents += " : "
 
                     if "show_id" in args:
@@ -110,10 +114,12 @@ class MessageStats(commands.Cog):
                         else:
                             if member.nick:
                                 if member.nick != member_name:
-                                    contents += f"`{member.nick.replace('`', '')}`"
+                                    contents += f"`{escape_markdown(member.nick)}`"
                                     contents += " : "
 
                     contents += f"{member_id[1]} msgs"
+                    if not member:
+                        contents += f"~~"
                     contents += "\n"
                     if rank == max_results:
                         break
