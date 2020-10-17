@@ -120,18 +120,25 @@ class MessageStats(commands.Cog):
         await wrappers.send_large_embed(ctx.channel, embed, contents)
 
     async def parse_args_timescale(self, args):
-        if "month" in args:
-            return int(time.time()) - 2592000
-        elif "week" in args:
-            return int(time.time()) - 604800
-        elif "day" in args:
-            return int(time.time()) - 86400
-        elif "days" in args:
-            for arg in args:
-                if "days:" in arg:
-                    sub_args = arg.split(":")
-                    scope_value = int(sub_args[1])
-                    return int(time.time()) - (86400 * scope_value)
+        for arg in args:
+            if "months:" in arg:
+                sub_args = arg.split(":")
+                scope_value = int(sub_args[1])
+                return int(time.time()) - (2592000 * scope_value)
+            elif "month" in arg:
+                return int(time.time()) - 2592000
+            elif "weeks:" in arg:
+                sub_args = arg.split(":")
+                scope_value = int(sub_args[1])
+                return int(time.time()) - (604800 * scope_value)
+            elif "week" in arg:
+                return int(time.time()) - 604800
+            elif "days:" in arg:
+                sub_args = arg.split(":")
+                scope_value = int(sub_args[1])
+                return int(time.time()) - (86400 * scope_value)
+            elif "day" in arg:
+                return int(time.time()) - 86400
         return 0
 
     @commands.command(name="word_stats", brief="Word statistics")
