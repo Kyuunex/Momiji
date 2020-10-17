@@ -126,6 +126,12 @@ class MessageStats(commands.Cog):
             return int(time.time()) - 604800
         elif "day" in args:
             return int(time.time()) - 86400
+        elif "days" in args:
+            for arg in args:
+                if "days:" in arg:
+                    sub_args = arg.split(":")
+                    scope_value = int(sub_args[1])
+                    return int(time.time()) - (86400 * scope_value)
         return 0
 
     @commands.command(name="word_stats", brief="Word statistics")
