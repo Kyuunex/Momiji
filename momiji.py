@@ -3,6 +3,7 @@
 from modules.connections import bot_token as bot_token
 from modules.connections import database_file as database_file
 from discord.ext import commands
+import discord
 import sys
 import os
 import aiosqlite
@@ -61,6 +62,9 @@ initial_extensions = [
     "cogs.WastelandConfiguration",
     "cogs.WelcomeMessage",
 ]
+
+intents = discord.Intents.default()
+intents.members = True
 
 
 class Momiji(commands.Bot):
@@ -126,5 +130,5 @@ class Momiji(commands.Bot):
         await first_run.add_admins(self)
 
 
-client = Momiji(command_prefix=command_prefix)
+client = Momiji(command_prefix=command_prefix, intents=intents)
 client.run(bot_token)
