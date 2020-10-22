@@ -160,8 +160,6 @@ class RSSFeed(commands.Cog):
                         print(f"{url} is not tracked in any channel so I am untracking it")
                         continue
 
-                    print(f"checking {url}")
-
                     url_raw_contents = await self.fetch(url)
 
                     url_parsed_contents = feedparser.parse(url_raw_contents)
