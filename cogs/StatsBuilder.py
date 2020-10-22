@@ -25,6 +25,10 @@ class StatsBuilder(commands.Cog):
                 if len(ctx.message.mentions) > 0:
                     member = ctx.message.mentions[0]
 
+        if not member:
+            await ctx.send("no member found with whatever you specified")
+            return
+
         buffer = f"**Discriminator:** {member.discriminator}\n"
         buffer += f"**Account ID:** {member.id}\n"
         if member.nick:
