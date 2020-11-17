@@ -319,6 +319,12 @@ def ensure_tables():
         "one_in"    INTEGER NOT NULL
     )
     """)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS "user_timezones" (
+        "user_id"    INTEGER NOT NULL UNIQUE, 
+        "offset"    INTEGER NOT NULL
+    )
+    """)
 
     c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["@"])
     c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["discord.gg/"])
