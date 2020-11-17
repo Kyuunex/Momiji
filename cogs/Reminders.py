@@ -12,12 +12,6 @@ from modules import wrappers
 class Reminders(commands.Cog):
     """
     This set of functions/commands manage reminders.
-
-    Reminder create examples:
-    ;remind_me 55s time's up lol
-    ;remind_me 75m it's time to mod that map
-    ;remind_me 2h look at that song X has sent
-    ;remind_me 2d deadline for that mod is today
     """
 
     def __init__(self, bot):
@@ -41,6 +35,12 @@ class Reminders(commands.Cog):
     async def remind_me(self, ctx, length, *, contents):
         """
         Set a reminder
+
+        Reminder create examples:
+        ;remind_me 55s time's up lol
+        ;remind_me 75m'17s it's time to mod that map
+        ;remind_me 2h'30m look at that song X has sent
+        ;remind_me 2d deadline for that mod is today
         """
 
         try:
@@ -51,9 +51,10 @@ class Reminders(commands.Cog):
 
         embed = await self.message_embed(ctx.author, contents)
 
-        when_datetime = datetime.datetime.utcfromtimestamp(when)
+        user_timezone = await self.get_user_timezone(int(ctx.author.id))
+        when_datetime = datetime.datetime.fromtimestamp(when, tz=user_timezone)
 
-        embed.set_footer(text=f"Will be set off on {when_datetime.isoformat(' ')} UTC+0")
+        embed.set_footer(text=f"Will be set off on {when_datetime.strftime('%Y-%m-%d %H:%M:%S (UTC%z)')}")
 
         response_message = await ctx.send(embed=embed)
 
@@ -97,8 +98,9 @@ class Reminders(commands.Cog):
 
         if my_reminders:
             for my_reminder in my_reminders:
-                when_datetime = datetime.datetime.utcfromtimestamp(int(my_reminder[0]))
-                buffer += f"{when_datetime.isoformat(' ')} UTC+0 | <#{my_reminder[1]}>\n"
+                user_timezone = await self.get_user_timezone(int(ctx.author.id))
+                when_datetime = datetime.datetime.fromtimestamp(int(my_reminder[0]), tz=user_timezone)
+                buffer += f"{when_datetime.strftime('%Y-%m-%d %H:%M:%S (UTC%z)')} | <#{my_reminder[1]}>\n"
                 buffer += "```\n"
                 buffer += f"{my_reminder[2]}\n"
                 buffer += "```\n"
@@ -185,6 +187,15 @@ class Reminders(commands.Cog):
 
         await self.bot.db.execute("DELETE FROM reminders WHERE message_id = ?", [int(message_id)])
         await self.bot.db.commit()
+
+    async def get_user_timezone(self, user_id):
+        async with self.bot.db.execute("SELECT offset FROM user_timezones WHERE user_id = ?",
+                                       [int(user_id)]) as cursor:
+            user_timezone = await cursor.fetchone()
+        if user_timezone:
+            return datetime.timezone(datetime.timedelta(hours=int(user_timezone[0])))
+
+        return datetime.timezone(datetime.timedelta(hours=0))
 
 
 def setup(bot):
