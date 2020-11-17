@@ -36,7 +36,7 @@ class Reminders(commands.Cog):
                                                              str(reminder[6])))
             )
 
-    @commands.command(name="remind_me", brief="Set a reminder", aliases=['remindme', 'delay'])
+    @commands.command(name="remind_me", brief="Set a reminder", aliases=['remindme', 'delay', 'remind'])
     @commands.check(permissions.is_not_ignored)
     async def remind_me(self, ctx, length, *, contents):
         """
@@ -122,18 +122,40 @@ class Reminders(commands.Cog):
         return embed
 
     def user_input_to_posix_time(self, user_input):
-        if "s" in user_input:
-            delay_amount_seconds = int(user_input.split("s")[0])
-        elif "m" in user_input:
-            delay_amount_seconds = int(user_input.split("m")[0]) * 60
-        elif "h" in user_input:
-            delay_amount_seconds = int(user_input.split("h")[0]) * 60 * 60
-        elif "d" in user_input:
-            delay_amount_seconds = int(user_input.split("d")[0]) * 60 * 60 * 24
+        if "'" in user_input:
+            delay_amount_seconds = 0
+            for user_input_chunk in user_input.split("'"):
+                delay_amount_seconds += self.duration_parse(user_input_chunk)
+            return int(time.time()) + int(delay_amount_seconds)
+        else:
+            delay_amount_seconds = self.duration_parse(user_input)
+            return int(time.time()) + int(delay_amount_seconds)
+
+    def duration_parse(self, duration_str):
+        if "seconds" in duration_str:
+            return int(duration_str.split("seconds")[0])
+        elif "minutes" in duration_str:
+            return int(duration_str.split("minutes")[0]) * 60
+        elif "hours" in duration_str:
+            return int(duration_str.split("hours")[0]) * 60 * 60
+        elif "days" in duration_str:
+            return int(duration_str.split("days")[0]) * 60 * 60 * 24
+        elif "weeks" in duration_str:
+            return int(duration_str.split("weeks")[0]) * 60 * 60 * 24 * 7
+        elif "months" in duration_str:
+            return int(duration_str.split("months")[0]) * 60 * 60 * 24 * 30
+        elif "years" in duration_str:
+            return int(duration_str.split("years")[0]) * 60 * 60 * 24 * 30 * 365
+        elif "s" in duration_str:
+            return int(duration_str.split("s")[0])
+        elif "m" in duration_str:
+            return int(duration_str.split("m")[0]) * 60
+        elif "h" in duration_str:
+            return int(duration_str.split("h")[0]) * 60 * 60
+        elif "d" in duration_str:
+            return int(duration_str.split("d")[0]) * 60 * 60 * 24
         else:
             raise ValueError("i can't understand the amount of time")
-
-        return int(time.time()) + int(delay_amount_seconds)
 
     async def reminder_task(self, timestamp, message_id, response_message_id, channel_id, guild_id, user_id, contents):
         await self.bot.wait_until_ready()
