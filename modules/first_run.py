@@ -326,25 +326,29 @@ def ensure_tables():
     c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["http://"])
     c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["momiji"])
     c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", [":gw"])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["^", "I agree!", 1, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["gtg", "nooooo don\'t leaveeeee!", 2, 4])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["kakushi", "kotoga", 2, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
-              ["kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU", 2, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
-              ["giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", 2, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
-              ["awoo", "awoooooooooooooooooooooooooo", 1, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
-              ["cya", "nooooo don\'t leaveeeee!", 2, 4])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["bad bot", ";w;", 2, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["stupid bot", ";w;", 2, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["good bot", "^w^", 2, "1"])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["sentient", "yes ^w^", 3, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["it is self aware", "yes", 2, 1])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["...", "", 1, 10])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["omg", "", 1, 10])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["wut", "", 1, 10])
-    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["wat", "", 1, 10])
+
+    predefined_responses = [
+        ("^", "I agree!", 1, 1),
+        ("gtg", "nooooo don\'t leaveeeee!", 2, 4),
+        ("kakushi", "kotoga", 2, 1),
+        ("kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU", 2, 1),
+        ("giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", 2, 1),
+        ("awoo", "awoooooooooooooooooooooooooo", 1, 1),
+        ("cya", "nooooo don\'t leaveeeee!", 2, 4),
+        ("bad bot", ";w;", 2, 1),
+        ("stupid bot", ";w;", 2, 1),
+        ("good bot", "^w^", 2, 1),
+        ("sentient", "yes ^w^", 3, 1),
+        ("it is self aware", "yes", 2, 1),
+        ("...", "", 1, 10),
+        ("omg", "", 1, 10),
+        ("wut", "", 1, 10),
+        ("wat", "", 1, 10),
+    ]
+    responses_already_in_db = tuple(c.execute("SELECT * FROM mmj_responses"))
+    for predefined_response in predefined_responses:
+        if predefined_response not in responses_already_in_db:
+            c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", predefined_response)
+
     conn.commit()
     conn.close()
