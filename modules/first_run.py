@@ -320,31 +320,31 @@ def ensure_tables():
     )
     """)
 
-    c.execute("INSERT INTO mmj_word_blacklist VALUES (?)", ["@"])
-    c.execute("INSERT INTO mmj_word_blacklist VALUES (?)", ["discord.gg/"])
-    c.execute("INSERT INTO mmj_word_blacklist VALUES (?)", ["https://"])
-    c.execute("INSERT INTO mmj_word_blacklist VALUES (?)", ["http://"])
-    c.execute("INSERT INTO mmj_word_blacklist VALUES (?)", ["momiji"])
-    c.execute("INSERT INTO mmj_word_blacklist VALUES (?)", [":gw"])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["^", "I agree!", 1, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["gtg", "nooooo don\'t leaveeeee!", 2, 4])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["kakushi", "kotoga", 2, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+    c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["@"])
+    c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["discord.gg/"])
+    c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["https://"])
+    c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["http://"])
+    c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["momiji"])
+    c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", [":gw"])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["^", "I agree!", 1, 1])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["gtg", "nooooo don\'t leaveeeee!", 2, 4])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["kakushi", "kotoga", 2, 1])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
               ["kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU", 2, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
               ["giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", 2, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
               ["awoo", "awoooooooooooooooooooooooooo", 1, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)",
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)",
               ["cya", "nooooo don\'t leaveeeee!", 2, 4])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["bad bot", ";w;", 2, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["stupid bot", ";w;", 2, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["good bot", "^w^", 2, "1"])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["sentient", "yes ^w^", 3, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["it is self aware", "yes", 2, 1])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["...", "", 1, 10])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["omg", "", 1, 10])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["wut", "", 1, 10])
-    c.execute("INSERT INTO mmj_responses VALUES (?, ?, ?, ?)", ["wat", "", 1, 10])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["bad bot", ";w;", 2, 1])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["stupid bot", ";w;", 2, 1])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["good bot", "^w^", 2, "1"])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["sentient", "yes ^w^", 3, 1])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["it is self aware", "yes", 2, 1])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["...", "", 1, 10])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["omg", "", 1, 10])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["wut", "", 1, 10])
+    c.execute("INSERT OR IGNORE INTO mmj_responses VALUES (?, ?, ?, ?)", ["wat", "", 1, 10])
     conn.commit()
     conn.close()
