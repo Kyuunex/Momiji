@@ -54,6 +54,7 @@ initial_extensions = [
     "cogs.SelfAssignableRoles",
     "cogs.StatsBuilder", 
     "cogs.TraceMoe",
+    "cogs.UserPreferences",
     "cogs.Utilities",
     "cogs.VoiceLogging",
     "cogs.VoiceRoles", 
