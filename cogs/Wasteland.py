@@ -169,7 +169,7 @@ class WastelandEmbeds:
             embed.add_field(name="channel", value=message.channel.mention)
             embed.add_field(name="member", value=message.author.mention)
             embed.add_field(name="user_id", value=message.author.id)
-            embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(message)})")
+            embed.add_field(name="context", value=f"[(link)]({message.jump_url})")
             return embed
         else:
             return None
@@ -196,7 +196,7 @@ class WastelandEmbeds:
             embed.add_field(name="channel", value=before.channel.mention)
             embed.add_field(name="member", value=before.author.mention)
             embed.add_field(name="user_id", value=before.author.id)
-            embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(before)})")
+            embed.add_field(name="context", value=f"[(link)]({before.jump_url})")
             return embed
         else:
             return None

@@ -103,7 +103,7 @@ class Pinning(commands.Cog):
 
         if message.embeds:
             embed = message.embeds[0]
-            embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(message)})")
+            embed.add_field(name="context", value=f"[(link)]({message.jump_url})")
             return embed
 
         description = message.content
@@ -120,7 +120,7 @@ class Pinning(commands.Cog):
             name=message.author.display_name,
             icon_url=message.author.avatar_url
         )
-        embed.add_field(name="context", value=f"[(link)]({wrappers.make_message_link(message)})")
+        embed.add_field(name="context", value=f"[(link)]({message.jump_url})")
         return embed
 
 

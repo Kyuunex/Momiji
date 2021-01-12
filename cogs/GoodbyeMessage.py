@@ -1,7 +1,7 @@
 import random
 import discord
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 
 from discord.ext import commands
 
@@ -81,7 +81,7 @@ class GoodbyeMessage(commands.Cog):
 
         embed = discord.Embed(color=0xf76a8c)
 
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):

@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 
 
 class StatsBuilder(commands.Cog):
@@ -91,7 +91,7 @@ class StatsBuilder(commands.Cog):
         embed = discord.Embed(title=member.name,
                               color=member.colour.value)
         embed.set_thumbnail(url=member.avatar_url)
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="guild", brief="About this server", aliases=['server'])
     @commands.guild_only()
@@ -185,7 +185,7 @@ class StatsBuilder(commands.Cog):
         if guild.banner_url:
             embed.set_image(url=guild.banner_url)
 
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
         if "with_emotes" in args:
             if len(guild.emojis) > 0:
@@ -194,7 +194,7 @@ class StatsBuilder(commands.Cog):
                     buffer2 += f"{emoji}"
                     if (guild.emojis.index(emoji) + 1) % 10 == 0:
                         buffer2 += "\n"
-                await wrappers.send_large_embed(ctx.channel, embed, buffer2)
+                await send_large_message.send_large_embed(ctx.channel, embed, buffer2)
 
 
 def setup(bot):

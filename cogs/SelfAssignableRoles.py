@@ -1,5 +1,5 @@
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 import discord
 from discord.ext import commands
 
@@ -79,7 +79,7 @@ class SelfAssignableRoles(commands.Cog):
 
         embed = discord.Embed(color=0xadff2f)
         embed.set_author(name="Self-assignable roles:")
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="join", brief="Assign a self-assignable role")
     @commands.guild_only()

@@ -1,5 +1,6 @@
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
+from reusables import get_member_helpers
 import discord
 from discord.ext import commands
 import time
@@ -108,7 +109,7 @@ class RegularRole(commands.Cog):
 
                 embed = discord.Embed(color=0xadff2f)
                 embed.set_author(name="Regular Role changes")
-                await wrappers.send_large_embed(ctx.channel, embed, buffer)
+                await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="regular_role_add", brief="Register a regular role")
     @commands.check(permissions.is_admin)
@@ -165,7 +166,7 @@ class RegularRole(commands.Cog):
         Manually blacklist a member from being a regular
         """
 
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+        member = get_member_helpers.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
             return
@@ -185,7 +186,7 @@ class RegularRole(commands.Cog):
         Un-blacklist a member from being a regular.
         """
 
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+        member = get_member_helpers.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
             return
@@ -219,7 +220,7 @@ class RegularRole(commands.Cog):
 
         embed = discord.Embed(color=0xadff2f)
         embed.set_author(name="regular role blacklisted members in this server")
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     async def list_sorter(self, a_list):
         results = dict(Counter(a_list))

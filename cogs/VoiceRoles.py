@@ -1,5 +1,5 @@
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 
 import discord
 from discord.ext import commands
@@ -102,7 +102,7 @@ class VoiceRoles(commands.Cog):
 
         embed = discord.Embed(color=0xadff2f)
         embed.set_author(name="voice role records")
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.Cog.listener()
     async def on_voice_state_update(self, member, before, after):

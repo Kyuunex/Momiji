@@ -1,7 +1,8 @@
 from modules import permissions
 import discord
 from discord.ext import commands
-from modules import wrappers
+from reusables import send_large_message
+from reusables import get_member_helpers
 
 
 class Utilities(commands.Cog):
@@ -24,7 +25,7 @@ class Utilities(commands.Cog):
                 await ctx.send("command not typed in a guild and no shadow guild set")
                 return
 
-        member = wrappers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
+        member = get_member_helpers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
 
         if not member:
             await ctx.send("no member found with that name")
@@ -53,7 +54,7 @@ class Utilities(commands.Cog):
                 await ctx.send("command not typed in a guild and no shadow guild set")
                 return
 
-        member = wrappers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
+        member = get_member_helpers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
 
         if not member:
             await ctx.send("no member found with that name")
@@ -76,7 +77,7 @@ class Utilities(commands.Cog):
         embed = discord.Embed(color=0xffffff)
         embed.set_author(name=f"messages between me and {member.name}")
 
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="mass_nick", brief="Nickname every user")
     @commands.check(permissions.is_admin)
@@ -121,7 +122,7 @@ class Utilities(commands.Cog):
         Take away every role a member has
         """
 
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+        member = get_member_helpers.get_member_guaranteed(ctx, user_id)
         if member:
             try:
                 await member.edit(roles=[])

@@ -1,7 +1,8 @@
 import discord
 import random
 import time
-from modules import wrappers
+from reusables import send_large_message
+from reusables import get_member_helpers
 from modules import permissions
 from discord.ext import commands
 from discord.utils import escape_markdown
@@ -34,7 +35,7 @@ class Waifu(commands.Cog):
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def legacy_claim_waifu(self, ctx, *, user_id):
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+        member = get_member_helpers.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
             return
@@ -73,7 +74,7 @@ class Waifu(commands.Cog):
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def legacy_unclaim_waifu(self, ctx, *, user_id):
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+        member = get_member_helpers.get_member_guaranteed(ctx, user_id)
         if not member:
             await ctx.send("no member found with that name")
             if user_id.isdigit():
@@ -132,7 +133,7 @@ class Waifu(commands.Cog):
             else:
                 contents += f"**{owner_name}** claimed **{waifu_name}**\n"
         embed = discord.Embed(color=0xff6781)
-        await wrappers.send_large_embed(ctx.channel, embed, contents)
+        await send_large_message.send_large_embed(ctx.channel, embed, contents)
 
     @commands.command(name="roll_server_member", aliases=["w"])
     @commands.guild_only()
@@ -168,7 +169,7 @@ class Waifu(commands.Cog):
     @commands.check(permissions.is_not_ignored)
     async def debug_reset_rolls(self, ctx, user_id=None):
         if user_id:
-            member = wrappers.get_member_guaranteed(ctx, user_id)
+            member = get_member_helpers.get_member_guaranteed(ctx, user_id)
         else:
             member = ctx.author
         for roll in reversed(self.roll_count_cache):

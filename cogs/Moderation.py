@@ -3,7 +3,7 @@ import discord
 import time
 import datetime
 from modules import permissions
-from modules import wrappers
+from reusables import get_member_helpers
 
 
 class Moderation(commands.Cog):
@@ -85,7 +85,7 @@ class Moderation(commands.Cog):
         note: the note to store
         """
 
-        member = wrappers.get_member_guaranteed(ctx, user_id)
+        member = get_member_helpers.get_member_guaranteed(ctx, user_id)
 
         if not member:
             await ctx.send("no member found with that name")
@@ -115,7 +115,7 @@ class Moderation(commands.Cog):
             all_mod_notes = await cursor.fetchall()
 
         if user_id:
-            check_member = wrappers.get_member_guaranteed(ctx, user_id)
+            check_member = get_member_helpers.get_member_guaranteed(ctx, user_id)
         else:
             check_member = None
 

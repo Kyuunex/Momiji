@@ -2,7 +2,7 @@ from discord.ext import commands
 import random
 import discord
 import pyminesweeper
-from modules import wrappers
+from reusables import send_large_message
 from modules import cooldown
 from modules import permissions
 
@@ -62,7 +62,7 @@ class Fun(commands.Cog):
         output = f"{int(size)} x {int(size)} Minesweeper with {game_instance.num_mines} mines\n\n" \
                  f"{formatted_board}"
 
-        await wrappers.send_large_text(ctx.channel, output)
+        await send_large_message.send_large_text(ctx.channel, output)
 
     async def format_board_for_discord(self, game_instance):
         return game_instance.map_revealed() \

@@ -8,7 +8,7 @@ import re
 from html import unescape
 
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 
 
 class RSSFeed(commands.Cog):
@@ -98,7 +98,7 @@ class RSSFeed(commands.Cog):
             if (str(ctx.channel.id) in destination_list_str) or everywhere:
                 buffer += f"url: `{one_entry[0]}` | channels: {destination_list_str}\n"
         embed = discord.Embed(color=0xff6781)
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     async def rss_entry_embed(self, rss_object, color=0xbd3661):
         if rss_object:

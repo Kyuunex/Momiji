@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 
 
 class Reminders(commands.Cog):
@@ -110,7 +110,7 @@ class Reminders(commands.Cog):
 
         embed = discord.Embed(color=0xf76a8c)
 
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     async def message_embed(self, member, contents):
         embed = discord.Embed(

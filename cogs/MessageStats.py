@@ -1,6 +1,6 @@
 from modules import cooldown
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 import time
 import discord
 from discord.ext import commands
@@ -127,7 +127,7 @@ class MessageStats(commands.Cog):
             embed = discord.Embed(color=0xffffff)
             embed.set_author(name="User stats")
             embed.set_footer(text=f"Total amount of messages sent: {total_amount}")
-        await wrappers.send_large_embed(ctx.channel, embed, contents)
+        await send_large_message.send_large_embed(ctx.channel, embed, contents)
 
     async def parse_args_timescale(self, args):
         for arg in args:
@@ -212,7 +212,7 @@ class MessageStats(commands.Cog):
             embed = discord.Embed(color=0xffffff)
             embed.set_author(name="Word stats")
             embed.set_footer(text="Momiji is best wolf.")
-        await wrappers.send_large_embed(ctx.channel, embed, contents)
+        await send_large_message.send_large_embed(ctx.channel, embed, contents)
 
     async def list_sorter(self, a_list):
         results = dict(Counter(a_list))

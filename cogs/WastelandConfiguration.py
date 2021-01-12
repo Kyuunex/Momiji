@@ -1,7 +1,7 @@
 from discord.ext import commands
 import discord
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 
 
 class WastelandConfiguration(commands.Cog):
@@ -90,7 +90,7 @@ class WastelandConfiguration(commands.Cog):
 
         embed = discord.Embed(color=0xf76a8c)
 
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
 
 def setup(bot):

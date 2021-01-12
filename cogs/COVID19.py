@@ -6,7 +6,7 @@ from discord.ext import commands
 import urllib.parse
 
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 from modules import cooldown
 import dateutil.parser
 import operator
@@ -84,7 +84,7 @@ class COVID19(commands.Cog):
         )
         embed.set_author(name="COVID-19 Summary")
         embed.set_footer(text=f"Last update: {str(self.summary_cache.Date.isoformat(' '))}")
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="c19country", brief="Get COVID-19 info for a country", aliases=['c19c', 'c19'])
     @commands.check(permissions.is_not_ignored)

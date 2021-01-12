@@ -5,7 +5,7 @@ import psutil
 import json
 from discord.ext import commands
 from modules import permissions
-from modules import wrappers
+from reusables import send_large_message
 from modules.connections import database_file as database_file
 
 script_start_time = time.time()
@@ -32,7 +32,7 @@ class BotManagement(commands.Cog):
 
         embed = discord.Embed(title="Bot admin list", color=0xf76a8c)
 
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="make_admin", brief="Add a user to a bot admin list")
     @commands.check(permissions.is_owner)
@@ -87,7 +87,7 @@ class BotManagement(commands.Cog):
 
         embed = discord.Embed(color=0xf76a8c)
 
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="ignore_user", brief="Blacklist a user from using the bot")
     @commands.check(permissions.is_owner)
@@ -166,7 +166,7 @@ class BotManagement(commands.Cog):
             embed = discord.Embed(color=0xadff2f)
             embed.set_author(name="query results")
 
-            await wrappers.send_large_embed(ctx.channel, embed, buffer)
+            await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
         except Exception as e:
             embed = discord.Embed(description=e, color=0xbd3661)
@@ -284,7 +284,7 @@ class BotManagement(commands.Cog):
             buffer += f"[{contributor['name']}]({contributor['url']})\n"
 
         embed = discord.Embed(title="About this bot", color=0xe95e62)
-        await wrappers.send_large_embed(ctx.channel, embed, buffer)
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     def measure_time(self, start_time, end_time):
         duration = int(end_time - start_time)
