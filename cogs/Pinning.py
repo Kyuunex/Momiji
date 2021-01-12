@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import datetime
-from modules import wrappers
 
 
 class Pinning(commands.Cog):
