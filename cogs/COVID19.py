@@ -55,10 +55,10 @@ class COVID19(commands.Cog):
         buffer += f"\n"
         buffer += f"**Countries:**\n"
 
-        if "sort" in args:
-            correct_sort = sorted(summary.Countries, key=operator.attrgetter('TotalConfirmed'), reverse=True)
-        else:
+        if "sort:alphabetical" in args:
             correct_sort = summary.Countries
+        else:
+            correct_sort = sorted(summary.Countries, key=operator.attrgetter('TotalConfirmed'), reverse=True)
 
         max_results = 0
         for arg in args:
@@ -71,6 +71,9 @@ class COVID19(commands.Cog):
         for country in correct_sort:
             if max_results:
                 if count >= max_results:
+                    break
+            else:
+                if count >= 20:
                     break
             buffer += f":flag_{country.CountryCode.lower()}: **{country.Country}:** "
             buffer += f":thermometer_face: {country.TotalConfirmed} ({country.NewConfirmed}) / "
