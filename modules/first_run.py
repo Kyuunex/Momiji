@@ -336,7 +336,7 @@ def ensure_tables():
     predefined_responses = [
         ("^", "I agree!", 1, 1),
         ("gtg", "nooooo don\'t leaveeeee!", 2, 4),
-        ("kakushi", "kotoga", 2, 1),
+        ("kakushi", "-goto ga", 2, 1),
         ("kasanari", "AAAAAAAAAAAAUUUUUUUUUUUUUUUUU", 2, 1),
         ("giri giri", "EYEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE", 2, 1),
         ("awoo", "awoooooooooooooooooooooooooo", 1, 1),
