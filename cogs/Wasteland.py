@@ -144,9 +144,6 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
-        if not before.guild:
-            return
-
         if before.name != after.name or before.discriminator != after.discriminator:
             async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
                                            "WHERE event_name = 'on_user_update' OR event_name = 'all'") as cursor:
