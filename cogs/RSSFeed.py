@@ -171,6 +171,23 @@ class RSSFeed(commands.Cog):
 
                     online_entries = url_parsed_contents["entries"]
 
+                    async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history WHERE url = ? ",
+                                                         [str(url)]) as cursor:
+                        rssfeed_history_for_this_url = await cursor.fetchone()
+                    if not rssfeed_history_for_this_url:
+                        for entry_metadata in online_entries:
+                            entry_id = entry_metadata["link"]
+                            async with await self.bot.db.execute(
+                                    "SELECT entry_id FROM rssfeed_history WHERE url = ? AND entry_id = ?",
+                                    [str(url), str(entry_id)]) as cursor:
+                                check_is_entry_in_history = await cursor.fetchone()
+                            if not check_is_entry_in_history:
+                                await self.bot.db.execute("INSERT INTO rssfeed_history VALUES (?, ?)",
+                                                          [str(url), str(entry_id)])
+
+                        await self.bot.db.commit()
+                        continue
+
                     for one_entry in online_entries:
                         entry_id = one_entry["link"]
                         async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history "
