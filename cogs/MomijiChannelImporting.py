@@ -12,7 +12,7 @@ class MomijiChannelImporting(commands.Cog):
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
-    async def init_server(self, ctx):
+    async def init_server(self, ctx, metadata_only=0):
         """
         This commands imports all visible channels in this guild and then enables MomijiSpeak
         """
@@ -21,7 +21,8 @@ class MomijiChannelImporting(commands.Cog):
             if type(channel) is discord.TextChannel:
                 await self.import_channel(ctx, channel)
 
-        await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?)", [int(ctx.guild.id)])
+        await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?, ?)",
+                                  [int(ctx.guild.id), int(metadata_only)])
         await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")

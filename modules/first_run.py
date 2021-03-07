@@ -303,7 +303,8 @@ def ensure_tables():
 
     c.execute("""
     CREATE TABLE IF NOT EXISTS "mmj_enabled_guilds" (
-        "guild_id"    INTEGER NOT NULL UNIQUE
+        "guild_id"    INTEGER NOT NULL UNIQUE,
+        "metadata_only"    INTEGER NOT NULL
     )
     """)
 
