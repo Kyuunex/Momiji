@@ -202,7 +202,8 @@ def ensure_tables():
     c.execute("""
     CREATE TABLE IF NOT EXISTS "wasteland_channels" (
         "guild_id"    INTEGER NOT NULL, 
-        "channel_id"    INTEGER NOT NULL UNIQUE
+        "channel_id"    INTEGER NOT NULL UNIQUE,
+        "event_name"    TEXT NOT NULL
     )
     """)
     c.execute("""

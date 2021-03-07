@@ -8,7 +8,8 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_ban(self, guild, member):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                       "WHERE event_name = 'on_member_ban' OR event_name = 'all'") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
             if int(wasteland_channel[0]) == int(guild.id):
@@ -22,7 +23,8 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_unban(self, guild, user):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                       "WHERE event_name = 'on_member_unban' OR event_name = 'all'") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
             if int(wasteland_channel[0]) == int(guild.id):
@@ -31,7 +33,8 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                       "WHERE event_name = 'on_member_remove' OR event_name = 'all'") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
             if int(wasteland_channel[0]) == int(member.guild.id):
@@ -40,7 +43,8 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                       "WHERE event_name = 'on_member_join' OR event_name = 'all'") as cursor:
             wasteland_channels = await cursor.fetchall()
         for wasteland_channel in wasteland_channels:
             if int(wasteland_channel[0]) == int(member.guild.id):
@@ -49,7 +53,11 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before, after):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+        if not before.guild:
+            return
+
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                       "WHERE event_name = 'on_message_edit' OR event_name = 'all'") as cursor:
             wasteland_channels = await cursor.fetchall()
         async with self.bot.db.execute("SELECT channel_id FROM wasteland_ignore_channels") as cursor:
             wasteland_ignore_channels = await cursor.fetchall()
@@ -76,7 +84,11 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+        if not message.guild:
+            return
+
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                       "WHERE event_name = 'on_message_delete' OR event_name = 'all'") as cursor:
             wasteland_channels = await cursor.fetchall()
         async with self.bot.db.execute("SELECT channel_id FROM wasteland_ignore_channels") as cursor:
             wasteland_ignore_channels = await cursor.fetchall()
@@ -102,7 +114,8 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+        async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                       "WHERE event_name = 'on_member_update' OR event_name = 'all'") as cursor:
             wasteland_channels = await cursor.fetchall()
 
         if before.roles != after.roles:
@@ -131,8 +144,12 @@ class Wasteland(commands.Cog):
 
     @commands.Cog.listener()
     async def on_user_update(self, before, after):
+        if not before.guild:
+            return
+
         if before.name != after.name or before.discriminator != after.discriminator:
-            async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels") as cursor:
+            async with self.bot.db.execute("SELECT guild_id, channel_id FROM wasteland_channels "
+                                           "WHERE event_name = 'on_user_update' OR event_name = 'all'") as cursor:
                 wasteland_channels = await cursor.fetchall()
 
             for wasteland_channel in wasteland_channels:

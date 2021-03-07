@@ -39,13 +39,18 @@ class WastelandConfiguration(commands.Cog):
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
-    async def set_wasteland_channel(self, ctx):
+    async def set_wasteland_channel(self, ctx, event_name):
         """
         Set the channel the message is being called in as a wasteland channel.
+
+        event list:
+        on_member_ban, on_member_unban, on_member_remove,
+        on_member_join, on_message_edit, on_message_delete,
+        on_member_update, on_user_update, all
         """
 
-        await self.bot.db.execute("INSERT INTO wasteland_channels VALUES (?,?)",
-                                  [int(ctx.guild.id), int(ctx.channel.id)])
+        await self.bot.db.execute("INSERT INTO wasteland_channels VALUES (?,?,?)",
+                                  [int(ctx.guild.id), int(ctx.channel.id), str(event_name)])
         await self.bot.db.commit()
 
         await ctx.send("This channel is now a wasteland channel.")
@@ -58,6 +63,8 @@ class WastelandConfiguration(commands.Cog):
         """
         Remove the current channel from being a wasteland channel.
         """
+
+        # TODO: adjust for multiple wasteland events
 
         if "guild" in args:
             await self.bot.db.execute("DELETE FROM wasteland_channels WHERE guild_id = ?", [int(ctx.guild.id)])
@@ -75,6 +82,8 @@ class WastelandConfiguration(commands.Cog):
         """
         Prints out all wasteland channels in this guild.
         """
+
+        # TODO: adjust for multiple wasteland events
 
         async with self.bot.db.execute("SELECT channel_id FROM wasteland_channels WHERE guild_id = ?",
                                        [int(ctx.guild.id)]) as cursor:
