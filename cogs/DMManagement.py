@@ -18,8 +18,12 @@ class DMManagement(commands.Cog):
         Send a direct message to a server member as a bot.
         """
 
-        guild = ctx.guild
-
+        if self.bot.shadow_guild:
+            guild = self.bot.shadow_guild
+            await ctx.send(f"using a guild {guild.name}")
+        else:
+            guild = ctx.guild
+        
         if not guild:
             guild = self.bot.shadow_guild
             if not guild:
@@ -47,7 +51,11 @@ class DMManagement(commands.Cog):
         Retrieve messages from a DM channel with a server member
         """
 
-        guild = ctx.guild
+        if self.bot.shadow_guild:
+            guild = self.bot.shadow_guild
+            await ctx.send(f"using a guild {guild.name}")
+        else:
+            guild = ctx.guild
 
         if not guild:
             guild = self.bot.shadow_guild
