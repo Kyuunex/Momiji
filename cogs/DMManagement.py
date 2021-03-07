@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from reusables import send_large_message
 from reusables import get_member_helpers
+from embeds import DMMonitoring as DMEmbeds
 
 
 class DMManagement(commands.Cog):
@@ -102,6 +103,18 @@ class DMManagement(commands.Cog):
         self.bot.shadow_guild = guild
 
         await ctx.send(f"all guild related commands typed right now in DMs will be intended for {guild.name}")
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.guild:
+            return
+
+        async with self.bot.db.execute("SELECT channel_id FROM channels WHERE setting = ?",
+                                       ["dm_monitor"]) as cursor:
+            dm_monitor_channels = await cursor.fetchall()
+        for dm_monitor_channel in dm_monitor_channels:
+            channel = self.bot.get_channel(int(dm_monitor_channel[0]))
+            await channel.send(content=str(message.channel.id), embed=await DMEmbeds.post_message(message))
 
 
 def setup(bot):
