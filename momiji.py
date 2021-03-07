@@ -35,6 +35,7 @@ initial_extensions = [
     "cogs.ChannelExporting", 
     "cogs.COVID19",
     "cogs.CRPair",
+    "cogs.DMManagement",
     "cogs.Fun",
     "cogs.Gatekeeper",
     "cogs.Img",
