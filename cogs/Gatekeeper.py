@@ -162,12 +162,6 @@ class Gatekeeper(commands.Cog):
 
         # if we are here, the user is not allowed here
 
-        try:
-            await member.send(embed=await self.deny_embed(member.guild))
-            await member.ban(reason="banned by the gatekeeper for not being whitelisted")
-        except Exception as e:
-            print(e)
-
         async with self.bot.db.execute("SELECT channel_id FROM guild_event_report_channels WHERE guild_id = ?",
                                        [int(member.guild.id)]) as cursor:
             event_report_channel_id = await cursor.fetchone()
@@ -176,8 +170,13 @@ class Gatekeeper(commands.Cog):
 
         event_report_channel = self.bot.get_channel(int(event_report_channel_id[0]))
 
-        await event_report_channel.send(f"user `{member.name}` with id `{member.id}` tried to join this server "
-                                        f"but was removed for not being whitelisted")
+        try:
+            await member.send(embed=await self.deny_embed(member.guild))
+            await member.ban(reason="banned by the gatekeeper for not being whitelisted")
+            await event_report_channel.send(f"user `{member.name}` with id `{member.id}` tried to join this server "
+                                            f"but was removed for not being whitelisted")
+        except Exception as e:
+            await event_report_channel.send(f"GATEKEEPER ERROR {str(e)}")
 
     async def get_cached_username(self, ctx, user_id):
         member = ctx.guild.get_member(int(user_id))
