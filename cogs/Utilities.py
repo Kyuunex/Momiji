@@ -28,8 +28,10 @@ class Utilities(commands.Cog):
                 await ctx.send("command not typed in a guild and no shadow guild set")
                 return
 
+        user = discord.Object(int(user_id))
+
         try:
-            await guild.ban(user=int(user_id), reason=reason)
+            await guild.ban(user=user, reason=reason)
         except Exception as e:
             await ctx.send(e)
 
