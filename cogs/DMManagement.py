@@ -122,7 +122,8 @@ class DMManagement(commands.Cog):
             dm_monitor_channels = await cursor.fetchall()
         for dm_monitor_channel in dm_monitor_channels:
             channel = self.bot.get_channel(int(dm_monitor_channel[0]))
-            await channel.send(content=str(message.channel.id), embed=await DMEmbeds.post_message(message))
+            await channel.send(content=f"{str(message.channel.id)} : {message.channel.recipient}",
+                               embed=await DMEmbeds.post_message(message))
 
 
 def setup(bot):
