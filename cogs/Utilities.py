@@ -8,6 +8,33 @@ class Utilities(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.command(name="ban_member", brief="Ban a member")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def ban_member(self, ctx, user_id, *, reason=None):
+        """
+        Ban a member
+        """
+
+        if self.bot.shadow_guild:
+            guild = self.bot.shadow_guild
+            await ctx.send(f"using a guild {guild.name}")
+        else:
+            guild = ctx.guild
+
+        if not guild:
+            guild = self.bot.shadow_guild
+            if not guild:
+                await ctx.send("command not typed in a guild and no shadow guild set")
+                return
+
+        try:
+            await guild.ban(user=user_id, reason=reason)
+        except Exception as e:
+            await ctx.send(e)
+
+        await ctx.send(f"banned {user_id} with reason `{str(reason)}`")
+
     @commands.command(name="mass_nick", brief="Nickname every user")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
