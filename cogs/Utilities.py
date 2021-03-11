@@ -29,7 +29,7 @@ class Utilities(commands.Cog):
                 return
 
         try:
-            await guild.ban(user=user_id, reason=reason)
+            await guild.ban(user=int(user_id), reason=reason)
         except Exception as e:
             await ctx.send(e)
 
