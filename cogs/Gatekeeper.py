@@ -10,12 +10,43 @@ class Gatekeeper(commands.Cog):
     The Gatekeeper module is designed to enforce the invite-only nature of a given server.
     With this enabled, if a user who is not whitelisted joins the server,
     they will be removed there and then.
-    To enable this functionality, at least one user must be in a whitelist.
-    Having an empty whitelist will disable this functionality.
+    To enable this functionality, type ;gatekeeper_enable
     """
 
     def __init__(self, bot):
         self.bot = bot
+
+    @commands.command(name="gatekeeper_enable", brief="Enable Gatekeeper in this guild")
+    @commands.check(permissions.channel_ban_members)
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def gatekeeper_enable(self, ctx):
+        """
+        Enable Gatekeeper in this guild
+        """
+
+        try:
+            await self.bot.db.execute("INSERT INTO gatekeeper_enabled_guilds VALUES (?)", [int(ctx.guild.id)])
+            await self.bot.db.commit()
+            await ctx.send(f"gatekeeper is now enabled in this server")
+        except Exception as e:
+            await ctx.send(embed=discord.Embed(description=str(e)))
+
+    @commands.command(name="gatekeeper_disable", brief="Disable Gatekeeper in this guild")
+    @commands.check(permissions.channel_ban_members)
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def gatekeeper_disable(self, ctx):
+        """
+        Disable Gatekeeper in this guild
+        """
+
+        try:
+            await self.bot.db.execute("DELETE FROM gatekeeper_enabled_guilds WHERE guild_id = ?", [int(ctx.guild.id)])
+            await self.bot.db.commit()
+            await ctx.send(f"gatekeeper is now disabled in this server")
+        except Exception as e:
+            await ctx.send(embed=discord.Embed(description=str(e)))
 
     @commands.command(name="gatekeeper_whitelist_user", brief="Whitelist a user to join this server")
     @commands.check(permissions.channel_ban_members)
@@ -51,6 +82,15 @@ class Gatekeeper(commands.Cog):
         if not user_id.isdigit():
             await ctx.send("user_id must be all digits")
             return
+
+        try:
+            bans = await ctx.guild.bans()
+            for ban in bans:
+                if ban.user.id == int(user_id):
+                    await ctx.guild.unban(user=ban.user,
+                                          reason=f"unbanned by a vouch by {ctx.author} aka {str(ctx.author.id)}")
+        except discord.Forbidden:
+            await ctx.send("no permissions to unban, manual action by admin required")
 
         await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
                                   [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
@@ -102,7 +142,11 @@ class Gatekeeper(commands.Cog):
             is_gatekeeper_enabled = await cursor.fetchall()
         if not is_gatekeeper_enabled:
             buffer += "\nAlso, Gatekeeper whitelist is disabled for this guild.\n"
-            return
+
+        try:
+            await ctx.guild.bans()
+        except discord.Forbidden:
+            buffer += "\nAlso, this won't work properly because I don't have permissions to ban in this guild.\n"
 
         embed = discord.Embed(color=0xf76a8c)
 
@@ -171,7 +215,14 @@ class Gatekeeper(commands.Cog):
         event_report_channel = self.bot.get_channel(int(event_report_channel_id[0]))
 
         try:
-            await member.send(embed=await self.deny_embed(member.guild))
+            await member.guild.bans()
+        except discord.Forbidden:
+            await event_report_channel.send(f"{member.mention} has joined, "
+                                            f"but is not whitelisted and I don't have permissions to ban them")
+            return
+
+        try:
+            await member.send(embed=await self.deny_embed(member.guild, member))
             await member.ban(reason="banned by the gatekeeper for not being whitelisted")
             await event_report_channel.send(f"user `{member.name}` with id `{member.id}` tried to join this server "
                                             f"but was removed for not being whitelisted")
@@ -195,10 +246,20 @@ class Gatekeeper(commands.Cog):
 
         return ":"
 
-    async def deny_embed(self, guild):
+    async def deny_embed(self, guild, member):
         deny_message = "the server you just joined is a private server that has a member whitelist enabled. " \
-                       "unfortunately you are not in it, so you are not allowed to join. " \
-                       "if you think you should be whitelisted, contact an admin."
+                       "unfortunately you are not in it, so you are not allowed to join. "
+
+        async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_vouchable_guilds WHERE guild_id = ?",
+                                       [int(guild.id)]) as cursor:
+            is_guild_vouchable = await cursor.fetchall()
+        if not is_guild_vouchable:
+            deny_message += "if you think you should be whitelisted, contact an admin."
+        else:
+            deny_message += "if you think you should be whitelisted, " \
+                            "contact any of the members of this server" \
+                            f" and ask them to vouch for you by typing this command \n" \
+                            f"```\n;vouch {member.id}\n```"
 
         embed = discord.Embed(
             description=deny_message,
