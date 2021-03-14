@@ -75,10 +75,13 @@ class MessageStats(commands.Cog):
             rank = 0
             contents = ""
 
+            async with self.bot.db.execute("SELECT metadata_only FROM mmj_enabled_guilds WHERE guild_id = ?",
+                                           [int(ctx.guild.id)]) as cursor:
+                is_metadata_only = await cursor.fetchone()
             async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                            [int(ctx.guild.id)]) as cursor:
                 guild_privacy_check = await cursor.fetchall()
-            if guild_privacy_check:
+            if (is_metadata_only and is_metadata_only[0] == 1) or guild_privacy_check:
                 contents += "I'm only collecting metadata from this server\n\n"
 
             for member_id in stats:
@@ -160,10 +163,13 @@ class MessageStats(commands.Cog):
         Show what are the most popular words spoken in this server.
         """
 
+        async with self.bot.db.execute("SELECT metadata_only FROM mmj_enabled_guilds WHERE guild_id = ?",
+                                       [int(ctx.guild.id)]) as cursor:
+            is_metadata_only = await cursor.fetchone()
         async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                        [int(ctx.guild.id)]) as cursor:
             is_private_guild = await cursor.fetchall()
-        if is_private_guild:
+        if (is_metadata_only and is_metadata_only[0] == 1) or is_private_guild:
             await ctx.send("impossible to do this in this guild because this is a private area "
                            "and I don\'t store messages from here")
             return

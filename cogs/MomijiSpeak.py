@@ -107,6 +107,11 @@ class MomijiSpeak(commands.Cog):
         """
 
         if message.guild:
+            async with self.bot.db.execute("SELECT * FROM mmj_enabled_guilds WHERE guild_id = ? AND metadata_only = 1",
+                                           [int(message.guild.id)]) as cursor:
+                is_metadata_only = await cursor.fetchall()
+            if is_metadata_only:
+                return True
             async with self.bot.db.execute("SELECT guild_id FROM mmj_private_guilds WHERE guild_id = ?",
                                            [int(message.guild.id)]) as cursor:
                 private_guild_check = await cursor.fetchall()
