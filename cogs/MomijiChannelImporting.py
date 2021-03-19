@@ -16,14 +16,16 @@ class MomijiChannelImporting(commands.Cog):
         """
         This commands imports all visible channels in this guild and then enables MomijiSpeak
         """
+        await ctx.send("starting import")
 
-        for channel in ctx.guild.channels:
-            if type(channel) is discord.TextChannel:
-                await self.import_channel(ctx, channel, int(metadata_only))
+        async with ctx.channel.typing():
+            for channel in ctx.guild.channels:
+                if type(channel) is discord.TextChannel:
+                    await self.import_channel(ctx, channel, int(metadata_only))
 
-        await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?, ?)",
-                                  [int(ctx.guild.id), int(metadata_only)])
-        await self.bot.db.commit()
+            await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?, ?)",
+                                      [int(ctx.guild.id), int(metadata_only)])
+            await self.bot.db.commit()
 
         await ctx.send(":ok_hand:")
 
