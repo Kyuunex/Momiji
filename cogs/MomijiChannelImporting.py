@@ -19,7 +19,7 @@ class MomijiChannelImporting(commands.Cog):
 
         for channel in ctx.guild.channels:
             if type(channel) is discord.TextChannel:
-                await self.import_channel(ctx, channel)
+                await self.import_channel(ctx, channel, int(metadata_only))
 
         await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?, ?)",
                                   [int(ctx.guild.id), int(metadata_only)])
@@ -38,15 +38,17 @@ class MomijiChannelImporting(commands.Cog):
 
         for channel_id in channel_id_list:
             if channel_id == "this":
-                await self.import_channel(ctx, ctx.channel)
+                await self.import_channel(ctx, ctx.channel, 0)
             else:
-                await self.import_channel(ctx, self.bot.get_channel(int(channel_id)))
+                await self.import_channel(ctx, self.bot.get_channel(int(channel_id)), 0)
 
-    async def import_channel(self, ctx, channel):
+    async def import_channel(self, ctx, channel, metadata_only=0):
         try:
             # TODO: This is inefficient, fix
             async for message in channel.history(limit=999999999):
-                if await self.check_privacy(ctx):
+                if metadata_only == 1:
+                    content = None
+                elif await self.check_privacy(ctx):
                     content = None
                 else:
                     content = str(message.content)
