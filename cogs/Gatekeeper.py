@@ -26,6 +26,13 @@ class Gatekeeper(commands.Cog):
         """
 
         try:
+            async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
+                                           [int(ctx.guild.id)]) as cursor:
+                is_gatekeeper_enabled = await cursor.fetchall()
+            if is_gatekeeper_enabled:
+                await ctx.send(f"gatekeeper is already enabled in this server")
+                return
+
             await self.bot.db.execute("INSERT INTO gatekeeper_enabled_guilds VALUES (?)", [int(ctx.guild.id)])
             await self.bot.db.commit()
             await ctx.send(f"gatekeeper is now enabled in this server")
@@ -42,6 +49,13 @@ class Gatekeeper(commands.Cog):
         """
 
         try:
+            async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
+                                           [int(ctx.guild.id)]) as cursor:
+                is_gatekeeper_enabled = await cursor.fetchall()
+            if not is_gatekeeper_enabled:
+                await ctx.send(f"gatekeeper is not enabled in this server")
+                return
+
             await self.bot.db.execute("DELETE FROM gatekeeper_enabled_guilds WHERE guild_id = ?", [int(ctx.guild.id)])
             await self.bot.db.commit()
             await ctx.send(f"gatekeeper is now disabled in this server")
@@ -58,8 +72,15 @@ class Gatekeeper(commands.Cog):
         """
 
         for user_id in user_id_list:
-            await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
-                                      [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
+            async with self.bot.db.execute("SELECT * FROM gatekeeper_whitelist "
+                                           "WHERE guild_id = ? AND user_id = ?",
+                                           [int(ctx.guild.id), int(user_id)]) as cursor:
+                is_user_whitelisted = await cursor.fetchone()
+            if is_user_whitelisted:
+                await ctx.send(f"user with id `{user_id}` is already whitelisted")
+            else:
+                await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
+                                          [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
         await self.bot.db.commit()
 
         await ctx.send("done")
@@ -91,6 +112,14 @@ class Gatekeeper(commands.Cog):
                                           reason=f"unbanned by a vouch by {ctx.author} aka {str(ctx.author.id)}")
         except discord.Forbidden:
             await ctx.send("no permissions to unban, manual action by admin required")
+
+        async with self.bot.db.execute("SELECT * FROM gatekeeper_whitelist "
+                                       "WHERE guild_id = ? AND user_id = ?",
+                                       [int(ctx.guild.id), int(user_id)]) as cursor:
+            is_user_whitelisted = await cursor.fetchone()
+        if is_user_whitelisted:
+            await ctx.send(f"user with id `{user_id}` is already vouched for")
+            return
 
         await self.bot.db.execute("INSERT INTO gatekeeper_whitelist VALUES (?,?,?)",
                                   [int(ctx.guild.id), int(user_id), int(ctx.author.id)])
