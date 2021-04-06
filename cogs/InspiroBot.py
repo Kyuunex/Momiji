@@ -149,7 +149,7 @@ class InspiroBot(commands.Cog):
 
         image_url = await self.api_request_text(generate="true")
         if "https://generated.inspirobot.me/a/" in image_url:
-            await ctx.send(image_url)
+            await ctx.send(f"|| {image_url} ||")
 
 
 def setup(bot):
