@@ -3,6 +3,7 @@ import time
 import datetime
 import asyncio
 import discord
+# import dateutil.parser
 from discord.ext import commands
 
 from modules import permissions
@@ -129,6 +130,14 @@ class Reminders(commands.Cog):
             for user_input_chunk in user_input.split("'"):
                 delay_amount_seconds += self.duration_parse(user_input_chunk)
             return int(time.time()) + int(delay_amount_seconds)
+        elif "POSIX" in user_input:
+            arr = user_input.split(":")
+            return int(arr[1])
+        elif "-" in user_input and ":" in user_input:
+            # "2021-04-14 08:45:15"
+            # yes = dateutil.parser.parse(user_input)
+            # return yes.posix()
+            raise ValueError("Not implemented yet")
         else:
             delay_amount_seconds = self.duration_parse(user_input)
             return int(time.time()) + int(delay_amount_seconds)
