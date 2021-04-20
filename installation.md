@@ -13,14 +13,14 @@
 7. Figure out the rest yourself.
 
 ## Modern installation
-After making sure you have `git` and Python 3.6+ installed, type the following in the command line
-`python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@v1`  
+After making sure you have `git` and Python 3.6+ installed, type the following in the command line  
+`python3 -m pip install git+https://github.com/Kyuunex/Momiji.git`  
 To run the bot, type `python3 -m momiji`
 
 ### If you are SSHing into a GNU/Linux server, you can just type these to achieve the same thing
 
 ```sh
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@v1
+python3 -m pip install git+https://github.com/Kyuunex/Momiji.git
 mkdir -p $HOME/.local/share/Momiji
 # wget -O $HOME/.local/share/Momiji/maindb.sqlite3 REPLACE_THIS_WITH_DIRECT_FILE_LINK # only do if you are restoring a backup
 echo "REPLACE_THIS_WITH_BOT_TOKEN" | tee $HOME/.local/share/Momiji/token.txt
