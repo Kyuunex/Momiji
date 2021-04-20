@@ -106,9 +106,3 @@ venv.bak/
 # IDE
 .vscode
 .idea
-
-# other
-data
-test.py
-user_extensions
-bridged_extensions
