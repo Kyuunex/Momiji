@@ -4,6 +4,7 @@ import discord
 import youtube_dl
 
 from modules import permissions
+from modules.storage_management import dirs
 
 from discord.ext import commands
 
@@ -13,7 +14,7 @@ youtube_dl.utils.bug_reports_message = lambda: ""
 
 ytdl_format_options = {
     "format": "bestaudio/best",
-    "outtmpl": "data/%(extractor)s-%(id)s-%(title)s.%(ext)s",
+    "outtmpl": dirs.user_cache_dir + "/%(extractor)s-%(id)s-%(title)s.%(ext)s",
     "restrictfilenames": True,
     "noplaylist": True,
     "nocheckcertificate": True,

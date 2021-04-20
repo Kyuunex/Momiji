@@ -39,8 +39,3 @@ Also, collecting logs makes moderation and dealing with abusive staff a lot easi
 In my hosted instance of this bot, any data collected through this bot stays on my server, 
 used within the scope of the bot it self and for moderation purposes, and is not given to anyone else. 
 If you are self hosting, don't give the data you collect to anyone.
-
----
-
-Also, credits to whoever made `pinged.gif`, I don't know who made it, sorry, or I would have put his name here. 
-Therefore, license of this repository applies everything in here except `pinged.gif`.

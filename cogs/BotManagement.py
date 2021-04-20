@@ -6,7 +6,7 @@ import json
 from discord.ext import commands
 from modules import permissions
 from reusables import send_large_message
-from modules.connections import database_file as database_file
+from modules.storage_management import database_file as database_file
 
 script_start_time = time.time()
 

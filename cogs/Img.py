@@ -8,29 +8,29 @@ import random
 import imghdr
 from modules import cooldown
 from modules import permissions
+from modules.storage_management import art_directory
 
 
 class Img(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.art_dir = "data/art/"
 
     @commands.command(name="art", brief="Post a random picture")
     @commands.check(permissions.is_not_ignored)
     async def art(self, ctx):
         """
-        Upload a random picture from ./data/art/ folder
+        Upload a random picture from ~/.config/Momiji/art/ folder
         """
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
                 await ctx.send("slow down bruh")
                 return
 
-        if not os.path.exists(self.art_dir):
+        if not os.path.exists(art_directory):
             await ctx.send("This command is not enabled")
             return
 
-        list_of_art = os.listdir(self.art_dir)
+        list_of_art = os.listdir(art_directory)
 
         if len(list_of_art) == 0:
             await ctx.send("This command is not enabled")
@@ -49,7 +49,7 @@ class Img(commands.Cog):
                 await ctx.send("i tried 10 times to find an image to post for you something went wrong...")
                 return
 
-        await ctx.send(file=discord.File(self.art_dir + random_picture))
+        await ctx.send(file=discord.File(art_directory + "/" + random_picture))
 
     @commands.command(name="neko", brief="Post a random neko")
     @commands.check(permissions.is_not_ignored)

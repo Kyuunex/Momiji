@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
 
-from modules.connections import bot_token as bot_token
-from modules.connections import database_file as database_file
+from modules.storage_management import *
 from discord.ext import commands
 import discord
-import sys
 import os
 import aiosqlite
 import sqlite3
 
 from modules import first_run
 
-user_extensions_directory = "user_extensions"
-bridged_extensions_directory = "bridged_extensions"
-
-if not os.path.exists("data"):
-    print("Please configure this bot according to readme file.")
-    sys.exit("data folder and it's contents are missing")
-if not os.path.exists(user_extensions_directory):
-    os.makedirs(user_extensions_directory)
-if not os.path.exists(bridged_extensions_directory):
-    os.makedirs(bridged_extensions_directory)
+if os.environ.get('MOMIJI_TOKEN'):
+    bot_token = os.environ.get('MOMIJI_TOKEN')
+else:
+    try:
+        with open(dirs.user_data_dir + "/token.txt", "r+") as token_file:
+            bot_token = token_file.read().strip()
+    except FileNotFoundError as e:
+        print("i need a bot token. either set MOMIJI_TOKEN environment variable")
+        print("or put it in token.txt in my AppData/.config folder")
+        raise SystemExit
 
 if os.environ.get('MOMIJI_PREFIX'):
     command_prefix = os.environ.get('MOMIJI_PREFIX')
@@ -82,28 +80,28 @@ class Momiji(commands.Bot):
         conn = sqlite3.connect(self.database_file)
         c = conn.cursor()
         self.bridged_extensions = tuple(c.execute("SELECT extension_name FROM bridged_extensions"))
+        self.user_extensions = tuple(c.execute("SELECT extension_name FROM user_extensions"))
         conn.close()
 
         for extension in initial_extensions:
             try:
                 self.load_extension(extension)
-            except Exception as e:
-                print(e)
+            except discord.ext.commands.errors.ExtensionNotFound as ex:
+                print(ex)
+
         for bridged_extension in self.bridged_extensions:
             try:
-                self.load_extension(f"{bridged_extensions_directory}.{bridged_extension[0]}")
+                self.load_extension(bridged_extension[0])
                 print(f"Bridged extension {bridged_extension[0]} loaded")
-            except Exception as e:
-                print(e)
-        for user_extension in os.listdir(user_extensions_directory):
-            if not user_extension.endswith(".py"):
-                continue
-            extension_name = user_extension.replace(".py", "")
+            except discord.ext.commands.errors.ExtensionNotFound as ex:
+                print(ex)
+
+        for user_extension in self.user_extensions:
             try:
-                self.load_extension(f"{user_extensions_directory}.{extension_name}")
-                print(f"User extension {extension_name} loaded")
-            except Exception as e:
-                print(e)
+                self.load_extension(user_extension[0])
+                print(f"User extension {user_extension[0]} loaded")
+            except discord.ext.commands.errors.ExtensionNotFound as ex:
+                print(ex)
 
     async def start(self, *args, **kwargs):
         self.db = await aiosqlite.connect(self.database_file)

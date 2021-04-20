@@ -1,6 +1,7 @@
 import time
 import json
 from modules import permissions
+from modules.storage_management import exports_directory
 import discord
 from discord.ext import commands
 
@@ -33,7 +34,7 @@ class ChannelExporting(commands.Cog):
                     await ctx.send(f"unable to find a channel with an id of {channel_id}")
                     return
 
-            filename = f"data/export.{int(time.time())}.{channel.id}.{amount}.json"
+            filename = exports_directory + f"/export.{int(time.time())}.{channel.id}.{amount}.json"
 
             elapsed_time_counter = ElapsedTimeCounter(time.time())
             message_count = 0

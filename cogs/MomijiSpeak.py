@@ -213,7 +213,7 @@ class MomijiSpeak(commands.Cog):
         msg = message.content.lower()
 
         if "@everyone" in msg:
-            await message.channel.send(file=discord.File("res/pinged.gif"))
+            await message.channel.send("https://i.imgur.com/UCuY8qP.gif")
             return
 
         if "momiji" in msg or self.bot.user.mention in message.content:

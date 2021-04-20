@@ -1,5 +1,5 @@
 import sqlite3
-from modules.connections import database_file as database_file
+from modules.storage_management import database_file as database_file
 
 
 async def add_admins(self):
@@ -50,6 +50,11 @@ def ensure_tables():
     c.execute("""
     CREATE TABLE IF NOT EXISTS "bridged_extensions" (
         "channel_id"    INTEGER NOT NULL, 
+        "extension_name"     TEXT
+    )
+    """)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS "user_extensions" (
         "extension_name"     TEXT
     )
     """)

@@ -6,3 +6,4 @@ aiosqlite
 feedparser
 python-minesweeper
 python-dateutil
+appdirs
