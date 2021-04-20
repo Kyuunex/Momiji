@@ -122,21 +122,6 @@ class BotManagement(commands.Cog):
 
         await self.bot.close()
 
-    @commands.command(name="update", brief="Update the bot")
-    @commands.check(permissions.is_owner)
-    @commands.check(permissions.is_not_ignored)
-    async def update(self, ctx):
-        """
-        Update the bot.
-        This relies on the bot being installed by cloning the repository
-        and uses "git pull" command to achieve this functionality.
-        This also relies on the bot running in a loop.
-        """
-
-        os.system("git pull")
-
-        await ctx.send("Updates fetched, restart to apply")
-
     @commands.command(name="sql", brief="Execute an SQL query")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
