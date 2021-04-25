@@ -12,7 +12,7 @@ setup(
         'momiji.reusables'
     ],
     version=VERSION,
-    description='Asynchronous osu! api wrapper',
+    description='The only Discord bot you\'ll ever need',
     author='Kyuunex',
     author_email='kyuunex@protonmail.ch',
     url='https://github.com/Kyuunex/Momiji',
