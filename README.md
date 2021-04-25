@@ -8,7 +8,7 @@ How cancerous Momiji is in a given channel really depends on the messages sent i
 
 ---
 
-![](https://i.imgur.com/v0kgBww.png)
+![](https://i.imgur.com/zEYEEZV.png)
 
 ---
 
