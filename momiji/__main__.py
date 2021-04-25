@@ -1,4 +1,3 @@
-from momiji.modules.storage_management import *
 from discord.ext import commands
 import discord
 import os
@@ -6,18 +5,12 @@ import aiosqlite
 import sqlite3
 
 from momiji.modules import first_run
-from momiji.manifest import *
+from momiji.manifest import VERSION
+from momiji.manifest import CONTRIBUTORS
 
-if os.environ.get('MOMIJI_TOKEN'):
-    bot_token = os.environ.get('MOMIJI_TOKEN')
-else:
-    try:
-        with open(dirs.user_data_dir + "/token.txt", "r+") as token_file:
-            bot_token = token_file.read().strip()
-    except FileNotFoundError as e:
-        print("i need a bot token. either set MOMIJI_TOKEN environment variable")
-        print("or put it in token.txt in my AppData/.config folder")
-        raise SystemExit
+from momiji.modules.storage_management import database_file
+from momiji.modules.connections import bot_token
+
 
 if os.environ.get('MOMIJI_PREFIX'):
     command_prefix = os.environ.get('MOMIJI_PREFIX')
