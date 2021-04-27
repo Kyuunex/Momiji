@@ -1,7 +1,8 @@
 # Installation
 After making sure you have `git` and Python 3.6+ installed, 
-type the following in the command line to install or update the bot  
+type the following in the command line to install the bot  
 `python3 -m pip install git+https://github.com/Kyuunex/Momiji.git`  
+To update the bot from an older version, simply append `--upgrade` to the command above.
 
 To run the bot, type `python3 -m momiji` in the command line  
 
