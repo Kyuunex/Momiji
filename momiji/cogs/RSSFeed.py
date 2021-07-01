@@ -30,13 +30,14 @@ class RSSFeed(commands.Cog):
         url_parsed_contents = feedparser.parse(url_raw_contents)
         feed_entries = url_parsed_contents["entries"]
         if not feed_entries:
-            await ctx.send("can't check to this url")
+            await ctx.send("i can't find a single entry from this url")
             return
 
         async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist WHERE url = ?", [str(url)]) as cursor:
             check_is_already_tracked = await cursor.fetchone()
         if not check_is_already_tracked:
             await self.bot.db.execute("INSERT INTO rssfeed_tracklist VALUES (?)", [str(url)])
+            print(f"{url} not tracked anywhere, adding it to the main track list")
 
         for entry_metadata in feed_entries:
             entry_id = entry_metadata["link"]
@@ -48,6 +49,8 @@ class RSSFeed(commands.Cog):
 
         await self.bot.db.commit()
 
+        print(f"{url} rss history check completed")
+
         async with await self.bot.db.execute("SELECT channel_id FROM rssfeed_channels WHERE channel_id = ? AND url = ?",
                                              [int(ctx.channel.id), str(url)]) as cursor:
             check_is_channel_already_tracked = await cursor.fetchone()
@@ -56,8 +59,9 @@ class RSSFeed(commands.Cog):
             return
 
         await self.bot.db.execute("INSERT INTO rssfeed_channels VALUES (?, ?)", [str(url), int(ctx.channel.id)])
-        await ctx.send(f"Feed `{url}` is now tracked in this channel")
         await self.bot.db.commit()
+
+        await ctx.send(f"Feed `{url}` is now tracked in this channel")
 
     @commands.command(name="rss_remove", brief="Unsubscribe to an RSS feed in the current channel")
     @commands.check(permissions.is_admin)
@@ -69,6 +73,15 @@ class RSSFeed(commands.Cog):
 
         await self.bot.db.execute("DELETE FROM rssfeed_channels WHERE url = ? AND channel_id = ? ",
                                   [str(url), int(ctx.channel.id)])
+
+        async with await self.bot.db.execute("SELECT channel_id FROM rssfeed_channels WHERE url = ?",
+                                             [str(url)]) as cursor:
+            channel_list = await cursor.fetchall()
+        if not channel_list:
+            await self.bot.db.execute("DELETE FROM rssfeed_tracklist WHERE url = ?", [str(url)])
+            await self.bot.db.execute("DELETE FROM rssfeed_history WHERE url = ?", [str(url)])
+            await ctx.send(f"Feed `{url}` seems not to be tracked anywhere so I'll completely delete it")
+
         await self.bot.db.commit()
 
         await ctx.send(f"Feed `{url}` is no longer tracked in this channel")
@@ -100,7 +113,8 @@ class RSSFeed(commands.Cog):
         embed = discord.Embed(color=0xff6781)
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
-    async def rss_entry_embed(self, rss_object, color=0xbd3661):
+    @staticmethod
+    async def rss_entry_embed(rss_object, color=0xbd3661):
         if rss_object:
             embed = discord.Embed(
                 title=rss_object["title"],
@@ -119,7 +133,8 @@ class RSSFeed(commands.Cog):
         else:
             return None
 
-    async def fetch(self, url):
+    @staticmethod
+    async def fetch(url):
         try:
             headers = {"Connection": "Upgrade", "Upgrade": "http/1.1"}
             async with aiohttp.ClientSession(headers=headers) as session:
