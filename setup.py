@@ -26,6 +26,7 @@ setup(
         'python-minesweeper',
         'python-dateutil',
         'appdirs',
-        'colorama'
+        'colorama',
+        'aiohttp'
     ],
 )

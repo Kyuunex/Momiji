@@ -8,3 +8,4 @@ python-minesweeper
 python-dateutil
 appdirs
 colorama
+aiohttp
