@@ -19,7 +19,7 @@ class RSSFeed(commands.Cog):
         )
 
     @commands.command(name="rss_add", brief="Subscribe to an RSS feed in the current channel")
-    @commands.check(permissions.is_admin)
+    @commands.check(permissions.channel_manage_guild)
     @commands.check(permissions.is_not_ignored)
     async def add(self, ctx, *, url):
         """
@@ -64,7 +64,7 @@ class RSSFeed(commands.Cog):
         await ctx.send(f"Feed `{url}` is now tracked in this channel")
 
     @commands.command(name="rss_remove", brief="Unsubscribe to an RSS feed in the current channel")
-    @commands.check(permissions.is_admin)
+    @commands.check(permissions.channel_manage_guild)
     @commands.check(permissions.is_not_ignored)
     async def remove(self, ctx, *, url):
         """
@@ -87,12 +87,15 @@ class RSSFeed(commands.Cog):
         await ctx.send(f"Feed `{url}` is no longer tracked in this channel")
 
     @commands.command(name="rss_list", brief="Show a list of all RSS feeds being tracked")
-    @commands.check(permissions.is_admin)
+    @commands.check(permissions.channel_manage_guild)
     @commands.check(permissions.is_not_ignored)
     async def tracklist(self, ctx, everywhere=None):
         """
         Show a list of all RSS feeds being tracked
         """
+
+        if not await permissions.is_admin(ctx):
+            everywhere = None
 
         async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist") as cursor:
             tracklist = await cursor.fetchall()
