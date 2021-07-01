@@ -143,9 +143,10 @@ class BotManagement(commands.Cog):
                 await ctx.send(embed=embed)
                 return
 
-            buffer = ""
+            buffer = "```\n"
             for entry in response:
                 buffer += f"{str(entry)}\n"
+            buffer += "```\n"
 
             embed = discord.Embed(color=0xadff2f)
             embed.set_author(name="query results")
