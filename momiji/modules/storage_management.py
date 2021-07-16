@@ -2,27 +2,30 @@ from appdirs import AppDirs
 from pathlib import Path
 import os
 
-
-class FakeDirs:
-    def __init__(self, data_dir):
-        self.user_data_dir = data_dir
-        self.user_cache_dir = data_dir + "/cache"
-        self.user_log_dir = data_dir + "/logs"
-
+dirs = AppDirs("Momiji", "Kyuunex")
 
 if os.environ.get('MOMIJI_DATA_DIR'):
-    momiji_data_dir = os.environ.get('MOMIJI_DATA_DIR')
-    dirs = FakeDirs(momiji_data_dir)
+    BOT_DATA_DIR = os.environ.get('MOMIJI_DATA_DIR')
 else:
-    dirs = AppDirs("Momiji", "Kyuunex")
+    BOT_DATA_DIR = dirs.user_data_dir
 
-exports_directory = dirs.user_data_dir + "/exports"
-art_directory = dirs.user_data_dir + "/art"
+if os.environ.get('MOMIJI_CACHE_DIR'):
+    BOT_CACHE_DIR = os.environ.get('MOMIJI_CACHE_DIR')
+else:
+    BOT_CACHE_DIR = dirs.user_cache_dir
 
-Path(dirs.user_data_dir).mkdir(parents=True, exist_ok=True)
-Path(dirs.user_cache_dir).mkdir(parents=True, exist_ok=True)
-Path(dirs.user_log_dir).mkdir(parents=True, exist_ok=True)
-Path(exports_directory).mkdir(parents=True, exist_ok=True)
-# Path(art_directory).mkdir(parents=True, exist_ok=True)
+if os.environ.get('MOMIJI_LOG_DIR'):
+    BOT_LOG_DIR = os.environ.get('MOMIJI_LOG_DIR')
+else:
+    BOT_LOG_DIR = dirs.user_log_dir
 
-database_file = dirs.user_data_dir + "/maindb.sqlite3"
+
+BOT_EXPORTS_DIR = BOT_DATA_DIR + "/exports"
+BOT_ART_DIRECTORY = BOT_DATA_DIR + "/art"
+
+Path(BOT_DATA_DIR).mkdir(parents=True, exist_ok=True)
+Path(BOT_CACHE_DIR).mkdir(parents=True, exist_ok=True)
+Path(BOT_LOG_DIR).mkdir(parents=True, exist_ok=True)
+Path(BOT_EXPORTS_DIR).mkdir(parents=True, exist_ok=True)
+
+database_file = BOT_DATA_DIR + "/maindb.sqlite3"

@@ -8,7 +8,7 @@ import random
 import imghdr
 from momiji.modules import cooldown
 from momiji.modules import permissions
-from momiji.modules.storage_management import art_directory
+from momiji.modules.storage_management import BOT_ART_DIRECTORY
 
 
 class Img(commands.Cog):
@@ -26,11 +26,11 @@ class Img(commands.Cog):
                 await ctx.send("slow down bruh")
                 return
 
-        if not os.path.exists(art_directory):
+        if not os.path.exists(BOT_ART_DIRECTORY):
             await ctx.send("This command is not enabled")
             return
 
-        list_of_art = os.listdir(art_directory)
+        list_of_art = os.listdir(BOT_ART_DIRECTORY)
 
         if len(list_of_art) == 0:
             await ctx.send("This command is not enabled")
@@ -49,7 +49,7 @@ class Img(commands.Cog):
                 await ctx.send("i tried 10 times to find an image to post for you something went wrong...")
                 return
 
-        await ctx.send(file=discord.File(art_directory + "/" + random_picture))
+        await ctx.send(file=discord.File(BOT_ART_DIRECTORY + "/" + random_picture))
 
     @commands.command(name="neko", brief="Post a random neko")
     @commands.check(permissions.is_not_ignored)

@@ -4,7 +4,7 @@ import discord
 import youtube_dl
 
 from momiji.modules import permissions
-from momiji.modules.storage_management import dirs
+from momiji.modules.storage_management import BOT_CACHE_DIR
 
 from discord.ext import commands
 
@@ -14,7 +14,7 @@ youtube_dl.utils.bug_reports_message = lambda: ""
 
 ytdl_format_options = {
     "format": "bestaudio/best",
-    "outtmpl": dirs.user_cache_dir + "/%(extractor)s-%(id)s-%(title)s.%(ext)s",
+    "outtmpl": BOT_CACHE_DIR + "/%(extractor)s-%(id)s-%(title)s.%(ext)s",
     "restrictfilenames": True,
     "noplaylist": True,
     "nocheckcertificate": True,

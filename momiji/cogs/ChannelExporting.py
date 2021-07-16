@@ -1,7 +1,7 @@
 import time
 import json
 from momiji.modules import permissions
-from momiji.modules.storage_management import exports_directory
+from momiji.modules.storage_management import BOT_EXPORTS_DIR
 import discord
 from discord.ext import commands
 
@@ -34,7 +34,7 @@ class ChannelExporting(commands.Cog):
                     await ctx.send(f"unable to find a channel with an id of {channel_id}")
                     return
 
-            filename = exports_directory + f"/export.{int(time.time())}.{channel.id}.{amount}.json"
+            filename = BOT_EXPORTS_DIR + f"/export.{int(time.time())}.{channel.id}.{amount}.json"
 
             elapsed_time_counter = ElapsedTimeCounter(time.time())
             message_count = 0
