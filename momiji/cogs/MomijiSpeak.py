@@ -212,7 +212,7 @@ class MomijiSpeak(commands.Cog):
 
         msg = message.content.lower()
 
-        if "@everyone" in msg:
+        if message.mention_everyone:
             await message.channel.send("https://i.imgur.com/UCuY8qP.gif")
             return
 
