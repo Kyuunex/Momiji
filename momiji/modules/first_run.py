@@ -332,6 +332,14 @@ def ensure_tables():
         "offset"    INTEGER NOT NULL
     )
     """)
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS "ping_roles" (
+        "guild_id"    INTEGER NOT NULL, 
+        "channel_id"    INTEGER NOT NULL, 
+        "role_id"    INTEGER NOT NULL,
+        "cooldown"    INTEGER NOT NULL
+    )
+    """)
 
     c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["@"])
     c.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["discord.gg/"])
