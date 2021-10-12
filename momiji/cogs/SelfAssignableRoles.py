@@ -91,7 +91,7 @@ class SelfAssignableRoles(commands.Cog):
 
         role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
         if not role:
-            await ctx.reply(f"{ctx.author.mention}, bruh, this role does not exist.")
+            await ctx.reply(f"bruh, this role does not exist.")
             return
 
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE role_id = ?",
@@ -99,10 +99,10 @@ class SelfAssignableRoles(commands.Cog):
             check = await cursor.fetchone()
         if not check:
             if role.permissions.administrator:
-                await ctx.reply(f"imagine trying to get admin permissions by tricking me. "
-                                f"you disgust me {ctx.author.mention}")
+                await ctx.reply("you can't trick me into giving admin perms, "
+                                "i'm made by someone who is smarter than that")
             else:
-                await ctx.reply(f"{ctx.author.mention}, bruh, this role is not self assignable")
+                await ctx.reply("bruh, this role is not self assignable")
             return
 
         async with self.bot.db.execute("SELECT user_id, role_id FROM assignable_roles_user_blacklist "
@@ -110,13 +110,13 @@ class SelfAssignableRoles(commands.Cog):
                                        [int(ctx.author.id), int(role.id)]) as cursor:
             blacklist_check = await cursor.fetchone()
         if blacklist_check:
-            await ctx.reply(f"{ctx.author.mention}, *you* are not allowed to self assign this role")
+            await ctx.reply("*you* are not allowed to self assign this role")
             return
 
         if int(role.id) == int(check[0]):
             try:
                 await ctx.author.add_roles(role)
-                await ctx.reply(f"{ctx.author.mention} you now have the `{role.name}` role")
+                await ctx.reply(f"you now have the `{role.name}` role")
             except Exception as e:
                 await ctx.send(e)
 
@@ -130,20 +130,20 @@ class SelfAssignableRoles(commands.Cog):
 
         role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
         if not role:
-            await ctx.reply(f"{ctx.author.mention}, bruh, this role does not exist.")
+            await ctx.reply("bruh, this role does not exist.")
             return
 
         async with self.bot.db.execute("SELECT role_id FROM assignable_roles WHERE role_id = ?",
                                        [int(role.id)]) as cursor:
             check = await cursor.fetchone()
         if not check:
-            await ctx.reply(f"{ctx.author.mention}, bruh, this role is not self assignable or removable")
+            await ctx.reply("bruh, this role is not self assignable or removable")
             return
 
         if int(role.id) == int(check[0]):
             try:
                 await ctx.author.remove_roles(role)
-                await ctx.reply(f"{ctx.author.mention} you no longer have the `{role.name}` role")
+                await ctx.reply(f"you no longer have the `{role.name}` role")
             except Exception as e:
                 await ctx.send(e)
 
