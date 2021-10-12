@@ -6,6 +6,7 @@ setup(
     name='momiji',
     packages=[
         'momiji',
+        'momiji.apiwrappers',
         'momiji.cogs',
         'momiji.embeds',
         'momiji.modules',
