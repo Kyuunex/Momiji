@@ -1,21 +1,19 @@
-import aiohttp
 import time
 import asyncio
 import discord
 from discord.ext import commands
-import urllib.parse
 
 from momiji.modules import permissions
 from momiji.reusables import send_large_message
 from momiji.modules import cooldown
-import dateutil.parser
 import operator
+from aiocovidapi import COVID19APIClient
 
 
 class COVID19(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.api = COVID19Api()
+        self.api = COVID19APIClient()
         self.summary_cache = None
         self.bot.background_tasks.append(
             self.bot.loop.create_task(self.covid19_summary_cache_loop())
@@ -190,60 +188,6 @@ class COVID19Embeds:
             embed.set_author(name="COVID-19 statistics")
             embed.set_footer(text=f"Last update: {str(country.Date.isoformat(' '))}")
             return embed
-        else:
-            return None
-
-
-class Summary:
-    def __init__(self, response):
-        self.Date = dateutil.parser.parse(response["Date"])
-        self.Global = Global(response["Global"])
-        self.Countries = []
-        for country in response["Countries"]:
-            self.Countries.append(SummaryCountry(country))
-
-
-class Global:
-    def __init__(self, response):
-        self.NewConfirmed = response["NewConfirmed"]
-        self.TotalConfirmed = response["TotalConfirmed"]
-        self.NewDeaths = response["NewDeaths"]
-        self.TotalDeaths = response["TotalDeaths"]
-        self.NewRecovered = response["NewRecovered"]
-        self.TotalRecovered = response["TotalRecovered"]
-
-
-class SummaryCountry:
-    def __init__(self, response):
-        self.Country = response["Country"]
-        self.CountryCode = response["CountryCode"]
-        self.Slug = response["Slug"]
-        self.NewConfirmed = response["NewConfirmed"]
-        self.TotalConfirmed = response["TotalConfirmed"]
-        self.NewDeaths = response["NewDeaths"]
-        self.TotalDeaths = response["TotalDeaths"]
-        self.NewRecovered = response["NewRecovered"]
-        self.TotalRecovered = response["TotalRecovered"]
-        self.Date = dateutil.parser.parse(response["Date"])
-
-
-class COVID19Api:
-    def __init__(self):
-        self._base_url = "https://api.covid19api.com/"
-
-    async def _raw_request(self, endpoint, parameters=[]):
-        url = self._base_url + endpoint
-        if parameters:
-            url = url + "?" + urllib.parse.urlencode(parameters)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
-                response_json = await response.json()
-                return response_json
-
-    async def summary(self):
-        result = await self._raw_request("summary")
-        if result:
-            return Summary(result)
         else:
             return None
 

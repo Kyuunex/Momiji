@@ -28,6 +28,7 @@ setup(
         'python-dateutil',
         'appdirs',
         'colorama',
-        'aiohttp'
+        'aiohttp',
+        'aiocovidapi @ git+https://github.com/Kyuunex/aiocovidapi.git@0.1.0',
     ],
 )
