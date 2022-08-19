@@ -271,7 +271,7 @@ class BotManagement(commands.Cog):
 
     def measure_time(self, start_time, end_time):
         duration = int(end_time - start_time)
-        return self.seconds_to_hms(duration)
+        return self.uptime_text(duration)
 
     def seconds_to_hms(self, seconds):
         seconds = seconds % (24 * 3600)
@@ -280,6 +280,15 @@ class BotManagement(commands.Cog):
         minutes = seconds // 60
         seconds %= 60
         return "%d:%02d:%02d" % (hour, minutes, seconds)
+
+    def uptime_text(self, seconds):
+        if 3600 > seconds > 60:
+            return f"{str(round(float(seconds / 60), 2))} minutes(s)"
+        elif 86400 > seconds > 3600:
+            return f"{str(round(float(seconds / 3600), 2))} hour(s)"
+        elif seconds > 86400:
+            return f"{str(round(float(seconds / 86400), 2))} day(s)"
+        return f"{seconds} second(s)"
 
 
 def setup(bot):
