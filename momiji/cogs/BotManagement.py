@@ -1,3 +1,4 @@
+import aiosqlite
 import discord
 import os
 import time
@@ -153,7 +154,7 @@ class BotManagement(commands.Cog):
 
             await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
-        except Exception as e:
+        except aiosqlite.DatabaseError as e:
             embed = discord.Embed(description=e, color=0xbd3661)
             embed.set_author(name="error occurred while executing the query")
 
@@ -181,8 +182,8 @@ class BotManagement(commands.Cog):
 
         try:
             await ctx.message.delete()
-        except:
-            pass
+        except (discord.Forbidden, discord.NotFound, discord.HTTPException) as e:
+            print(e)
 
         await ctx.send(string)
 
