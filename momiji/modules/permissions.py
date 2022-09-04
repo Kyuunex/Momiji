@@ -1,31 +1,26 @@
-from momiji.modules.storage_management import database_file as database_file
-import sqlite3
-
-admin_list = []
-owner_list = []
-ignored_users = []
+admin_list = set()
+owner_list = set()
+ignored_users = set()
 
 
-def fetch_users_from_db():
-    conn = sqlite3.connect(database_file)
-    c = conn.cursor()
-    db_admin_list = tuple(c.execute("SELECT user_id FROM admins"))
-    db_owner_list = tuple(c.execute("SELECT user_id FROM admins WHERE permissions = ?", [1]))
-    db_ignored_users = tuple(c.execute("SELECT user_id FROM ignored_users"))
-    conn.commit()
-    conn.close()
+async def load_users(db):
+    async with db.execute("SELECT user_id FROM admins") as cursor:
+        db_admin_list = await cursor.fetchall()
+
+    async with db.execute("SELECT user_id FROM admins WHERE permissions = ?", [1]) as cursor:
+        db_owner_list = await cursor.fetchall()
+
+    async with db.execute("SELECT user_id FROM ignored_users") as cursor:
+        db_ignored_users = await cursor.fetchall()
 
     for admin_id in db_admin_list:
-        admin_list.append(int(admin_id[0]))
+        admin_list.add(int(admin_id[0]))
 
     for owner_id in db_owner_list:
-        owner_list.append(int(owner_id[0]))
+        owner_list.add(int(owner_id[0]))
 
     for ignored_user in db_ignored_users:
-        ignored_users.append(int(ignored_user[0]))
-
-
-fetch_users_from_db()
+        ignored_users.add(int(ignored_user[0]))
 
 
 async def is_admin(ctx):
