@@ -106,7 +106,8 @@ class Momiji(commands.Bot):
             task.cancel()
 
         # Close connection to the database
-        await self.db.close()
+        if self.db:
+            await self.db.close()
 
         # Run actual discord.py close.
         # await super().close()
