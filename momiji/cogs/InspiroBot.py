@@ -24,15 +24,10 @@ class InspiroBot(commands.Cog):
         self.base_url = "http://inspirobot.me/api"
 
     async def api_request(self, **kwargs):
-        try:
-            url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    return await response.json()
-        except Exception as e:
-            print("in inspirobot.request")
-            print(e)
-            return None
+        url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                return await response.json()
 
     async def api_request_text(self, **kwargs):
         """
@@ -40,15 +35,10 @@ class InspiroBot(commands.Cog):
         introduce inconsistency in what format the api responds with,
         so I'll just copy and paste to account for it.
         """
-        try:
-            url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
-            async with aiohttp.ClientSession() as session:
-                async with session.get(url) as response:
-                    return await response.text()
-        except Exception as e:
-            print("in inspirobot.request_text")
-            print(e)
-            return None
+        url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as response:
+                return await response.text()
 
     @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot")
     @commands.guild_only()

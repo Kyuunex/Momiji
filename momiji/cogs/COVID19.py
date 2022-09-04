@@ -113,17 +113,14 @@ class COVID19(commands.Cog):
             await ctx.send(embed=embed)
 
     async def get_country_embed(self, country_code):
-        try:
-            if len(country_code) == 2:
-                for country in self.summary_cache.Countries:
-                    if country.CountryCode.lower() == country_code.lower():
-                        return COVID19Embeds.CountryInfo(country)
-            else:
-                for country in self.summary_cache.Countries:
-                    if country.Country.lower().startswith(country_code.lower()):
-                        return COVID19Embeds.CountryInfo(country)
-        except:
-            return None
+        if len(country_code) == 2:
+            for country in self.summary_cache.Countries:
+                if country.CountryCode.lower() == country_code.lower():
+                    return COVID19Embeds.CountryInfo(country)
+        else:
+            for country in self.summary_cache.Countries:
+                if country.Country.lower().startswith(country_code.lower()):
+                    return COVID19Embeds.CountryInfo(country)
 
         return None
 
@@ -131,19 +128,15 @@ class COVID19(commands.Cog):
         print("COVID-19 data caching loop launched!")
         await self.bot.wait_until_ready()
         while not self.bot.is_closed():
-            try:
-                await asyncio.sleep(10)
-                summary = await self.api.summary()
-                if summary:
-                    self.summary_cache = summary
-                print(time.strftime("%X %x %Z"))
-                print("finished caching covid-19 summary")
-                await asyncio.sleep(12000)
-            except Exception as e:
-                print(time.strftime("%X %x %Z"))
-                print("in covid19_summary_cache_loop")
-                print(e)
-                await asyncio.sleep(12000)
+            await asyncio.sleep(10)
+
+            summary = await self.api.summary()
+            if summary:
+                self.summary_cache = summary
+                
+            print(time.strftime("%X %x %Z"))
+            print("finished caching covid-19 summary")
+            await asyncio.sleep(12000)
 
 
 class COVID19Embeds:

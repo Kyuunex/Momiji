@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 from momiji.embeds import Wasteland as WastelandEmbeds
 
@@ -17,7 +18,7 @@ class Wasteland(commands.Cog):
                 try:
                     about_this_ban = await guild.fetch_ban(member)
                     ban_reason_string = about_this_ban.reason
-                except:
+                except discord.Forbidden:
                     ban_reason_string = "i have no permissions to fetch the ban reason"
                 await channel.send(embed=await WastelandEmbeds.member_ban(member, ban_reason_string))
 

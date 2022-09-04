@@ -22,7 +22,7 @@ class Fun(commands.Cog):
 
         try:
             maximum = int(maximum)
-        except:
+        except ValueError:
             maximum = 100
 
         if maximum < 0:

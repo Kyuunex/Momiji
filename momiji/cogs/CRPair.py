@@ -1,3 +1,4 @@
+import discord
 from discord.ext import commands
 
 
@@ -20,10 +21,10 @@ class CRPair(commands.Cog):
 
         try:
             await response_message.delete()
-            await self.bot.db.execute("DELETE FROM cr_pair WHERE command_id = ?", [int(message.id)])
-            await self.bot.db.commit()
-        except:
+        except (discord.Forbidden, discord.NotFound):
             pass
+        await self.bot.db.execute("DELETE FROM cr_pair WHERE command_id = ?", [int(message.id)])
+        await self.bot.db.commit()
 
 
 async def setup(bot):

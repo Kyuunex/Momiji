@@ -138,112 +138,100 @@ class RSSFeed(commands.Cog):
 
     @staticmethod
     async def fetch(url):
-        try:
-            headers = {"Connection": "Upgrade", "Upgrade": "http/1.1"}
-            async with aiohttp.ClientSession(headers=headers) as session:
-                async with session.get(url) as response:
-                    http_contents = await response.text()
-                    if len(http_contents) > 4:
-                        return http_contents
-                    else:
-                        return None
-        except Exception as e:
-            print(time.strftime("%X %x %Z"))
-            print("in rankfeed.fetch")
-            print(e)
-            return None
+        headers = {"Connection": "Upgrade", "Upgrade": "http/1.1"}
+        async with aiohttp.ClientSession(headers=headers) as session:
+            async with session.get(url) as response:
+                http_contents = await response.text()
+                if len(http_contents) > 4:
+                    return http_contents
+                else:
+                    return None
 
     async def rssfeed_background_loop(self):
         print("RSSFeed Loop launched!")
         await self.bot.wait_until_ready()
         while not self.bot.is_closed():
-            try:
-                await asyncio.sleep(10)
+            await asyncio.sleep(10)
 
-                async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist") as cursor:
-                    rssfeed_entries = await cursor.fetchall()
-                if not rssfeed_entries:
-                    # RSS tracklist is empty
-                    await asyncio.sleep(1600)
+            async with await self.bot.db.execute("SELECT url FROM rssfeed_tracklist") as cursor:
+                rssfeed_entries = await cursor.fetchall()
+            if not rssfeed_entries:
+                # RSS tracklist is empty
+                await asyncio.sleep(1600)
+                continue
+
+            for rssfeed_entry in rssfeed_entries:
+                url = rssfeed_entry[0]
+                async with await self.bot.db.execute("SELECT channel_id FROM rssfeed_channels WHERE url = ?",
+                                                     [str(url)]) as cursor:
+                    channel_list = await cursor.fetchall()
+                if not channel_list:
+                    await self.bot.db.execute("DELETE FROM rssfeed_tracklist WHERE url = ?", [str(url)])
+                    await self.bot.db.commit()
+                    print(f"{url} is not tracked in any channel so I am untracking it")
                     continue
 
-                for rssfeed_entry in rssfeed_entries:
-                    url = rssfeed_entry[0]
-                    async with await self.bot.db.execute("SELECT channel_id FROM rssfeed_channels WHERE url = ?",
-                                                         [str(url)]) as cursor:
-                        channel_list = await cursor.fetchall()
-                    if not channel_list:
-                        await self.bot.db.execute("DELETE FROM rssfeed_tracklist WHERE url = ?", [str(url)])
-                        await self.bot.db.commit()
-                        print(f"{url} is not tracked in any channel so I am untracking it")
+                url_raw_contents = await self.fetch(url)
+
+                url_parsed_contents = feedparser.parse(url_raw_contents)
+
+                if not url_parsed_contents:
+                    print(f"RSSFeed connection issues with {url} ???")
+                    await asyncio.sleep(10)
+                    continue
+
+                online_entries = url_parsed_contents["entries"]
+
+                async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history WHERE url = ? ",
+                                                     [str(url)]) as cursor:
+                    rssfeed_history_for_this_url = await cursor.fetchone()
+                if not rssfeed_history_for_this_url:
+                    for entry_metadata in online_entries:
+                        entry_id = entry_metadata["link"]
+                        async with await self.bot.db.execute(
+                                "SELECT entry_id FROM rssfeed_history WHERE url = ? AND entry_id = ?",
+                                [str(url), str(entry_id)]) as cursor:
+                            check_is_entry_in_history = await cursor.fetchone()
+                        if not check_is_entry_in_history:
+                            await self.bot.db.execute("INSERT INTO rssfeed_history VALUES (?, ?)",
+                                                      [str(url), str(entry_id)])
+
+                    await self.bot.db.commit()
+                    continue
+
+                for one_entry in online_entries:
+                    entry_id = one_entry["link"]
+                    async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history "
+                                                         "WHERE url = ? AND entry_id = ?",
+                                                         [str(url), str(entry_id)]) as cursor:
+                        check_is_already_in_history = await cursor.fetchone()
+                    if check_is_already_in_history:
                         continue
 
-                    url_raw_contents = await self.fetch(url)
-
-                    url_parsed_contents = feedparser.parse(url_raw_contents)
-
-                    if not url_parsed_contents:
-                        print(f"RSSFeed connection issues with {url} ???")
-                        await asyncio.sleep(10)
+                    embed = await self.rss_entry_embed(one_entry)
+                    if not embed:
+                        print("RSSFeed embed returned nothing. this should not happen")
                         continue
 
-                    online_entries = url_parsed_contents["entries"]
-
-                    async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history WHERE url = ? ",
-                                                         [str(url)]) as cursor:
-                        rssfeed_history_for_this_url = await cursor.fetchone()
-                    if not rssfeed_history_for_this_url:
-                        for entry_metadata in online_entries:
-                            entry_id = entry_metadata["link"]
-                            async with await self.bot.db.execute(
-                                    "SELECT entry_id FROM rssfeed_history WHERE url = ? AND entry_id = ?",
-                                    [str(url), str(entry_id)]) as cursor:
-                                check_is_entry_in_history = await cursor.fetchone()
-                            if not check_is_entry_in_history:
-                                await self.bot.db.execute("INSERT INTO rssfeed_history VALUES (?, ?)",
-                                                          [str(url), str(entry_id)])
-
-                        await self.bot.db.commit()
-                        continue
-
-                    for one_entry in online_entries:
-                        entry_id = one_entry["link"]
-                        async with await self.bot.db.execute("SELECT entry_id FROM rssfeed_history "
-                                                             "WHERE url = ? AND entry_id = ?",
-                                                             [str(url), str(entry_id)]) as cursor:
-                            check_is_already_in_history = await cursor.fetchone()
-                        if check_is_already_in_history:
+                    for one_channel in channel_list:
+                        channel = self.bot.get_channel(int(one_channel[0]))
+                        if not channel:
+                            await self.bot.db.execute("DELETE FROM rssfeed_channels WHERE channel_id = ?",
+                                                      [int(one_channel[0])])
+                            await self.bot.db.commit()
+                            print(f"channel with id {one_channel[0]} no longer exists "
+                                  "so I am removing it from the list")
                             continue
 
-                        embed = await self.rss_entry_embed(one_entry)
-                        if not embed:
-                            print("RSSFeed embed returned nothing. this should not happen")
-                            continue
+                        await channel.send(embed=embed)
 
-                        for one_channel in channel_list:
-                            channel = self.bot.get_channel(int(one_channel[0]))
-                            if not channel:
-                                await self.bot.db.execute("DELETE FROM rssfeed_channels WHERE channel_id = ?",
-                                                          [int(one_channel[0])])
-                                await self.bot.db.commit()
-                                print(f"channel with id {one_channel[0]} no longer exists "
-                                      "so I am removing it from the list")
-                                continue
+                    await self.bot.db.execute("INSERT INTO rssfeed_history VALUES (?, ?)",
+                                              [str(url), str(entry_id)])
+                    await self.bot.db.commit()
 
-                            await channel.send(embed=embed)
-
-                        await self.bot.db.execute("INSERT INTO rssfeed_history VALUES (?, ?)",
-                                                  [str(url), str(entry_id)])
-                        await self.bot.db.commit()
-
-                print(time.strftime("%X %x %Z"))
-                print("finished rss check")
-                await asyncio.sleep(1200)
-            except Exception as e:
-                print(time.strftime("%X %x %Z"))
-                print("in rssfeed_background_loop")
-                print(e)
-                await asyncio.sleep(1200)
+            print(time.strftime("%X %x %Z"))
+            print("finished rss check")
+            await asyncio.sleep(1200)
 
 
 async def setup(bot):

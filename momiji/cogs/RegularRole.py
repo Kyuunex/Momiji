@@ -90,7 +90,7 @@ class RegularRole(commands.Cog):
                     for added_user in users_added:
                         try:
                             await added_user.add_roles(role)
-                        except:
+                        except discord.Forbidden:
                             pass
                         buffer += f"{added_user.mention} : {added_user.display_name}\n"
                     buffer += "\n"
@@ -100,7 +100,7 @@ class RegularRole(commands.Cog):
                     for removed_user in users_removed:
                         try:
                             await removed_user.remove_roles(role, reason="pruned role")
-                        except:
+                        except discord.Forbidden:
                             pass
                         buffer += f"{removed_user.mention} : {removed_user.display_name}\n"
 

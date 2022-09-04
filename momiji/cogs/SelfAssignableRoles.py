@@ -117,8 +117,8 @@ class SelfAssignableRoles(commands.Cog):
             try:
                 await ctx.author.add_roles(role)
                 await ctx.reply(f"you now have the `{role.name}` role")
-            except Exception as e:
-                await ctx.send(e)
+            except discord.Forbidden:
+                await ctx.send("I do not have permissions to add these roles")
 
     @commands.command(name="leave", brief="Remove a self-assignable a role")
     @commands.guild_only()
@@ -144,8 +144,8 @@ class SelfAssignableRoles(commands.Cog):
             try:
                 await ctx.author.remove_roles(role)
                 await ctx.reply(f"you no longer have the `{role.name}` role")
-            except Exception as e:
-                await ctx.send(e)
+            except discord.Forbidden:
+                await ctx.send("I do not have permissions to remove these roles.")
 
     def get_case_insensitive_role(self, roles, lookup):
         for role in roles:

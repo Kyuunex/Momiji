@@ -38,10 +38,9 @@ class DMManagement(commands.Cog):
 
         try:
             await member.send(content=message)
-        except Exception as e:
-            await ctx.send(e)
-
-        await ctx.send(f"message `{message}` sent to {member.name}")
+            await ctx.send(f"message `{message}` sent to {member.name}")
+        except discord.Forbidden:
+            await ctx.send("I do not have the proper permissions to send the message.")
 
     @commands.command(name="read_dm_reply", brief="What the member has sent the bot")
     @commands.check(permissions.is_owner)

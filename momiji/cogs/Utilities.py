@@ -32,10 +32,10 @@ class Utilities(commands.Cog):
 
         try:
             await guild.ban(user=user, reason=reason)
-        except Exception as e:
-            await ctx.send(e)
+            await ctx.send(f"banned {user_id} with reason `{str(reason)}`")
+        except discord.Forbidden:
+            await ctx.send("I do not have the proper permissions to ban.")
 
-        await ctx.send(f"banned {user_id} with reason `{str(reason)}`")
 
     @commands.command(name="mass_nick", brief="Nickname every user")
     @commands.check(permissions.is_admin)
@@ -51,9 +51,8 @@ class Utilities(commands.Cog):
             for member in ctx.guild.members:
                 try:
                     await member.edit(nick=nickname)
-                except Exception as e:
-                    await ctx.send(member.name)
-                    await ctx.send(e)
+                except discord.Forbidden:
+                    await ctx.send(f"for {member.name}, I do not have the proper permissions to the action requested.")
         await ctx.send("Done")
 
     @commands.command(name="prune_role", brief="Remove this role from every member")
@@ -85,7 +84,7 @@ class Utilities(commands.Cog):
             try:
                 await member.edit(roles=[])
                 await ctx.send("Done")
-            except:
+            except discord.Forbidden:
                 await ctx.send("no perms to change nickname and/or remove roles")
 
 

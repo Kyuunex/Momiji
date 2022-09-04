@@ -1,3 +1,4 @@
+import discord
 from momiji.modules import permissions
 from discord.ext import commands
 
@@ -29,7 +30,7 @@ class AIMod(commands.Cog):
 
         try:
             await ctx.message.delete()
-        except:
+        except discord.Forbidden:
             pass
 
         await self.bot.db.execute("INSERT INTO aimod_blacklist VALUES (?, ?, ?)",

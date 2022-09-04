@@ -70,8 +70,8 @@ class Moderation(commands.Cog):
 
                 deleted = await ctx.channel.purge(limit=int(amount), check=the_check)
             await ctx.send(f"Deleted {len(deleted)} message(s)")
-        except Exception as e:
-            await ctx.send(e)
+        except discord.Forbidden:
+            await ctx.send("I do not have proper permissions to do the actions required.")
 
     @commands.command(name="mod_note", brief="Add a mod note about a server member")
     @commands.guild_only()

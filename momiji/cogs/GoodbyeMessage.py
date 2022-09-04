@@ -25,7 +25,7 @@ class GoodbyeMessage(commands.Cog):
 
         try:
             await ctx.message.delete()
-        except:
+        except (discord.Forbidden, discord.NotFound):
             pass
 
         await self.bot.db.execute("INSERT INTO goodbye_messages VALUES (?,?,?)",
@@ -46,7 +46,7 @@ class GoodbyeMessage(commands.Cog):
 
         try:
             await ctx.message.delete()
-        except:
+        except (discord.Forbidden, discord.NotFound):
             pass
 
         await self.bot.db.execute("DELETE FROM goodbye_messages WHERE channel_id = ?", [int(ctx.channel.id)])

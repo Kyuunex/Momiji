@@ -26,9 +26,9 @@ class VoiceRoles(commands.Cog):
         After they leave the voice channel, the role will be taken away.
         """
 
-        try:
+        if ctx.author.voice:
             channel = ctx.author.voice.channel
-        except:
+        else:
             channel = None
 
         if not channel:
@@ -58,9 +58,9 @@ class VoiceRoles(commands.Cog):
         Untie a role from the voice channel.
         """
 
-        try:
+        if ctx.author.voice:
             channel = ctx.author.voice.channel
-        except:
+        else:
             channel = None
 
         if not channel:
