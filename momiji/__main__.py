@@ -59,6 +59,7 @@ initial_extensions = [
 
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 
 
 class Momiji(commands.Bot):
