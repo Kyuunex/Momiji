@@ -90,8 +90,11 @@ class Momiji(commands.Bot):
             await self.load_extension(extension)
 
         for user_extension in user_extensions:
-            await self.load_extension(user_extension[0])
-            print(f"User extension {user_extension[0]} loaded")
+            try:
+                await self.load_extension(user_extension[0])
+                print(f"User extension {user_extension[0]} loaded")
+            except discord.ext.commands.errors.ExtensionNotFound as ex:
+                print(ex)
 
         for bridged_extension in bridged_extensions:
             try:
