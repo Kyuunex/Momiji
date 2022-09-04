@@ -1,4 +1,3 @@
-import sqlite3
 import time
 import asyncio
 import discord
@@ -14,16 +13,10 @@ class Reminders(commands.Cog):
     This set of functions/commands manage reminders.
     """
 
-    def __init__(self, bot):
+    def __init__(self, bot, saved_reminders):
         self.bot = bot
-        self.init_reminders()
 
-    def init_reminders(self):
-        conn = sqlite3.connect(self.bot.database_file)
-        c = conn.cursor()
-        reminders = tuple(c.execute("SELECT * FROM reminders"))
-        conn.close()
-        for reminder in reminders:
+        for reminder in saved_reminders:
             self.bot.background_tasks.append(
                 self.bot.loop.create_task(self.reminder_task(int(reminder[0]), int(reminder[1]), int(reminder[2]),
                                                              int(reminder[3]), int(reminder[4]), int(reminder[5]),
@@ -189,4 +182,7 @@ class Reminders(commands.Cog):
 
 
 async def setup(bot):
-    await bot.add_cog(Reminders(bot))
+    async with bot.db.execute("SELECT * FROM reminders") as cursor:
+        saved_reminders = await cursor.fetchall()
+
+    await bot.add_cog(Reminders(bot, saved_reminders))
