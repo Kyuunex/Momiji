@@ -25,19 +25,16 @@ class Gatekeeper(commands.Cog):
         Enable Gatekeeper in this guild
         """
 
-        try:
-            async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
-                                           [int(ctx.guild.id)]) as cursor:
-                is_gatekeeper_enabled = await cursor.fetchall()
-            if is_gatekeeper_enabled:
-                await ctx.send(f"gatekeeper is already enabled in this server")
-                return
+        async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
+                                        [int(ctx.guild.id)]) as cursor:
+            is_gatekeeper_enabled = await cursor.fetchall()
+        if is_gatekeeper_enabled:
+            await ctx.send(f"gatekeeper is already enabled in this server")
+            return
 
-            await self.bot.db.execute("INSERT INTO gatekeeper_enabled_guilds VALUES (?)", [int(ctx.guild.id)])
-            await self.bot.db.commit()
-            await ctx.send(f"gatekeeper is now enabled in this server")
-        except Exception as e:
-            await ctx.send(embed=discord.Embed(description=str(e)))
+        await self.bot.db.execute("INSERT INTO gatekeeper_enabled_guilds VALUES (?)", [int(ctx.guild.id)])
+        await self.bot.db.commit()
+        await ctx.send(f"gatekeeper is now enabled in this server")
 
     @commands.command(name="gatekeeper_disable", brief="Disable Gatekeeper in this guild")
     @commands.check(permissions.channel_ban_members)
@@ -48,19 +45,16 @@ class Gatekeeper(commands.Cog):
         Disable Gatekeeper in this guild
         """
 
-        try:
-            async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
-                                           [int(ctx.guild.id)]) as cursor:
-                is_gatekeeper_enabled = await cursor.fetchall()
-            if not is_gatekeeper_enabled:
-                await ctx.send(f"gatekeeper is not enabled in this server")
-                return
+        async with self.bot.db.execute("SELECT guild_id FROM gatekeeper_enabled_guilds WHERE guild_id = ?",
+                                        [int(ctx.guild.id)]) as cursor:
+            is_gatekeeper_enabled = await cursor.fetchall()
+        if not is_gatekeeper_enabled:
+            await ctx.send(f"gatekeeper is not enabled in this server")
+            return
 
-            await self.bot.db.execute("DELETE FROM gatekeeper_enabled_guilds WHERE guild_id = ?", [int(ctx.guild.id)])
-            await self.bot.db.commit()
-            await ctx.send(f"gatekeeper is now disabled in this server")
-        except Exception as e:
-            await ctx.send(embed=discord.Embed(description=str(e)))
+        await self.bot.db.execute("DELETE FROM gatekeeper_enabled_guilds WHERE guild_id = ?", [int(ctx.guild.id)])
+        await self.bot.db.commit()
+        await ctx.send(f"gatekeeper is now disabled in this server")
 
     @commands.command(name="gatekeeper_whitelist_user", brief="Whitelist a user to join this server")
     @commands.check(permissions.channel_ban_members)
@@ -255,7 +249,7 @@ class Gatekeeper(commands.Cog):
             await member.ban(reason="banned by the gatekeeper for not being whitelisted")
             await event_report_channel.send(f"user `{member.name}` with id `{member.id}` tried to join this server "
                                             f"but was removed for not being whitelisted")
-        except Exception as e:
+        except discord.Forbidden as e:
             await event_report_channel.send(f"GATEKEEPER ERROR {str(e)}")
 
     async def get_cached_username(self, ctx, user_id):

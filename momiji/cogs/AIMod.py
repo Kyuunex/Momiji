@@ -69,7 +69,7 @@ class AIMod(commands.Cog):
 
             try:
                 await self.perform_actions(message, word[1])
-            except Exception as e:
+            except discord.Forbidden as e:
                 print(e)
 
     async def perform_actions(self, message, action_id):

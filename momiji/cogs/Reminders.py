@@ -44,11 +44,7 @@ class Reminders(commands.Cog):
         ;remind_me 2d deadline for that mod is today
         """
 
-        try:
-            when = self.user_input_to_posix_time(length)
-        except Exception as e:
-            await ctx.send(str(e).replace("@", ""))
-            return
+        when = self.user_input_to_posix_time(length)
 
         embed = await self.message_embed(ctx.author, contents)
 
@@ -165,8 +161,8 @@ class Reminders(commands.Cog):
             return int(duration_str.split("h")[0]) * 60 * 60
         elif "d" in duration_str:
             return int(duration_str.split("d")[0]) * 60 * 60 * 24
-        else:
-            raise ValueError("i can't understand the amount of time")
+            
+        raise ValueError("i can't understand the amount of time")
 
     async def reminder_task(self, timestamp, message_id, response_message_id, channel_id, guild_id, user_id, contents):
         await self.bot.wait_until_ready()

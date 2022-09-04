@@ -41,8 +41,8 @@ class Moderation(commands.Cog):
                 async with ctx.channel.typing():
                     deleted = await ctx.channel.purge(limit=int(amount))
                 await ctx.send(f"Deleted {len(deleted)} message(s)")
-        except Exception as e:
-            await ctx.send(str(e).replace("@", ""))
+        except discord.Forbidden:
+            await ctx.send("I do not have proper permissions to do the actions required.")
 
     @commands.command(name="regex_purge", brief="Purge X amount of messages with regex checks")
     @commands.guild_only()
