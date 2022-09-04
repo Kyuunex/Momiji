@@ -90,7 +90,7 @@ class StatsBuilder(commands.Cog):
 
         embed = discord.Embed(title=member.name,
                               color=member.colour.value)
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar.url)
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="guild", brief="About this server", aliases=['server'])

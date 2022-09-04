@@ -21,6 +21,6 @@ async def post_message(message):
         )
     embed.set_author(
         name=str(message.author),
-        icon_url=message.author.avatar_url
+        icon_url=message.author.display_avatar.url
     )
     return embed

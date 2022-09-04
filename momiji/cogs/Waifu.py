@@ -35,7 +35,7 @@ class Waifu(commands.Cog):
             color=16751916,
             description=waifu_description
         )
-        embed.set_image(url=member.avatar_url)
+        embed.set_image(url=member.display_avatar.url)
         embed.set_author(name=member.display_name)
         sent_message = await ctx.send(embed=embed)
         self.marry_cache.append([time.time(), member, sent_message])

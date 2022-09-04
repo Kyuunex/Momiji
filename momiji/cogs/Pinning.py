@@ -117,7 +117,7 @@ class Pinning(commands.Cog):
             )
         embed.set_author(
             name=message.author.display_name,
-            icon_url=message.author.avatar_url
+            icon_url=message.author.display_avatar.url
         )
         embed.add_field(name="context", value=f"[(link)]({message.jump_url})")
         return embed

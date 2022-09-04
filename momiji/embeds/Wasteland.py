@@ -9,7 +9,7 @@ async def message_delete(message):
         )
         embed.set_author(
             name=message.author.display_name,
-            icon_url=message.author.avatar_url
+            icon_url=message.author.display_avatar.url
         )
         embed.set_footer(
             text="message deleted"
@@ -36,7 +36,7 @@ async def message_edit(before, after):
         )
         embed.set_author(
             name=before.author.display_name,
-            icon_url=before.author.avatar_url
+            icon_url=before.author.display_avatar.url
         )
         embed.set_footer(
             text="message edited"
@@ -61,7 +61,7 @@ async def member_join(member):
         embed.set_footer(
             text="user joined"
         )
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar.url)
         embed.add_field(name="member", value=member.mention)
         embed.add_field(name="user_id", value=member.id)
         return embed
@@ -80,7 +80,7 @@ async def member_remove(member):
         embed.set_footer(
             text="user left or got kicked"
         )
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar.url)
         embed.add_field(name="member", value=member.mention)
         embed.add_field(name="user_id", value=member.id)
         return embed
@@ -100,7 +100,7 @@ async def member_ban(member, reason):
         embed.set_footer(
             text="user banned"
         )
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar.url)
         embed.add_field(name="member", value=member.mention)
         embed.add_field(name="user_id", value=member.id)
         return embed
@@ -119,7 +119,7 @@ async def member_unban(member):
         embed.set_footer(
             text="user unbanned"
         )
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar.url)
         embed.add_field(name="member", value=member.mention)
         embed.add_field(name="user_id", value=member.id)
         return embed
@@ -135,7 +135,7 @@ async def role_add(member, role):
         embed.set_footer(
             text="role changes"
         )
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar.url)
         embed.add_field(name="member", value=member.mention)
         embed.add_field(name="user_id", value=member.id)
         embed.add_field(name="role added", value=role.name, inline=False)
@@ -152,7 +152,7 @@ async def role_remove(member, role):
         embed.set_footer(
             text="role changes"
         )
-        embed.set_thumbnail(url=member.avatar_url)
+        embed.set_thumbnail(url=member.display_avatar.url)
         embed.add_field(name="member", value=member.mention)
         embed.add_field(name="user_id", value=member.id)
         embed.add_field(name="role removed", value=role.name, inline=False)
@@ -169,7 +169,7 @@ async def on_user_update(before, after):
         embed.set_footer(
             text="username change"
         )
-        embed.set_thumbnail(url=before.avatar_url)
+        embed.set_thumbnail(url=before.display_avatar.url)
         embed.add_field(name="member", value=after.mention)
         embed.add_field(name="user_id", value=after.id)
         embed.add_field(name="old username", value=f"{before.name}#{before.discriminator}")

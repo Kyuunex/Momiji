@@ -52,7 +52,7 @@ class VoiceLogging(commands.Cog):
                 color=0x419400,
                 description=description,
             )
-            embed.set_thumbnail(url=member.avatar_url)
+            embed.set_thumbnail(url=member.display_avatar.url)
             return embed
         else:
             return None
@@ -67,7 +67,7 @@ class VoiceLogging(commands.Cog):
                 color=0x419400,
                 description=description,
             )
-            embed.set_thumbnail(url=member.avatar_url)
+            embed.set_thumbnail(url=member.display_avatar.url)
             return embed
         else:
             return None

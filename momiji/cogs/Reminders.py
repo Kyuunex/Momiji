@@ -116,7 +116,7 @@ class Reminders(commands.Cog):
         )
         embed.set_author(
             name=member.display_name,
-            icon_url=member.avatar_url
+            icon_url=member.display_avatar.url
         )
         return embed
 
