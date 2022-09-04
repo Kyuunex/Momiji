@@ -87,7 +87,7 @@ class Reminders(commands.Cog):
                                        "WHERE user_id = ?", [int(ctx.author.id)]) as cursor:
             my_reminders = await cursor.fetchall()
 
-        buffer = f":no_entry_sign: **{ctx.author.display_name}'s reminders.**\n\n"
+        buffer = f":calendar_spiral: **{ctx.author.display_name}'s reminders.**\n\n"
 
         if my_reminders:
             for my_reminder in my_reminders:
