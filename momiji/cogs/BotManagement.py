@@ -52,6 +52,7 @@ class BotManagement(commands.Cog):
 
         await self.bot.db.execute("INSERT INTO admins VALUES (?, ?)", [int(user_id), int(perms)])
         await self.bot.db.commit()
+        await permissions.load_users(self.bot.db)
 
         await ctx.send(":ok_hand:")
 
@@ -107,6 +108,7 @@ class BotManagement(commands.Cog):
 
         await self.bot.db.execute("INSERT INTO ignored_users VALUES (?, ?)", [int(user_id), str(reason)])
         await self.bot.db.commit()
+        await permissions.load_users(self.bot.db)
 
         await ctx.send(":ok_hand:")
 
