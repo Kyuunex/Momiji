@@ -4,6 +4,7 @@ import os
 import aiosqlite
 
 from momiji.modules import first_run
+from momiji.modules import permissions
 from momiji.manifest import VERSION
 from momiji.manifest import CONTRIBUTORS
 
@@ -15,8 +16,6 @@ if os.environ.get('MOMIJI_PREFIX'):
     command_prefix = os.environ.get('MOMIJI_PREFIX')
 else:
     command_prefix = ";"
-
-first_run.ensure_tables()
 
 initial_extensions = [
     "momiji.cogs.AIMod",
@@ -77,7 +76,9 @@ class Momiji(commands.Bot):
     async def setup_hook(self):
         self.db = await aiosqlite.connect(self.database_file)
 
+        await first_run.ensure_tables(self.db)
         await first_run.add_admins(self)
+        await permissions.load_users(self.db)
 
         async with self.db.execute("SELECT extension_name FROM user_extensions") as cursor:
             user_extensions = await cursor.fetchall()
