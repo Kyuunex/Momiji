@@ -164,5 +164,5 @@ class Wasteland(commands.Cog):
         return difference
 
 
-def setup(bot):
-    bot.add_cog(Wasteland(bot))
+async def setup(bot):
+    await bot.add_cog(Wasteland(bot))

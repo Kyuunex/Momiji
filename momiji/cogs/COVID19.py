@@ -192,5 +192,5 @@ class COVID19Embeds:
             return None
 
 
-def setup(bot):
-    bot.add_cog(COVID19(bot))
+async def setup(bot):
+    await bot.add_cog(COVID19(bot))

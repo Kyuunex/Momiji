@@ -246,5 +246,5 @@ class RSSFeed(commands.Cog):
                 await asyncio.sleep(1200)
 
 
-def setup(bot):
-    bot.add_cog(RSSFeed(bot))
+async def setup(bot):
+    await bot.add_cog(RSSFeed(bot))

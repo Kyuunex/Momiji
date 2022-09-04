@@ -121,5 +121,5 @@ class ElapsedTimeCounter:
         return "%d:%02d:%02d" % (hour, minutes, seconds)
 
 
-def setup(bot):
-    bot.add_cog(ChannelExporting(bot))
+async def setup(bot):
+    await bot.add_cog(ChannelExporting(bot))

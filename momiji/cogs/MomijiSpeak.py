@@ -251,5 +251,5 @@ class MomijiSpeak(commands.Cog):
             return trigger in msg
 
 
-def setup(bot):
-    bot.add_cog(MomijiSpeak(bot))
+async def setup(bot):
+    await bot.add_cog(MomijiSpeak(bot))

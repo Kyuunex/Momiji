@@ -102,5 +102,5 @@ class WastelandConfiguration(commands.Cog):
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
 
-def setup(bot):
-    bot.add_cog(WastelandConfiguration(bot))
+async def setup(bot):
+    await bot.add_cog(WastelandConfiguration(bot))

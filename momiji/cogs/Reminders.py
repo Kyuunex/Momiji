@@ -207,5 +207,5 @@ class Reminders(commands.Cog):
         return datetime.timezone(datetime.timedelta(hours=0))
 
 
-def setup(bot):
-    bot.add_cog(Reminders(bot))
+async def setup(bot):
+    await bot.add_cog(Reminders(bot))

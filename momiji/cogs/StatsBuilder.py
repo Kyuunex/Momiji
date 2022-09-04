@@ -197,5 +197,5 @@ class StatsBuilder(commands.Cog):
                 await send_large_message.send_large_embed(ctx.channel, embed, buffer2)
 
 
-def setup(bot):
-    bot.add_cog(StatsBuilder(bot))
+async def setup(bot):
+    await bot.add_cog(StatsBuilder(bot))

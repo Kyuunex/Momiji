@@ -142,5 +142,5 @@ class Img(commands.Cog):
         #             await ctx.send(file=discord.File(buffer, f"{search_query}.{ext}"))
 
 
-def setup(bot):
-    bot.add_cog(Img(bot))
+async def setup(bot):
+    await bot.add_cog(Img(bot))

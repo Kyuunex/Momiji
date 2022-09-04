@@ -40,5 +40,5 @@ class LobbyPingRole(commands.Cog):
             await ctx.reply(f"{role.mention}! {ctx.author.mention} calls upon you over at {channel.mention}")
 
 
-def setup(bot):
-    bot.add_cog(LobbyPingRole(bot))
+async def setup(bot):
+    await bot.add_cog(LobbyPingRole(bot))

@@ -90,5 +90,5 @@ class AIMod(commands.Cog):
         await self.content_filter(after)
 
 
-def setup(bot):
-    bot.add_cog(AIMod(bot))
+async def setup(bot):
+    await bot.add_cog(AIMod(bot))

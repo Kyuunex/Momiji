@@ -111,5 +111,5 @@ class Fun(commands.Cog):
         await self.bot.db.commit()
 
 
-def setup(bot):
-    bot.add_cog(Fun(bot))
+async def setup(bot):
+    await bot.add_cog(Fun(bot))

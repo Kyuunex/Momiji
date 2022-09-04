@@ -164,5 +164,5 @@ class DMManagement(commands.Cog):
                                embed=await DMEmbeds.post_message(message))
 
 
-def setup(bot):
-    bot.add_cog(DMManagement(bot))
+async def setup(bot):
+    await bot.add_cog(DMManagement(bot))

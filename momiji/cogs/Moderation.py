@@ -149,5 +149,5 @@ class Moderation(commands.Cog):
             return None
 
 
-def setup(bot):
-    bot.add_cog(Moderation(bot))
+async def setup(bot):
+    await bot.add_cog(Moderation(bot))

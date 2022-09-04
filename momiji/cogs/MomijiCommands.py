@@ -54,5 +54,5 @@ class MomijiCommands(commands.Cog):
         print(f"i forgot about {ctx.guild.name}")
 
 
-def setup(bot):
-    bot.add_cog(MomijiCommands(bot))
+async def setup(bot):
+    await bot.add_cog(MomijiCommands(bot))

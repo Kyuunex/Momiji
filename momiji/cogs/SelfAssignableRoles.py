@@ -154,5 +154,5 @@ class SelfAssignableRoles(commands.Cog):
         return None
 
 
-def setup(bot):
-    bot.add_cog(SelfAssignableRoles(bot))
+async def setup(bot):
+    await bot.add_cog(SelfAssignableRoles(bot))

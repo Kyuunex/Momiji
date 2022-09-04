@@ -291,5 +291,5 @@ class BotManagement(commands.Cog):
         return f"{seconds} second(s)"
 
 
-def setup(bot):
-    bot.add_cog(BotManagement(bot))
+async def setup(bot):
+    await bot.add_cog(BotManagement(bot))

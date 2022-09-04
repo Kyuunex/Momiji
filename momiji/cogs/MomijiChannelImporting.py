@@ -88,5 +88,5 @@ class MomijiChannelImporting(commands.Cog):
         return False
 
 
-def setup(bot):
-    bot.add_cog(MomijiChannelImporting(bot))
+async def setup(bot):
+    await bot.add_cog(MomijiChannelImporting(bot))

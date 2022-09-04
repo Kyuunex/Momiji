@@ -47,5 +47,5 @@ class TraceMoe(commands.Cog):
         await ctx.send(response)
 
 
-def setup(bot):
-    bot.add_cog(TraceMoe(bot))
+async def setup(bot):
+    await bot.add_cog(TraceMoe(bot))

@@ -25,5 +25,5 @@ class UserPreferences(commands.Cog):
         await ctx.send(f"your timezone has been updated!")
 
 
-def setup(bot):
-    bot.add_cog(UserPreferences(bot))
+async def setup(bot):
+    await bot.add_cog(UserPreferences(bot))

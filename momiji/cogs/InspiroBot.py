@@ -152,5 +152,5 @@ class InspiroBot(commands.Cog):
             await ctx.send(f"|| {image_url} ||")
 
 
-def setup(bot):
-    bot.add_cog(InspiroBot(bot))
+async def setup(bot):
+    await bot.add_cog(InspiroBot(bot))
