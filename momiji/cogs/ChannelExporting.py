@@ -61,12 +61,12 @@ class ChannelExporting(commands.Cog):
 
     async def make_message_dict(self, message):
         template = {
-            "timestamp": str(message.created_at.timestamp()),
-            "id": str(message.id),
+            "timestamp": float(message.created_at.timestamp()),
+            "id": int(message.id),
             "author": {
-                "id": str(message.author.id),
+                "id": int(message.author.id),
                 "username": str(message.author.name),
-                "discriminator": str(message.author.discriminator),
+                "discriminator": int(message.author.discriminator),
                 "avatar": str(message.author.avatar),
                 "bot": bool(message.author.bot),
             },
