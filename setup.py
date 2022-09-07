@@ -21,7 +21,7 @@ setup(
         'discord.py[voice]==2.0.1',
         'mutagen',
         'psutil',
-        'youtube_dl',
+        'yt-dlp',
         'aiosqlite',
         'feedparser',
         'python-minesweeper',
