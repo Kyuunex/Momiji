@@ -40,9 +40,13 @@ class ChannelExporting(commands.Cog):
             message_count = 0
 
             message_buffer = []
-            async for message in channel.history(limit=amount):
-                message_count += 1
-                message_buffer.append(await self.make_message_dict(message))
+            try:
+                async for message in channel.history(limit=amount):
+                    message_count += 1
+                    message_buffer.append(await self.make_message_dict(message))
+            except discord.Forbidden:
+                await ctx.send("I do not have permissions to get channel message history.")
+                return
 
             with open(filename, "a", encoding="utf8") as log_file:
                 log_file.write(json.dumps(message_buffer, indent=4, sort_keys=True))
