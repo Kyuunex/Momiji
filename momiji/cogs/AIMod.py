@@ -52,7 +52,7 @@ class AIMod(commands.Cog):
         else:
             guild_id = 0
 
-        await self.bot.db.execute("DELETE FROM aimod_blacklist WHERE word = ?",
+        await self.bot.db.execute("DELETE FROM aimod_blacklist WHERE word = ? AND guild_id = ?",
                                   [(str(word).lower().strip()), int(guild_id)])
         await self.bot.db.commit()
 
