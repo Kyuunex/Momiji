@@ -1,7 +1,15 @@
 import asyncio
 
 import discord
-import youtube_dl
+try:
+    import yt_dlp as youtube_dl
+except ModuleNotFoundError:
+    print("yt-dlp not installed, falling back on youtube-dl")
+    try:
+        import youtube_dl
+    except ModuleNotFoundError:
+        print("youtube-dl is not installed either. installing one of these is required. yt-dlp is recommended.")
+        raise SystemExit
 
 from momiji.modules import permissions
 from momiji.modules.storage_management import BOT_CACHE_DIR
