@@ -184,7 +184,7 @@ class BotManagement(commands.Cog):
 
         try:
             await ctx.message.delete()
-        except (discord.Forbidden, discord.NotFound, discord.HTTPException) as e:
+        except (discord.Forbidden, discord.NotFound) as e:
             print(e)
 
         await ctx.send(string)
