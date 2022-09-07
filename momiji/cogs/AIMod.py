@@ -68,7 +68,7 @@ class AIMod(commands.Cog):
                 continue
 
             try:
-                await self.perform_actions(message, word[1])
+                await self.perform_actions(message, int(word[1]))
             except discord.Forbidden as e:
                 print(e)
 
