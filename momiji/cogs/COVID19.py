@@ -39,19 +39,6 @@ class COVID19(commands.Cog):
             return
 
         summary = self.summary_cache
-        buffer = f"**Global info:**\n"
-
-        buffer += f":thermometer_face: **Confirmed:** {summary.Global.TotalConfirmed} "
-        buffer += f"({summary.Global.NewConfirmed} recent)\n"
-
-        buffer += f":coffin: **Dead:** {summary.Global.TotalDeaths} "
-        buffer += f"({summary.Global.NewDeaths} recent)\n"
-
-        buffer += f":ok_hand: **Recovered:** {summary.Global.TotalRecovered} "
-        buffer += f"({summary.Global.NewRecovered} recent)\n"
-
-        buffer += f"\n"
-        buffer += f"**Countries:**\n"
 
         if "sort:alphabetical" in args:
             correct_sort = summary.Countries
@@ -66,26 +53,45 @@ class COVID19(commands.Cog):
                     max_results = int(sub_args[1])
 
         count = 1
+        fields = []
+
         for country in correct_sort:
             if max_results:
                 if count >= max_results:
                     break
             else:
-                if count >= 20:
+                if count > 21:
                     break
-            buffer += f":flag_{country.CountryCode.lower()}: **{country.Country}:** "
-            buffer += f":thermometer_face: {country.TotalConfirmed} ({country.NewConfirmed}) / "
-            buffer += f":coffin: {country.TotalDeaths} ({country.NewDeaths}) / "
-            buffer += f":ok_hand: {country.TotalRecovered} ({country.NewRecovered})"
-            buffer += f"\n"
+
+            fields.append(
+                {
+                    "name": f":flag_{country.CountryCode.lower()}: **{country.Country}:**",
+                    "inline": True,
+                    "value": (f":thermometer_face: {country.TotalConfirmed} ({country.NewConfirmed})\n"
+                              f":coffin: {country.TotalDeaths} ({country.NewDeaths})\n"
+                              f":ok_hand: {country.TotalRecovered} ({country.NewRecovered})"),
+                }
+            )
             count += 1
 
         embed = discord.Embed(
             color=0xAD6F49,
         )
-        embed.set_author(name="COVID-19 Summary")
-        embed.set_footer(text=f"Last update: {str(self.summary_cache.Date.isoformat(' '))}")
-        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
+
+        embed.description = f":thermometer_face: **Confirmed:** {summary.Global.TotalConfirmed} "
+        embed.description += f"({summary.Global.NewConfirmed} recent)\n"
+
+        embed.description += f":coffin: **Dead:** {summary.Global.TotalDeaths} "
+        embed.description += f"({summary.Global.NewDeaths} recent)\n"
+
+        embed.description += f":ok_hand: **Recovered:** {summary.Global.TotalRecovered} "
+        embed.description += f"({summary.Global.NewRecovered} recent)\n"
+
+        embed.description += f"\n"
+        embed.description += f"Last update: <t:{int(self.summary_cache.Date.timestamp())}:R>"
+
+        embed.set_author(name="COVID-19 Global Summary")
+        await send_large_message.send_embed_lots_of_fields(ctx.channel, embed, fields)
 
     @commands.command(name="c19country", brief="Get COVID-19 info for a country", aliases=['c19c', 'c19'])
     @commands.check(permissions.is_not_ignored)
