@@ -160,8 +160,8 @@ class COVID19Embeds:
                 title=f":flag_{country.CountryCode.lower()}: {country.Country}",
                 color=0xAD6F49,
             )
-            embed.set_author(name="COVID-19 statistics")
-            embed.set_footer(text=f"Last update: {str(country.Date.isoformat(' '))}")
+            embed.set_author(name=f"COVID-19 country statistics")
+            embed.add_field(name="Last updated", value=f"<t:{int(country.Date.timestamp())}:R>")
             return embed
         else:
             return None
