@@ -166,24 +166,6 @@ class COVID19Embeds:
         else:
             return None
 
-    @staticmethod
-    def Summary(country):
-        if country:
-            description = f":thermometer_face: **Confirmed:** {country.TotalConfirmed} ({country.NewConfirmed} recent)\n"
-            description += f":coffin: **Dead:** {country.TotalDeaths} ({country.NewDeaths} recent)\n"
-            description += f":ok_hand: **Recovered:** {country.TotalRecovered} ({country.NewRecovered} recent)\n"
-
-            embed = discord.Embed(
-                description=description,
-                title=f":flag_{country.CountryCode.lower()}: {country.Country}",
-                color=0xAD6F49,
-            )
-            embed.set_author(name="COVID-19 statistics")
-            embed.set_footer(text=f"Last update: {str(country.Date.isoformat(' '))}")
-            return embed
-        else:
-            return None
-
 
 async def setup(bot):
     await bot.add_cog(COVID19(bot))
