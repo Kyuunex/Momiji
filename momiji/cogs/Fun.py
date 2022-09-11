@@ -39,7 +39,7 @@ class Fun(commands.Cog):
 
     @commands.command(name="minesweeper", brief="Sends a randomly generated minesweeper game")
     @commands.check(permissions.is_not_ignored)
-    async def minesweeper(self, ctx, size=10):
+    async def minesweeper(self, ctx, size=9):
         """
         This command sends a randomly generated minesweeper game.
         This command makes use of Discord's spoiler feature.
