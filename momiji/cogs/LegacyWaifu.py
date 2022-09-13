@@ -20,7 +20,12 @@ class LegacyWaifu(commands.Cog):
     def guaranteed_member_string(self, ctx, lookup):
         if len(ctx.message.mentions) > 0:
             return ctx.message.mentions[0].display_name
-        if lookup.isdigit():
+        if type(lookup) is str:
+            if lookup.isdigit():
+                result = ctx.guild.get_member(int(lookup))
+                if result:
+                    return result.display_name
+        elif type(lookup) is int:
             result = ctx.guild.get_member(int(lookup))
             if result:
                 return result.display_name
