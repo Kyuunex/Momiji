@@ -72,7 +72,7 @@ class InspiroBot(commands.Cog):
                     else:
                         if len(ctx.voice_client.channel.members) > 1:
                             if not self.stop_queue[ctx.guild.id]:
-                                ctx.voice_client.play(discord.FFmpegPCMAudio(audio_url))
+                                ctx.voice_client.play(discord.FFmpegOpusAudio(source=audio_url))
                                 print(f"playing {audio_url} in {ctx.voice_client.channel.name} right now")
                             break
                         else:
