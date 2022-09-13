@@ -57,7 +57,7 @@ class InspiroBot(commands.Cog):
         if not session_id:
             return
 
-        await ctx.send("mindfulness mode of <http://inspirobot.me/>")
+        await ctx.send("mindfulness mode of <https://inspirobot.me/>")
         while True:
             if self.stop_queue[ctx.guild.id]:
                 break
