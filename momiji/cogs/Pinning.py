@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import datetime
+import time
 
 
 class Pinning(commands.Cog):
@@ -27,8 +27,7 @@ class Pinning(commands.Cog):
             if any(c[0] in message.content.lower() for c in blacklist):
                 return
 
-            time_ago = datetime.datetime.utcnow() - message.created_at
-            if abs(time_ago).total_seconds() / 3600 >= 48:
+            if (int(time.time()) - int(message.created_at.timestamp())) / 3600 >= 48:
                 return
 
             async with self.bot.db.execute("SELECT message_id FROM pinning_history WHERE message_id = ?",
