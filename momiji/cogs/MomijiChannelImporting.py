@@ -23,7 +23,7 @@ class MomijiChannelImporting(commands.Cog):
                 if type(channel) is discord.TextChannel:
                     await self.import_channel(ctx, channel, int(metadata_only))
 
-            await self.bot.db.execute("INSERT INTO mmj_enabled_guilds VALUES (?, ?)",
+            await self.bot.db.execute("INSERT OR IGNORE INTO mmj_enabled_guilds VALUES (?, ?)",
                                       [int(ctx.guild.id), int(metadata_only)])
             await self.bot.db.commit()
 
@@ -53,7 +53,7 @@ class MomijiChannelImporting(commands.Cog):
                 content = None
             else:
                 content = str(message.content)
-            await self.bot.db.execute("INSERT INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            await self.bot.db.execute("INSERT OR IGNORE INTO mmj_message_logs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                         [int(message.guild.id), int(message.channel.id), int(message.author.id),
                                         int(message.id), str(message.author.name), int(message.author.bot),
                                         content, int(time.mktime(message.created_at.timetuple())), 0])
