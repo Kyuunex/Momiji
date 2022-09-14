@@ -2,6 +2,7 @@ from momiji.modules import permissions
 import discord
 from discord.ext import commands
 from momiji.reusables import get_member_helpers
+from momiji.reusables import get_role_helpers
 
 
 class Utilities(commands.Cog):
@@ -65,7 +66,7 @@ class Utilities(commands.Cog):
         """
 
         async with ctx.channel.typing():
-            role = discord.utils.get(ctx.guild.roles, name=role_name)
+            role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
             for member in role.members:
                 await member.remove_roles(role, reason=f"pruned role `{role_name}`")
         await ctx.send("Done")

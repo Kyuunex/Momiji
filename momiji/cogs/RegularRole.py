@@ -1,5 +1,6 @@
 from momiji.modules import permissions
 from momiji.reusables import send_large_message
+from momiji.reusables import get_role_helpers
 from momiji.reusables import get_member_helpers
 import discord
 from discord.ext import commands
@@ -45,7 +46,7 @@ class RegularRole(commands.Cog):
 
         async with ctx.channel.typing():
             for regular_role in regular_roles:
-                role = discord.utils.get(ctx.guild.roles, id=int(regular_role[1]))
+                role = ctx.guild.get_role(int(regular_role[1]))
 
                 if not role:
                     await ctx.send("The regular role for this server seems to have been manually deleted")
@@ -125,7 +126,7 @@ class RegularRole(commands.Cog):
         refresh_interval: Interval in seconds to wait before updating the role members again
         """
 
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
             await ctx.send("no role found with that name")
             return
@@ -146,7 +147,7 @@ class RegularRole(commands.Cog):
         Unregister a role from being a regular role
         """
 
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
             await ctx.send("no role found with that name")
             return

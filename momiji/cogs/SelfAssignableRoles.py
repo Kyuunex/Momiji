@@ -1,5 +1,6 @@
 from momiji.modules import permissions
 from momiji.reusables import send_large_message
+from momiji.reusables import get_role_helpers
 import discord
 from discord.ext import commands
 
@@ -17,7 +18,7 @@ class SelfAssignableRoles(commands.Cog):
         Add a role to a list of roles that are self assignable by any user.
         """
 
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
             await ctx.send(f"can't find a role with that name")
             return
@@ -44,7 +45,7 @@ class SelfAssignableRoles(commands.Cog):
         so that no end user can self assign them
         """
 
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
             await ctx.send(f"can't find a role with that name")
             return
@@ -71,7 +72,7 @@ class SelfAssignableRoles(commands.Cog):
 
         buffer = ""
         for one_role_db in all_roles:
-            role = discord.utils.get(ctx.guild.roles, id=int(one_role_db[0]))
+            role = ctx.guild.get_role(int(one_role_db[0]))
             if role:
                 buffer += f"{role.name}\n"
             else:
@@ -89,7 +90,7 @@ class SelfAssignableRoles(commands.Cog):
         Assign yourself one of the roles that you are allowed to assign yourself
         """
 
-        role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
+        role = get_role_helpers.get_role_by_name_case_insensitive(ctx.guild.roles, role_name)
         if not role:
             await ctx.reply(f"bruh, this role does not exist.")
             return
@@ -128,7 +129,7 @@ class SelfAssignableRoles(commands.Cog):
         Remove a self-assignable role you already have
         """
 
-        role = self.get_case_insensitive_role(ctx.guild.roles, role_name)
+        role = get_role_helpers.get_role_by_name_case_insensitive(ctx.guild.roles, role_name)
         if not role:
             await ctx.reply("bruh, this role does not exist.")
             return
@@ -146,12 +147,6 @@ class SelfAssignableRoles(commands.Cog):
                 await ctx.reply(f"you no longer have the `{role.name}` role")
             except discord.Forbidden:
                 await ctx.send("I do not have permissions to remove these roles.")
-
-    def get_case_insensitive_role(self, roles, lookup):
-        for role in roles:
-            if role.name.lower() == lookup.lower():
-                return role
-        return None
 
 
 async def setup(bot):

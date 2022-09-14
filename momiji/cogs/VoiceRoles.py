@@ -1,5 +1,6 @@
 from momiji.modules import permissions
 from momiji.reusables import send_large_message
+from momiji.reusables import get_role_helpers
 
 import discord
 from discord.ext import commands
@@ -35,7 +36,7 @@ class VoiceRoles(commands.Cog):
             await ctx.send("you are not in a voice channel")
             return
 
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
             await ctx.send("Can't find a role with that name")
             return
@@ -67,7 +68,7 @@ class VoiceRoles(commands.Cog):
             await ctx.send("you are not in a voice channel")
             return
 
-        role = discord.utils.get(ctx.guild.roles, name=role_name)
+        role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
             await ctx.send("Can't find a role with that name")
             return
@@ -115,7 +116,7 @@ class VoiceRoles(commands.Cog):
                 role_id_list = await cursor.fetchall()
             if role_id_list:
                 for role_id in role_id_list:
-                    role = discord.utils.get(member.guild.roles, id=int(role_id[0]))
+                    role = member.guild.get_role(id=int(role_id[0]))
                     await member.add_roles(role)
             return
 
@@ -125,7 +126,7 @@ class VoiceRoles(commands.Cog):
                 role_id_list = await cursor.fetchall()
             if role_id_list:
                 for role_id in role_id_list:
-                    role = discord.utils.get(member.guild.roles, id=int(role_id[0]))
+                    role = member.guild.get_role(int(role_id[0]))
                     await member.remove_roles(role)
             return
 
@@ -141,11 +142,11 @@ class VoiceRoles(commands.Cog):
 
             if before_role_id_list:
                 for before_role_id in before_role_id_list:
-                    role = discord.utils.get(member.guild.roles, id=int(before_role_id[0]))
+                    role = member.guild.get_role(int(before_role_id[0]))
                     await member.remove_roles(role)
             if after_role_id_list:
                 for after_role_id in after_role_id_list:
-                    role_after = discord.utils.get(member.guild.roles, id=int(after_role_id[0]))
+                    role_after = member.guild.get_role(int(after_role_id[0]))
                     await member.add_roles(role_after)
             return
 

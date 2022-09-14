@@ -1,5 +1,4 @@
 from discord.ext import commands
-import discord
 from momiji.modules import cooldown
 from momiji.modules import permissions
 
@@ -36,7 +35,7 @@ class LobbyPingRole(commands.Cog):
                 return
 
         for role_id in role_id_list:
-            role = discord.utils.get(ctx.guild.roles, id=int(role_id[0]))
+            role = ctx.guild.get_role(int(role_id[0]))
             await ctx.reply(f"{role.mention}! {ctx.author.mention} calls upon you over at {channel.mention}")
 
 
