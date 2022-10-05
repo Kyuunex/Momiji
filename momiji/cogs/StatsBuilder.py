@@ -97,7 +97,6 @@ class StatsBuilder(commands.Cog):
 
         guild = ctx.guild
         buffer = f"**ID:** {guild.id}\n"
-        buffer += f"**Region:** {guild.region}\n"
         buffer += f"**Created at:** {guild.created_at}\n"
         # TODO: Add server age
         # TODO: Add a cake emote if it's the server's birthday
