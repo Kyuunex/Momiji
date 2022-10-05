@@ -46,15 +46,15 @@ class StatsBuilder(commands.Cog):
 
         buffer += "\n"
 
-        buffer += f"**Overall status:** {member.status}\n"
-        buffer += f"**Mobile status:** {member.mobile_status}\n"
-        buffer += f"**Is on mobile:** {member.is_on_mobile()}\n"
-        buffer += f"**Desktop status:** {member.desktop_status}\n"
-        buffer += f"**Web status:** {member.web_status}\n"
-        if member.activity:
-            buffer += f"**Activity:** {member.activity}\n"
+        # buffer += f"**Overall status:** {member.status}\n"
+        # buffer += f"**Mobile status:** {member.mobile_status}\n"
+        # buffer += f"**Is on mobile:** {member.is_on_mobile()}\n"
+        # buffer += f"**Desktop status:** {member.desktop_status}\n"
+        # buffer += f"**Web status:** {member.web_status}\n"
+        # if member.activity:
+        #     buffer += f"**Activity:** {member.activity}\n"
 
-        buffer += "\n"
+        # buffer += "\n"
 
         buffer += f"**Roles:** "
         for role in member.roles:
