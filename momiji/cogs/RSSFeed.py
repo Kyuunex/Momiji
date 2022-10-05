@@ -161,7 +161,7 @@ class RSSFeed(commands.Cog):
                 continue
 
             for rssfeed_entry in rssfeed_entries:
-                url = rssfeed_entry[0]
+                url = str(rssfeed_entry[0]).strip()
                 async with await self.bot.db.execute("SELECT channel_id FROM rssfeed_channels WHERE url = ?",
                                                      [str(url)]) as cursor:
                     channel_list = await cursor.fetchall()
