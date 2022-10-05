@@ -114,6 +114,10 @@ class SelfAssignableRoles(commands.Cog):
             await ctx.reply("*you* are not allowed to self assign this role")
             return
 
+        if role in ctx.author.roles:
+            await ctx.reply(f"you already have the `{role.name}` role")
+            return
+
         if int(role.id) == int(check[0]):
             try:
                 await ctx.author.add_roles(role)
@@ -139,6 +143,10 @@ class SelfAssignableRoles(commands.Cog):
             check = await cursor.fetchone()
         if not check:
             await ctx.reply("bruh, this role is not self assignable or removable")
+            return
+
+        if not role in ctx.author.roles:
+            await ctx.reply(f"you don't have the `{role.name}` role to begin with")
             return
 
         if int(role.id) == int(check[0]):
