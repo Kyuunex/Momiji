@@ -80,14 +80,6 @@ class StatsBuilder(commands.Cog):
 
             buffer += "\n"
 
-        # profile = member.profile()  # https://discordpy.readthedocs.io/en/stable/api.html#discord.Profile
-        # buffer += f"nitro: {profile.nitro}\n"
-        # buffer += f"staff: {profile.staff}\n"
-        # buffer += f"partner: {profile.partner}\n"
-        # buffer += f"bug_hunter: {profile.bug_hunter}\n"
-        # buffer += f"early_supporter: {profile.early_supporter}\n"
-        # buffer += f"hypesquad: {profile.hypesquad}\n"
-
         embed = discord.Embed(title=member.name,
                               color=member.colour.value)
         embed.set_thumbnail(url=member.display_avatar.url)
