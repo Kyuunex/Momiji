@@ -154,9 +154,9 @@ class StatsBuilder(commands.Cog):
             if guild.description:
                 buffer += f"**Description:** {guild.description}\n"
             if guild.discovery_splash:
-                buffer += f"**Discovery splash url:** {guild.discovery_splash_url}\n"
-            if guild.splash_url:
-                buffer += f"**Server splash banner url:** {guild.splash_url}\n"
+                buffer += f"**Discovery splash url:** {guild.discovery_splash.url}\n"
+            if guild.splash:
+                buffer += f"**Server splash banner url:** {guild.splash.url}\n"
 
             buffer += "\n"
 
@@ -172,10 +172,10 @@ class StatsBuilder(commands.Cog):
 
         embed = discord.Embed(title=guild.name, color=0xe95e62)
 
-        if guild.icon_url:
-            embed.set_thumbnail(url=guild.icon_url)
-        if guild.banner_url:
-            embed.set_image(url=guild.banner_url)
+        if guild.icon:
+            embed.set_thumbnail(url=guild.icon.url)
+        if guild.banner:
+            embed.set_image(url=guild.banner.url)
 
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
