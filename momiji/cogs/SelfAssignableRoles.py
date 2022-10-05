@@ -20,11 +20,11 @@ class SelfAssignableRoles(commands.Cog):
 
         role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
-            await ctx.send(f"can't find a role with that name")
+            await ctx.reply(f"can't find a role with that name")
             return
 
         if role.permissions.administrator:
-            await ctx.send(f"you are trying to make an admin privileged role self assignable. "
+            await ctx.reply(f"you are trying to make an admin privileged role self assignable. "
                            f"this is dangerous, so i will not let you do that. "
                            f"if you really want to do this, take the admin perms away from the role first "
                            f"and it back later")
@@ -33,7 +33,7 @@ class SelfAssignableRoles(commands.Cog):
         # TODO: check if the role is already in the self assignable list
         await self.bot.db.execute("INSERT INTO assignable_roles VALUES (?,?)", [int(ctx.guild.id), int(role.id)])
         await self.bot.db.commit()
-        await ctx.send(f"`{role.name}` role is now self-assignable")
+        await ctx.reply(f"`{role.name}` role is now self-assignable")
 
     @commands.command(name="sar_remove", brief="Remove a self assignable role")
     @commands.check(permissions.is_admin)
@@ -47,13 +47,13 @@ class SelfAssignableRoles(commands.Cog):
 
         role = get_role_helpers.get_role_by_name(ctx.guild.roles, role_name)
         if not role:
-            await ctx.send(f"can't find a role with that name")
+            await ctx.reply(f"can't find a role with that name")
             return
 
         # TODO: check if the role is actually in the self assignable list
         await self.bot.db.execute("DELETE FROM assignable_roles WHERE role_id = ?", [int(role.id)])
         await self.bot.db.commit()
-        await ctx.send(f"`{role.name}` role is no longer self-assignable")
+        await ctx.reply(f"`{role.name}` role is no longer self-assignable")
 
     @commands.command(name="sar_list", brief="List all self assignable roles in this server")
     @commands.guild_only()
@@ -67,14 +67,17 @@ class SelfAssignableRoles(commands.Cog):
                                        [int(ctx.guild.id)]) as cursor:
             all_roles = await cursor.fetchall()
         if not all_roles:
-            await ctx.send(f"there are no self assignable roles in this server")
+            await ctx.reply(f"there are no self assignable roles in this server")
             return
 
         buffer = ""
         for one_role_db in all_roles:
             role = ctx.guild.get_role(int(one_role_db[0]))
             if role:
-                buffer += f"{role.name}\n"
+                buffer += f"{role.name}"
+                if role in ctx.author.roles:
+                    buffer += " (you have this role)"
+                buffer += f"\n"
             else:
                 buffer += f"{one_role_db[0]} (deleted role)\n"
 
@@ -123,7 +126,7 @@ class SelfAssignableRoles(commands.Cog):
                 await ctx.author.add_roles(role)
                 await ctx.reply(f"you now have the `{role.name}` role")
             except discord.Forbidden:
-                await ctx.send("I do not have permissions to add these roles")
+                await ctx.reply("I do not have permissions to add these roles")
 
     @commands.command(name="leave", brief="Remove a self-assignable a role")
     @commands.guild_only()
@@ -154,7 +157,7 @@ class SelfAssignableRoles(commands.Cog):
                 await ctx.author.remove_roles(role)
                 await ctx.reply(f"you no longer have the `{role.name}` role")
             except discord.Forbidden:
-                await ctx.send("I do not have permissions to remove these roles.")
+                await ctx.reply("I do not have permissions to remove these roles.")
 
 
 async def setup(bot):
