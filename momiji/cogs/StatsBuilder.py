@@ -35,6 +35,7 @@ class StatsBuilder(commands.Cog):
             buffer += f"**Server nickname:** {member.nick}\n"
         buffer += f"**Is a bot:** {member.bot}\n"
         buffer += f"**Is a system account:** {member.system}\n"
+        buffer += f"**Is pending verification:** {member.pending}\n"
 
         if member.joined_at:
             buffer += f"**Joined at:** {member.joined_at}\n"
