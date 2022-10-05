@@ -1,3 +1,5 @@
+import time
+
 import discord
 from discord.ext import commands
 
@@ -98,7 +100,7 @@ class StatsBuilder(commands.Cog):
         guild = ctx.guild
         buffer = f"**ID:** {guild.id}\n"
         buffer += f"**Created at:** {guild.created_at}\n"
-        # TODO: Add server age
+        buffer += f"**Age:** {round((time.time() - guild.created_at.timestamp()) / 3.154e+7, 3) } year(s)\n"
         # TODO: Add a cake emote if it's the server's birthday
 
         # buffer += f"shard_id: {guild.shard_id}\n"
