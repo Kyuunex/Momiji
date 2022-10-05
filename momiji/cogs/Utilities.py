@@ -3,6 +3,7 @@ import discord
 from discord.ext import commands
 from momiji.reusables import get_member_helpers
 from momiji.reusables import get_role_helpers
+from momiji.reusables import send_large_message
 
 
 class Utilities(commands.Cog):
@@ -37,6 +38,42 @@ class Utilities(commands.Cog):
         except discord.Forbidden:
             await ctx.send("I do not have the proper permissions to ban.")
 
+    @commands.command(name="limits", brief="Show server limits")
+    @commands.check(permissions.channel_manage_guild)
+    @commands.check(permissions.is_not_ignored)
+    async def limits(self, ctx):
+        """
+        Show server limits
+        """
+        guild = ctx.guild
+        buffer = ""
+        buffer += f"**Channels:** {len(guild.channels)}/500\n"
+        buffer += f"**Voice channels:** {len(guild.voice_channels)}\n"
+        buffer += f"**Text channels:** {len(guild.text_channels)}\n"
+        buffer += f"**Categories:** {len(guild.categories)}/50\n"
+        buffer += f"**Members:** {guild.member_count}/{guild.max_members}\n"
+        buffer += f"**Roles:** {len(guild.roles)}/250\n"
+        buffer += f"**Emotes:** {len(guild.emojis)}\n"
+
+        buffer += "\n"
+
+        buffer += f"**Max presences:** {guild.max_presences}\n"
+        buffer += f"**Max video channel users:** {guild.max_video_channel_users}\n"
+
+        buffer += "\n"
+
+        if guild.categories:
+            buffer += "__**Categories:**__\n"
+            for category in guild.categories:
+                buffer += f"**{category.name}:** {len(category.channels)}/50\n"
+            buffer += "\n"
+
+        embed = discord.Embed(title=guild.name, color=0xe95e62)
+
+        if guild.icon:
+            embed.set_thumbnail(url=guild.icon.url)
+
+        await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="mass_nick", brief="Nickname every user")
     @commands.check(permissions.is_admin)
