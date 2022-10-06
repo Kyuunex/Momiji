@@ -41,7 +41,13 @@ class VoiceRoles(commands.Cog):
             await ctx.send("Can't find a role with that name")
             return
 
-        # TODO: add a check to make sure it is not already tied
+        async with self.bot.db.execute("SELECT role_id FROM voice_roles "
+                                       "WHERE guild_id = ? AND channel_id = ? AND role_id = ?",
+                                       [int(ctx.guild.id), int(channel.id), int(role.id)]) as cursor:
+            voice_role_already_exists = await cursor.fetchall()
+        if voice_role_already_exists:
+            await ctx.reply(f"{channel.mention} is already tied to {role.name} role")
+            return
 
         await self.bot.db.execute("INSERT INTO voice_roles VALUES (?,?,?)",
                                   [int(ctx.guild.id), int(channel.id), int(role.id)])
