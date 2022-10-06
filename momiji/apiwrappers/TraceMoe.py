@@ -30,26 +30,20 @@ class SearchResponse:
 
 class TraceMoeApi:
     # TODO: https://soruly.github.io/trace.moe-api/#/docs
-    # TODO: don't create a new session on every request, just init one and reuse it
 
     def __init__(self, token=""):
         self._base_url = "https://api.trace.moe/"
-        self.session_headers = {
+        self._session_headers = {
             "Accept": "application/json"
         }
         if token:
-            self.session_headers["x-trace-key"] = token
+            self._session_headers["x-trace-key"] = token
+        self._session = aiohttp.ClientSession(headers=self._session_headers)
 
-    async def _raw_request(self, endpoint, parameters):
-        url = self._base_url + endpoint + "?" + urllib.parse.urlencode(parameters)
-        async with aiohttp.ClientSession(headers=self.session_headers) as session:
-            async with session.get(url) as response:
-                response_json = await response.json()
-                return response_json
+    async def close(self):
+        await self._session.close()
 
     async def search(self, **kwargs):
-        result = await self._raw_request("search", kwargs)
-        if result:
-            return SearchResponse(result)
-        else:
-            return None
+        async with self._session.get(self._base_url + "search" + "?" + urllib.parse.urlencode(kwargs)) as response:
+            response_json = await response.json()
+            return SearchResponse(response_json)
