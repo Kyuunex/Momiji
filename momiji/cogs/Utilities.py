@@ -54,6 +54,7 @@ class Utilities(commands.Cog):
         buffer += f"**Members:** {guild.member_count}/{guild.max_members}\n"
         buffer += f"**Roles:** {len(guild.roles)}/250\n"
         buffer += f"**Emotes:** {len(guild.emojis)}/{guild.emoji_limit}\n"
+        buffer += f"**Stickers:** {len(guild.stickers)}/{guild.sticker_limit}\n"
 
         buffer += "\n"
 
