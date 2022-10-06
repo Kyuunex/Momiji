@@ -173,9 +173,12 @@ class RSSFeed(commands.Cog):
                                                          [str(url)]) as cursor:
                         channel_list = await cursor.fetchall()
                     if not channel_list:
-                        await self.bot.db.execute("DELETE FROM rssfeed_tracklist WHERE url = ?", [str(url)])
-                        await self.bot.db.commit()
-                        print(f"{url} is not tracked in any channel so I am untracking it")
+                        # TODO: This is uncommented until it can be investigated
+                        # await self.bot.db.execute("DELETE FROM rssfeed_tracklist WHERE url = ?", [str(url)])
+                        # await self.bot.db.commit()
+                        # print(f"{url} is not tracked in any channel so I am untracking it")
+                        print(f"{url} is not tracked in any channel, so I will not be checking it.")
+                        print(channel_list)
                         continue
 
                     url_raw_contents = await self.fetch(url)
