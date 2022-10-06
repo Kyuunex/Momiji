@@ -1,4 +1,5 @@
-import discord
+from momiji.modules import permissions
+from momiji.embeds import VoiceLogging as VoiceLoggingEmbeds
 from discord.ext import commands
 
 
@@ -66,46 +67,17 @@ class VoiceLogging(commands.Cog):
                 continue
 
             if not before.channel:
-                await channel.send(embed=self.member_voice_join_left(member, after.channel, "joined"),
+                await channel.send(embed=VoiceLoggingEmbeds.member_voice_join_left(member, after.channel, "joined"),
                                    delete_after=delete_after)
                 continue
 
             if not after.channel:
-                await channel.send(embed=self.member_voice_join_left(member, before.channel, "left"),
+                await channel.send(embed=VoiceLoggingEmbeds.member_voice_join_left(member, before.channel, "left"),
                                    delete_after=delete_after)
                 continue
 
-            await channel.send(embed=self.member_voice_switch(member, before.channel, after.channel),
+            await channel.send(embed=VoiceLoggingEmbeds.member_voice_switch(member, before.channel, after.channel),
                                delete_after=delete_after)
-
-    def member_voice_join_left(self, member, channel, action):
-        if member:
-            description = f"{member.mention}\n"
-            description += f"has {action}\n"
-            description += f"**{channel.name}**"
-            embed = discord.Embed(
-                color=0x419400,
-                description=description,
-            )
-            embed.set_thumbnail(url=member.display_avatar.url)
-            return embed
-        else:
-            return None
-
-    def member_voice_switch(self, member, before_channel, after_channel):
-        if member:
-            description = f"{member.mention}\n"
-            description += "has switched\n"
-            description += f"from **{before_channel.name}**\n"
-            description += f"to **{after_channel.name}**"
-            embed = discord.Embed(
-                color=0x419400,
-                description=description,
-            )
-            embed.set_thumbnail(url=member.display_avatar.url)
-            return embed
-        else:
-            return None
 
 
 async def setup(bot):
