@@ -116,7 +116,7 @@ class VoiceRoles(commands.Cog):
                 role_id_list = await cursor.fetchall()
             if role_id_list:
                 for role_id in role_id_list:
-                    role = member.guild.get_role(id=int(role_id[0]))
+                    role = member.guild.get_role(int(role_id[0]))
                     await member.add_roles(role)
             return
 
