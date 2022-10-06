@@ -1,6 +1,8 @@
 # Installation
-After making sure you have `git` and Python 3.6+ installed, 
-type the following in the command line to install the bot  
+After making sure you have `git` and Python 3.7+ installed, 
+head over to the Releases section, pick the latest release, 
+and in its description you will see an installation command. 
+To install the latest unstable version, type the following in the command line to install the bot  
 `python3 -m pip install git+https://github.com/Kyuunex/Momiji.git`  
 To update the bot from an older version, simply append `--upgrade` to the command above.
 
@@ -26,6 +28,11 @@ supply them via environment variables. if you do both, env vars will be used
 | text file  | environment variables | where to get |
 | ------------- | ------------- | ------------- |
 | token.txt  | MOMIJI_TOKEN  | [create a new app, make a bot acc](https://discord.com/developers/applications/) |
+
+## Intents
+[Visit this page](https://discord.com/developers/applications/), locate your bot and enable 
+- SERVER MEMBERS INTENT
+- MESSAGE CONTENT INTENT
 
 ### If you are SSHing into a GNU/Linux server, you can just type these to quickly set the bot up.
 
