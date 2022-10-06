@@ -49,7 +49,7 @@ initial_extensions = [
     "momiji.cogs.Utilities",
     "momiji.cogs.VoiceLogging",
     "momiji.cogs.VoiceRoles",
-    "momiji.cogs.Waifu",
+    # "momiji.cogs.Waifu",
     "momiji.cogs.Wasteland",
     "momiji.cogs.WastelandConfiguration",
     "momiji.cogs.WelcomeMessage",
