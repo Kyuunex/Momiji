@@ -1,5 +1,6 @@
 import feedparser
 import aiohttp
+from aiohttp import client_exceptions as aiohttp_exceptions
 import time
 import asyncio
 import discord
@@ -174,7 +175,12 @@ class RSSFeed(commands.Cog):
                     print(channel_list)
                     continue
 
-                url_raw_contents = await self.fetch(url)
+                try:
+                    url_raw_contents = await self.fetch(url)
+                except aiohttp_exceptions.ClientConnectorError:
+                    print("ClientConnectorError in rss feed loop. sleeping for 1600s")
+                    await asyncio.sleep(1600)
+                    continue
 
                 url_parsed_contents = feedparser.parse(url_raw_contents)
 
