@@ -238,7 +238,7 @@ class RSSFeed(commands.Cog):
                                               [str(url), str(entry_id)])
                     await self.bot.db.commit()
 
-            print(time.strftime("%X %x %Z"))
+            print(time.strftime("%Y/%m/%d %H:%M:%S %Z"))
             print("finished rss check")
             await asyncio.sleep(1200)
 

@@ -140,7 +140,7 @@ class COVID19(commands.Cog):
             if summary:
                 self.summary_cache = summary
                 
-            print(time.strftime("%X %x %Z"))
+            print(time.strftime("%Y/%m/%d %H:%M:%S %Z"))
             print("finished caching covid-19 summary")
             await asyncio.sleep(12000)
 
