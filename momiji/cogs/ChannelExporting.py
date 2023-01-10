@@ -67,7 +67,7 @@ class ChannelExporting(commands.Cog):
                 "id": int(message.author.id),
                 "username": str(message.author.name),
                 "discriminator": int(message.author.discriminator),
-                "avatar": str(message.author.avatar),
+                "avatar": str(message.author.display_avatar.url),
                 "bot": bool(message.author.bot),
             },
             "content": str(message.content),
