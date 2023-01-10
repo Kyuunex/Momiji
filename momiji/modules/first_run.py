@@ -334,6 +334,22 @@ async def ensure_tables(db):
         "cooldown"    INTEGER NOT NULL
     )
     """)
+    await db.execute("""
+    CREATE TABLE IF NOT EXISTS "motds" (
+        "guild_id"    INTEGER NOT NULL, 
+        "channel_id"    INTEGER, 
+        "message"    TEXT NOT NULL, 
+        "position"    INTEGER
+    )
+    """)
+    await db.execute("""
+    CREATE TABLE IF NOT EXISTS "motd_config" (
+        "guild_id"    INTEGER NOT NULL, 
+        "channel_id"    INTEGER NOT NULL, 
+        "mode"    INTEGER NOT NULL, 
+        "current_position"    INTEGER
+    )
+    """)
 
     await db.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["@"])
     await db.execute("INSERT OR IGNORE INTO mmj_word_blacklist VALUES (?)", ["discord.gg/"])
