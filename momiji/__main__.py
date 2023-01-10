@@ -37,6 +37,7 @@ initial_extensions = [
     "momiji.cogs.MomijiChannelImporting",
     "momiji.cogs.MomijiCommands",
     "momiji.cogs.MomijiSpeak",
+    "momiji.cogs.MOTD",
     "momiji.cogs.Music",
     "momiji.cogs.Pinning",
     "momiji.cogs.RegularRole",
