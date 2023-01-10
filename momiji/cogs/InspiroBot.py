@@ -3,7 +3,6 @@ import asyncio
 import aiohttp
 import discord
 from discord.ext import commands
-import urllib.request
 from momiji.modules import permissions
 
 
@@ -24,9 +23,8 @@ class InspiroBot(commands.Cog):
         self.base_url = "http://inspirobot.me/api"
 
     async def api_request(self, **kwargs):
-        url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
+            async with session.get(self.base_url, params=kwargs) as response:
                 return await response.json()
 
     async def api_request_text(self, **kwargs):
@@ -35,9 +33,8 @@ class InspiroBot(commands.Cog):
         introduce inconsistency in what format the api responds with,
         so I'll just copy and paste to account for it.
         """
-        url = self.base_url+"?"+urllib.parse.urlencode(kwargs)
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as response:
+            async with session.get(self.base_url, params=kwargs) as response:
                 return await response.text()
 
     @commands.command(name="mindfulness", brief="Mindfulness mode for inspirobot")

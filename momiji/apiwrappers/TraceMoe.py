@@ -1,7 +1,4 @@
 import aiohttp
-import urllib.request
-import urllib.parse
-import urllib
 
 
 class SearchResult:
@@ -44,6 +41,6 @@ class TraceMoeApi:
         await self._session.close()
 
     async def search(self, **kwargs):
-        async with self._session.get(self._base_url + "search" + "?" + urllib.parse.urlencode(kwargs)) as response:
+        async with self._session.get(self._base_url + "search", params=kwargs) as response:
             response_json = await response.json()
             return SearchResponse(response_json)

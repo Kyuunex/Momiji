@@ -1,11 +1,8 @@
 import aiohttp
-import urllib.request
-from urllib.parse import urlparse
 import discord
 from discord.ext import commands
 import os
 import random
-import imghdr
 from momiji.modules import cooldown
 from momiji.modules import permissions
 from momiji.modules.storage_management import BOT_ART_DIRECTORY
@@ -120,10 +117,9 @@ class Img(commands.Cog):
             "cx": str(google_search_engine_id[0]),
             "start": str(random.randint(1, 5))
         }
-        url = "https://www.googleapis.com/customsearch/v1?" + urllib.parse.urlencode(query)
 
         async with aiohttp.ClientSession() as session:
-            async with session.get(url) as json_response:
+            async with session.get("https://www.googleapis.com/customsearch/v1", params=query) as json_response:
                 response_dict = await json_response.json()
                 if "error" in response_dict:
                     await ctx.send(response_dict["error"]["message"])
