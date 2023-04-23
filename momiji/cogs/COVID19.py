@@ -7,7 +7,7 @@ from momiji.modules import permissions
 from momiji.reusables import send_large_message
 from momiji.modules import cooldown
 import operator
-from aiocovidapi import COVID19APIClient
+from momiji.apiwrappers.COVID19API import COVID19APIClient
 
 
 class COVID19(commands.Cog):
