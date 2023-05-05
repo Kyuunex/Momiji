@@ -26,8 +26,8 @@ and in its description you will see an installation command.
 Open the Terminal (PowerShell or CMD), paste that in and press enter.
 
 To install the latest unstable version, type the following in the Terminal instead 
-```
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git --upgrade
+```bash
+python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade
 ```
 
 To run the bot, type `python3 -m momiji` in the Terminal

@@ -28,8 +28,8 @@ and in its description you will see an installation command.
 Open the Terminal, paste that in and press enter.
 
 To install the latest unstable version, type the following in the Terminal instead 
-```
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git --upgrade
+```bash
+python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade
 ```
 
 To run the bot, type `python3 -m momiji` in the command line
@@ -37,7 +37,7 @@ To run the bot, type `python3 -m momiji` in the command line
 ### All these amount to the following
 
 ```sh
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git --upgrade
+python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade
 mkdir -p $HOME/.local/share/Momiji
 # wget -O $HOME/.local/share/Momiji/maindb.sqlite3 REPLACE_THIS_WITH_DIRECT_FILE_LINK # optional database backup restore
 echo "your_bot_token_goes_here" | tee $HOME/.local/share/Momiji/token.txt
