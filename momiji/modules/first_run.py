@@ -62,6 +62,14 @@ async def ensure_tables(db):
     """)
 
     await db.execute("""
+    CREATE TABLE IF NOT EXISTS "categories" (
+        "setting"    TEXT NOT NULL,
+        "guild_id"    INTEGER NOT NULL,
+        "category_id"    INTEGER NOT NULL
+    )
+    """)
+
+    await db.execute("""
     CREATE TABLE IF NOT EXISTS "pinning_history" (
         "message_id"    INTEGER NOT NULL UNIQUE
     )
