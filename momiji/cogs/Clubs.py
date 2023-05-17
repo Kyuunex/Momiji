@@ -261,8 +261,9 @@ class Clubs(commands.Cog):
         await ctx.reply("club owner updated for this channel")
 
     @commands.command(name="list_clubs", brief="List all clubs")
-    @commands.check(permissions.is_admin)
+    @commands.check(permissions.channel_manage_guild)
     @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
     async def list_clubs(self, ctx):
         """
         Send an embed that contains information about all Clubs in my database
