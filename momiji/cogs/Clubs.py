@@ -286,7 +286,7 @@ class Clubs(commands.Cog):
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
     @commands.command(name="nuke_club", brief="Nuke a club")
-    @commands.check(permissions.is_admin)
+    @commands.check(permissions.channel_manage_guild)
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
     async def nuke_club(self, ctx):
