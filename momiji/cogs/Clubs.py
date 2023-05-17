@@ -229,7 +229,7 @@ class Clubs(commands.Cog):
 
         await ctx.reply("club was renamed")
 
-    @commands.command(name="set_club_owner", brief="Transfer set ownership to another discord account")
+    @commands.command(name="set_club_owner", brief="Transfer club ownership to another discord account")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def set_club_owner(self, ctx, user_id: str):
