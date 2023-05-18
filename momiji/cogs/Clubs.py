@@ -255,6 +255,13 @@ class Clubs(commands.Cog):
             await ctx.reply("I can't find a member with that ID")
             return
 
+        async with self.bot.db.execute("SELECT user_id FROM club_members WHERE user_id = ? AND text_channel_id = ?",
+                                       [int(member.id), int(ctx.channel.id)]) as cursor:
+            is_club_member = await cursor.fetchone()
+        if not is_club_member:
+            await ctx.reply("you can only transfer club ownership to a club member. make them a member first.")
+            return
+
         await self.bot.db.execute("UPDATE clubs SET owner_user_id = ? WHERE text_channel_id = ?",
                                   [int(user_id), int(ctx.channel.id)])
         await self.bot.db.commit()
