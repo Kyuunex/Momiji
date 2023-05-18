@@ -120,7 +120,8 @@ class Clubs(commands.Cog):
         This command is used to remove a user from a Club.
         """
 
-        async with self.bot.db.execute("SELECT role_id FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT role_id, owner_user_id FROM clubs "
+                                       "WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
             role_id_list = await cursor.fetchone()
         if not (role_id_list or await permissions.channel_manage_guild(ctx)):
@@ -132,8 +133,9 @@ class Clubs(commands.Cog):
             await ctx.reply("No member found with what you specified. Try using a Discord account ID.")
             return
 
-        if member is ctx.author:
-            await ctx.reply("you can't remove yourself from this channel, this breaks the bot :(")
+        if member.id == int(role_id_list[1]):
+            await ctx.reply("club owner can not be removed from the club until the ownership is transferred, "
+                            "otherwise this breaks the bot :(")
             return
 
         role = ctx.guild.get_role(int(role_id_list[0]))
