@@ -85,9 +85,9 @@ class Clubs(commands.Cog):
             await ctx.reply("No member found with what you specified. Try using a Discord account ID.")
             return
 
-        if member is ctx.author:
-            await ctx.reply("you can't add yourself to this channel, you are already in and this breaks the bot :(")
-            return
+        # if member is ctx.author:
+        #     await ctx.reply("you can't add yourself to this channel, you are already in and this breaks the bot :(")
+        #     return
 
         role = ctx.guild.get_role(int(role_id_list[0]))
         if not role:
