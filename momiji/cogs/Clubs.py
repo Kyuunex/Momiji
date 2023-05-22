@@ -65,6 +65,69 @@ class Clubs(commands.Cog):
         embed.set_author(name="Club members")
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
+    @commands.command(name="club_info", brief="Show club info")
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def show_club_info(self, ctx):
+        """
+        This command prints out club information.
+        """
+
+        async with self.bot.db.execute("SELECT name, text_channel_id, voice_channel_id, "
+                                       "role_id, owner_user_id, public, public_joinable, guild_id "
+                                       "FROM clubs WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            club_details = await cursor.fetchone()
+        if not club_details:
+            await ctx.reply("this is not a club channel or this club has no members")
+            return
+
+        async with self.bot.db.execute("SELECT COUNT(user_id) FROM club_members WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            member_amount = await cursor.fetchone()
+
+        embed = discord.Embed(color=0xadff2f)
+        embed.set_author(name="Club info")
+
+        embed.add_field(name="Name", value=club_details[0])
+
+        member = ctx.guild.get_member(int(club_details[4]))
+        if member:
+            owner_text = member.display_name
+        else:
+            owner_text = club_details[4]
+        embed.add_field(name="Owner", value=owner_text)
+
+        embed.add_field(name="Member amount", value=member_amount[0])
+
+        embed.add_field(name="Text channel", value=f"<#{club_details[1]}>")
+        embed.add_field(name="Voice channel", value=f"<#{club_details[2]}>")
+        embed.add_field(name="Role", value=f"<@&{club_details[3]}>")
+
+        if club_details[5] == 0:
+            privacy_text = "members only read and write"
+        elif club_details[5] == 1:
+            privacy_text = "all access for members, read-only for everyone else"
+        elif club_details[5] == 2:
+            privacy_text = "public read and write"
+        else:
+            privacy_text = "this setting is misconfigured"
+
+        embed.add_field(name="Privacy", value=privacy_text, inline=False)
+
+        if club_details[6] == 0:
+            joinable_text = "disabled, club not publicly join-able"
+        elif club_details[6] == 1:
+            joinable_text = "notify club if anyone wants to join, only owner approves"
+        elif club_details[6] == 2:
+            joinable_text = "anyone can join automatically with the command"
+        else:
+            joinable_text = "this setting is misconfigured"
+
+        embed.add_field(name="`;join_club` command setting", value=joinable_text, inline=False)
+
+        await ctx.reply(embed=embed)
+
     @commands.command(name="admit", brief="Add a user in the current club")
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
