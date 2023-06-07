@@ -187,8 +187,6 @@ async def on_user_update(before, after):
         embed.add_field(name="member", value=after.mention)
         embed.add_field(name="user_id", value=after.id)
         embed.add_field(name="account since", value=after.created_at)
-        if after.joined_at:
-            embed.add_field(name="member since", value=after.joined_at)
         embed.add_field(name="old username", value=f"{before.name}#{before.discriminator}")
         embed.add_field(name="new username", value=f"{after.name}#{after.discriminator}")
         return embed
