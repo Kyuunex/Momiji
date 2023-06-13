@@ -78,8 +78,8 @@ class Clubs(commands.Cog):
         This command prints out club information.
         """
 
-        async with self.bot.db.execute("SELECT name, text_channel_id, voice_channel_id, "
-                                       "role_id, owner_user_id, public, public_joinable, guild_id "
+        async with self.bot.db.execute("SELECT name, text_channel_id, voice_channel_id, role_id, "
+                                       "owner_user_id, public, public_joinable, created_at_timestamp, guild_id "
                                        "FROM clubs WHERE text_channel_id = ?",
                                        [int(ctx.channel.id)]) as cursor:
             club_details = await cursor.fetchone()
@@ -104,6 +104,8 @@ class Clubs(commands.Cog):
         embed.add_field(name="Owner", value=owner_text)
 
         embed.add_field(name="Member amount", value=member_amount[0])
+
+        embed.add_field(name="Created", value=f"<t:{club_details[7]}:R>", inline=False)
 
         embed.add_field(name="Text channel", value=f"<#{club_details[1]}>")
         embed.add_field(name="Voice channel", value=f"<#{club_details[2]}>")
