@@ -5,6 +5,7 @@ import discord
 from discord.ext import commands
 import random
 import asyncio
+import time
 
 
 class Clubs(commands.Cog):
@@ -170,8 +171,8 @@ class Clubs(commands.Cog):
                             "but i made sure they got the club role anyways, hope this helps?")
             return
 
-        await self.bot.db.execute("INSERT INTO club_members VALUES (?, ?, ?)",
-                                  [int(ctx.channel.id), int(member.id), int(ctx.guild.id)])
+        await self.bot.db.execute("INSERT INTO club_members VALUES (?, ?, ?, ?)",
+                                  [int(ctx.channel.id), int(member.id), int(time.time()), int(ctx.guild.id)])
         await self.bot.db.commit()
         await ctx.reply(f"added {member.mention} in this club")
 
@@ -439,12 +440,12 @@ class Clubs(commands.Cog):
 
         await ctx.author.add_roles(club_role)
 
-        await self.bot.db.execute("INSERT INTO clubs VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        await self.bot.db.execute("INSERT INTO clubs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
                                   [club_name, int(channel.id), int(voice_channel.id), int(club_role.id),
-                                   int(ctx.author.id), 0, 0, int(ctx.guild.id)])
+                                   int(ctx.author.id), 0, 0, int(time.time()), int(ctx.guild.id)])
 
-        await self.bot.db.execute("INSERT INTO club_members VALUES (?, ?, ?)",
-                                  [int(channel.id), int(ctx.author.id), int(ctx.guild.id)])
+        await self.bot.db.execute("INSERT INTO club_members VALUES (?, ?, ?, ?)",
+                                  [int(channel.id), int(ctx.author.id), int(time.time()), int(ctx.guild.id)])
 
         await self.bot.db.commit()
 
@@ -552,6 +553,7 @@ async def setup(bot):
             "owner_user_id"    INTEGER NOT NULL,
             "public"    INTEGER NOT NULL,
             "public_joinable"    INTEGER NOT NULL,
+            "created_at_timestamp"    INTEGER NOT NULL,
             "guild_id"    INTEGER NOT NULL
         )
         """)
@@ -559,6 +561,7 @@ async def setup(bot):
         CREATE TABLE IF NOT EXISTS "club_members" (
             "text_channel_id"    INTEGER NOT NULL,
             "user_id"    INTEGER NOT NULL,
+            "member_since_timestamp"    INTEGER NOT NULL,
             "guild_id"    INTEGER NOT NULL
         )
         """)
