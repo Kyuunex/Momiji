@@ -223,6 +223,47 @@ class Clubs(commands.Cog):
         await self.bot.db.commit()
         await ctx.reply(f"removed {member.mention} from this club")
 
+    @commands.command(name="club_role_color", brief="Update the club role color")
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def club_role_color(self, ctx, *, color: str):
+        """
+        Update the club role color
+
+        Examples:
+        ;club_role_color: 0x00FFFF
+
+        """
+
+        async with self.bot.db.execute("SELECT role_id FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
+                                       [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
+            role_id_list = await cursor.fetchone()
+        if not (role_id_list or await permissions.channel_manage_guild(ctx)):
+            await ctx.reply("this channel is not your club")
+            return
+
+        role = ctx.guild.get_role(int(role_id_list[0]))
+        if not role:
+            await ctx.reply("Looks like the role for this club no longer exists.")
+            return
+
+        if color.startswith("0x") and len(color) == 8:
+            try:
+                precise_color = int(color, 16)
+            except ValueError:
+                await ctx.reply(f"you are using this command incorrectly")
+                return
+        else:
+            await ctx.reply(f"you are using this command incorrectly")
+            return
+
+        try:
+            await role.edit(color=precise_color)
+        except discord.Forbidden:
+            await ctx.reply("I do not have permissions to edit roles.")
+
+        await ctx.reply(f"Club role color updated.")
+
     @commands.command(name="disband_club", brief="Abandon the club")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
