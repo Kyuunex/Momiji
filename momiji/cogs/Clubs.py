@@ -40,7 +40,8 @@ class Clubs(commands.Cog):
         This command print out members are in this club.
         """
 
-        async with self.bot.db.execute("SELECT user_id FROM club_members WHERE text_channel_id = ?",
+        async with self.bot.db.execute("SELECT user_id, member_since_timestamp "
+                                       "FROM club_members WHERE text_channel_id = ?",
                                        [int(ctx.channel.id)]) as cursor:
             member_list = await cursor.fetchall()
         if not member_list:
@@ -55,11 +56,14 @@ class Clubs(commands.Cog):
         for member_id in member_list:
             member = ctx.guild.get_member(int(member_id[0]))
             if member:
-                buffer += f"{member.display_name} "
+                buffer += f"{member.display_name}"
             else:
-                buffer += f"{member_id[0]} "
+                buffer += f"{member_id[0]}"
+
+            buffer += f", joined <t:{member_id[1]}:R> "
+
             if int(member_id[0]) == int(club_owner_id[0]):
-                buffer += f":crown: "
+                buffer += f" :crown: "
             buffer += f"\n"
 
         embed = discord.Embed(color=0xadff2f)
