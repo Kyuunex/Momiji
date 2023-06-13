@@ -350,14 +350,15 @@ class Clubs(commands.Cog):
 
         buffer = ""
 
-        async with self.bot.db.execute("SELECT name, owner_user_id, text_channel_id, voice_channel_id, role_id "
+        async with self.bot.db.execute("SELECT name, owner_user_id, text_channel_id, "
+                                       "voice_channel_id, role_id, created_at_timestamp "
                                        "FROM clubs WHERE guild_id = ?", [(int(ctx.guild.id))]) as cursor:
             clubs = await cursor.fetchall()
         if not clubs:
             buffer += "no club channels in my database for this guild"
 
         for club in clubs:
-            buffer += "%s by <@%s> : <#%s> + <#%s> | %s \n" % club
+            buffer += "%s by <@%s> : <#%s> + <#%s> | %s | <t:%s:R> \n" % club
             buffer += "\n"
 
         embed = discord.Embed(color=0xff6781)
