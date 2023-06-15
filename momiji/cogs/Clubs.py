@@ -494,8 +494,24 @@ class Clubs(commands.Cog):
         await ctx.reply("sure, gimme a moment")
 
         club_name = club_name.strip()
-
+        club_owner = ctx.author
+        club_text_channel = None
         guild = ctx.guild
+
+        if club_name.startswith("IMPORT_FOR:") and await permissions.channel_manage_guild(ctx):
+            await ctx.reply("importing this channel as a club")
+            args = club_name.split(":")
+            club_owner_id = args[1]
+            if not club_owner_id.isdigit():
+                await ctx.reply("club_owner_id must be all numbers")
+                return
+
+            club_owner = ctx.guild.get_member(int(club_owner_id))
+            if not club_owner:
+                await ctx.reply("I can't find a member with that ID")
+                return
+            club_name = f"{club_owner.name}'s club"
+            club_text_channel = ctx.channel
 
         club_role = await guild.create_role(
             name=club_name,
@@ -505,16 +521,23 @@ class Clubs(commands.Cog):
 
         channel_overwrites = {
             guild.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),
-            ctx.author: self.club_owner_default_permissions,
+            club_owner: self.club_owner_default_permissions,
             club_role: discord.PermissionOverwrite(read_messages=True, send_messages=True),
             guild.me: self.club_bot_default_permissions
         }
 
-        channel = await guild.create_text_channel(
-            name=club_name.replace(" ", "_").lower(),
-            overwrites=channel_overwrites,
-            category=self.bot.get_channel(int(guild_club_category_id[0]))
-        )
+        if not club_text_channel:
+            club_text_channel = await guild.create_text_channel(
+                name=club_name.replace(" ", "_").lower(),
+                overwrites=channel_overwrites,
+                category=self.bot.get_channel(int(guild_club_category_id[0]))
+            )
+        else:
+            await club_text_channel.edit(
+                name=club_name.replace(" ", "_").lower(),
+                overwrites=channel_overwrites,
+                category=self.bot.get_channel(int(guild_club_category_id[0]))
+            )
 
         voice_channel = await guild.create_voice_channel(
             name=club_name,
@@ -522,18 +545,18 @@ class Clubs(commands.Cog):
             category=self.bot.get_channel(int(guild_club_category_id[0]))
         )
 
-        await ctx.author.add_roles(club_role)
+        await club_owner.add_roles(club_role)
 
         await self.bot.db.execute("INSERT INTO clubs VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                                  [club_name, int(channel.id), int(voice_channel.id), int(club_role.id),
-                                   int(ctx.author.id), 0, 0, int(time.time()), int(ctx.guild.id)])
+                                  [club_name, int(club_text_channel.id), int(voice_channel.id), int(club_role.id),
+                                   int(club_owner.id), 0, 0, int(time.time()), int(ctx.guild.id)])
 
         await self.bot.db.execute("INSERT INTO club_members VALUES (?, ?, ?, ?)",
-                                  [int(channel.id), int(ctx.author.id), int(time.time()), int(ctx.guild.id)])
+                                  [int(club_text_channel.id), int(club_owner.id), int(time.time()), int(ctx.guild.id)])
 
         await self.bot.db.commit()
 
-        await channel.send(content=f"{ctx.author.mention} done! ")
+        await club_text_channel.send(content=f"{club_owner.mention} done! ")
         await ctx.reply("ok, i'm done!")
 
     @commands.Cog.listener()
