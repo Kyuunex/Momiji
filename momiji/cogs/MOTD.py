@@ -11,6 +11,7 @@ class MOTD(commands.Cog):
 
     @commands.command(name="manual_motd")
     @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
     async def manual_motd(self, ctx):
         async with await self.bot.db.execute("SELECT channel_id FROM motd_config WHERE guild_id = ?",
                                              [ctx.guild.id]) as cursor:

@@ -57,6 +57,8 @@ class BotManagement(commands.Cog):
         await ctx.send(":ok_hand:")
 
     @commands.command(name="ignored_users", brief="List of users who are blacklisted from using this bot")
+    @commands.check(permissions.is_owner)
+    @commands.check(permissions.is_not_ignored)
     async def ignored_users(self, ctx):
         """
         This command prints out a list of users
