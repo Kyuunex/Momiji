@@ -223,6 +223,42 @@ class Clubs(commands.Cog):
         await self.bot.db.commit()
         await ctx.reply(f"removed {member.mention} from this club")
 
+    @commands.command(name="leave_club", brief="Leave the club")
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def leave_club(self, ctx):
+        """
+        Intended to be used by a club member to leave a club they no longer want to be a part of.
+        """
+
+        async with self.bot.db.execute("SELECT role_id, owner_user_id FROM clubs "
+                                       "WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            role_id_list = await cursor.fetchone()
+        if not role_id_list:
+            await ctx.reply("this channel is not a club")
+            return
+
+        if ctx.author.id == int(role_id_list[1]):
+            await ctx.reply("club owner can not be removed from the club until the ownership is transferred, "
+                            "otherwise this breaks the bot :(")
+            return
+
+        role = ctx.guild.get_role(int(role_id_list[0]))
+        if not role:
+            await ctx.reply("Looks like the role for this club no longer exists.")
+            return
+
+        try:
+            await ctx.author.remove_roles(role, reason="removed from a club")
+        except discord.Forbidden:
+            await ctx.reply("I do not have permissions to remove roles.")
+
+        await self.bot.db.execute("DELETE FROM club_members WHERE text_channel_id = ? AND user_id = ?",
+                                  [int(ctx.channel.id), int(ctx.author.id)])
+        await self.bot.db.commit()
+        await ctx.reply(f"removed {ctx.author.mention} from this club")
+
     @commands.command(name="club_role_color", brief="Update the club role color")
     @commands.check(permissions.is_not_ignored)
     @commands.guild_only()
