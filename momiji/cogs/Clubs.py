@@ -559,6 +559,41 @@ class Clubs(commands.Cog):
         await club_text_channel.send(content=f"{club_owner.mention} done! ")
         await ctx.reply("ok, i'm done!")
 
+    @commands.command(name="set_club_joinable", brief="set_club_joinable")
+    @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
+    async def set_club_joinable(self, ctx, joinable_str: str):
+        """
+        set_club_joinable:
+        - disabled - disabled, club not publicly join-able
+        - notify - notify club if anyone wants to join, only owner approves
+        - automatic - anyone can join automatically with the command
+        """
+
+        async with self.bot.db.execute("SELECT role_id, voice_channel_id FROM clubs "
+                                       "WHERE owner_user_id = ? AND text_channel_id = ?",
+                                       [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
+            club = await cursor.fetchone()
+        if not (club or await permissions.channel_manage_guild(ctx)):
+            await ctx.reply("this channel is not your club")
+            return
+
+        if joinable_str.strip() == "disabled":
+            joinable_int = 0
+        elif joinable_str.strip() == "notify":
+            joinable_int = 1
+        elif joinable_str.strip() == "automatic":
+            joinable_int = 2
+        else:
+            await ctx.reply("pick one: disabled, notify, automatic")
+            return
+
+        await self.bot.db.execute("UPDATE clubs SET public_joinable = ? WHERE text_channel_id = ?",
+                                  [int(joinable_int), int(ctx.channel.id)])
+        await self.bot.db.commit()
+
+        await ctx.reply("joinable setting updated")
+
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, deleted_channel):
         async with self.bot.db.execute("SELECT name, text_channel_id, voice_channel_id, role_id FROM clubs "
