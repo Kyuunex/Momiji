@@ -591,12 +591,13 @@ class Clubs(commands.Cog):
         await club_text_channel.send(content=f"{club_owner.mention} done! ")
         await ctx.reply("ok, i'm done!")
 
-    @commands.command(name="set_club_privacy", brief="set_club_privacy")
+    @commands.command(name="set_club_privacy", brief="Set club privacy setting")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def set_club_privacy(self, ctx, privacy_str: str):
         """
-        set_club_privacy:
+        Set club privacy setting:
+
         - private - members only read and write
         - public-readonly - all access for members, read-only for everyone else
         - public - public read and write
@@ -686,12 +687,13 @@ class Clubs(commands.Cog):
 
         await ctx.reply("privacy settings updated")
 
-    @commands.command(name="set_club_joinable", brief="set_club_joinable")
+    @commands.command(name="set_club_joinable", brief="Set club joinable setting")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def set_club_joinable(self, ctx, joinable_str: str):
         """
-        set_club_joinable:
+        Set club joinable setting:
+
         - disabled - disabled, club not publicly join-able
         - notify - notify club if anyone wants to join, only owner approves
         - automatic - anyone can join automatically with the command
@@ -720,13 +722,12 @@ class Clubs(commands.Cog):
 
         await ctx.reply("joinable setting updated")
 
-    @commands.command(name="join_club", brief="join_club")
+    @commands.command(name="join_club", brief="Join a club")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
     async def join_club(self, ctx, *, club_name: str):
         """
-        join_club:
-        club name
+        Join a club with this command, specify the club name after the command.
         """
 
         async with self.bot.db.execute("SELECT name, text_channel_id, voice_channel_id, role_id, "
