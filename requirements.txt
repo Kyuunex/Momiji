@@ -1,4 +1,4 @@
-discord.py[voice]==2.3.1
+discord.py[voice]==2.3.2
 mutagen
 psutil
 yt-dlp

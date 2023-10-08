@@ -18,7 +18,7 @@ setup(
     author_email='kyuunex@protonmail.ch',
     url='https://github.com/Kyuunex/Momiji',
     install_requires=[
-        'discord.py[voice]==2.3.1',
+        'discord.py[voice]==2.3.2',
         'mutagen',
         'psutil',
         'yt-dlp',
