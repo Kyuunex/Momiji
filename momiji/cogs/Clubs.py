@@ -16,7 +16,7 @@ class Clubs(commands.Cog):
             manage_channels=True,
             manage_roles=True,
             manage_webhooks=True,
-            read_messages=True,
+            view_channel=True,
             send_messages=True,
             manage_messages=True,
             embed_links=True,
@@ -27,7 +27,7 @@ class Clubs(commands.Cog):
         self.club_bot_default_permissions = discord.PermissionOverwrite(
             manage_channels=True,
             manage_roles=True,
-            read_messages=True,
+            view_channel=True,
             send_messages=True,
             embed_links=True
         )
@@ -520,9 +520,15 @@ class Clubs(commands.Cog):
         )
 
         channel_overwrites = {
-            guild.default_role: discord.PermissionOverwrite(read_messages=False, send_messages=False),
+            guild.default_role: discord.PermissionOverwrite(
+                view_channel=False,
+                send_messages=False
+            ),
             club_owner: self.club_owner_default_permissions,
-            club_role: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+            club_role: discord.PermissionOverwrite(
+                view_channel=True,
+                send_messages=True
+            ),
             guild.me: self.club_bot_default_permissions
         }
 
