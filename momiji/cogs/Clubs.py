@@ -692,7 +692,7 @@ class Clubs(commands.Cog):
     @commands.command(name="join_club", brief="join_club")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
-    async def join_club(self, ctx, club_name: str):
+    async def join_club(self, ctx, *, club_name: str):
         """
         join_club:
         club name
