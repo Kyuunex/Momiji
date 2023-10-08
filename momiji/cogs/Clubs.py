@@ -559,6 +559,95 @@ class Clubs(commands.Cog):
         await club_text_channel.send(content=f"{club_owner.mention} done! ")
         await ctx.reply("ok, i'm done!")
 
+    @commands.command(name="set_club_privacy", brief="set_club_privacy")
+    @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
+    async def set_club_privacy(self, ctx, privacy_str: str):
+        """
+        set_club_privacy:
+        - private - members only read and write
+        - public-readonly - all access for members, read-only for everyone else
+        - public - public read and write
+        """
+
+        async with self.bot.db.execute("SELECT role_id, voice_channel_id FROM clubs "
+                                       "WHERE owner_user_id = ? AND text_channel_id = ?",
+                                       [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
+            club = await cursor.fetchone()
+        if not (club or await permissions.channel_manage_guild(ctx)):
+            await ctx.reply("this channel is not your club")
+            return
+
+        if privacy_str.strip() == "private":
+            privacy_int = 0
+            text_channel_overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(
+                    view_channel=False,
+                    send_messages=False
+                ),
+            }
+            voice_channel_overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(
+                    view_channel=False,
+                    send_messages=False,
+                    connect=False,
+                    speak=False
+                ),
+            }
+        elif privacy_str.strip() == "public-readonly":
+            privacy_int = 1
+            text_channel_overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(
+                    view_channel=True,
+                    send_messages=False
+                ),
+            }
+            voice_channel_overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(
+                    view_channel=True,
+                    send_messages=False,
+                    connect=False,
+                    speak=False
+                ),
+            }
+        elif privacy_str.strip() == "public":
+            privacy_int = 2
+            text_channel_overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(
+                    view_channel=True,
+                    send_messages=True
+                ),
+            }
+            voice_channel_overwrites = {
+                ctx.guild.default_role: discord.PermissionOverwrite(
+                    view_channel=True,
+                    send_messages=True,
+                    connect=True,
+                    speak=True
+                ),
+            }
+        else:
+            await ctx.reply("pick one: private, public-readonly, public")
+            return
+
+        await ctx.channel.edit(
+            overwrites=text_channel_overwrites,
+        )
+
+        voice_channel = self.bot.get_channel(int(club[1]))
+        if not voice_channel:
+            await ctx.reply("error, voice channel not found, skipping")
+        else:
+            await voice_channel.edit(
+                overwrites=voice_channel_overwrites,
+            )
+
+        await self.bot.db.execute("UPDATE clubs SET public = ? WHERE text_channel_id = ?",
+                                  [int(privacy_int), int(ctx.channel.id)])
+        await self.bot.db.commit()
+
+        await ctx.reply("privacy settings updated")
+
     @commands.command(name="set_club_joinable", brief="set_club_joinable")
     @commands.guild_only()
     @commands.check(permissions.is_not_ignored)
