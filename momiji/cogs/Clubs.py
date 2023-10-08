@@ -689,6 +689,63 @@ class Clubs(commands.Cog):
 
         await ctx.reply("joinable setting updated")
 
+    @commands.command(name="join_club", brief="join_club")
+    @commands.guild_only()
+    @commands.check(permissions.is_not_ignored)
+    async def join_club(self, ctx, club_name: str):
+        """
+        join_club:
+        club name
+        """
+
+        async with self.bot.db.execute("SELECT name, text_channel_id, voice_channel_id, role_id, "
+                                       "owner_user_id, public, public_joinable, created_at_timestamp, guild_id "
+                                       "FROM clubs WHERE name = ?",
+                                       [str(club_name.strip())]) as cursor:
+            club_details = await cursor.fetchone()
+        if not club_details:
+            await ctx.reply("i can't find a club with that name")
+            return
+
+        if club_details[6] == 0:
+            await ctx.reply("this club not publicly join-able")
+            return
+        elif club_details[6] == 1:  # notify
+            channel = self.bot.get_channel(int(club_details[1]))
+            await channel.send(f"{ctx.author.mention} wants to join this club. "
+                               f"Club owner can type `;admit {ctx.author.id}` to let them in.")
+
+            await ctx.reply("join request sent to club.")
+            return
+        elif club_details[6] == 2:  # allow
+            channel = self.bot.get_channel(int(club_details[1]))
+
+            role = ctx.guild.get_role(int(club_details[3]))
+            if not role:
+                await ctx.reply("club role deleted, WHYYYY?")
+                return
+
+            await ctx.author.add_roles(role, reason="club member returned to the guild")
+
+            async with self.bot.db.execute("SELECT user_id FROM club_members WHERE user_id = ? AND text_channel_id = ?",
+                                           [int(ctx.author.id), int(club_details[1])]) as cursor:
+                is_already_in_club = await cursor.fetchone()
+            if is_already_in_club:
+                await ctx.reply("the database records show you are already in the club, "
+                                "but i made sure you got the club role anyways, hope this helps?")
+            else:
+                await self.bot.db.execute("INSERT INTO club_members VALUES (?, ?, ?, ?)",
+                                          [int(club_details[1]), int(ctx.author.id), int(time.time()),
+                                           int(ctx.guild.id)])
+                await self.bot.db.commit()
+
+            await ctx.reply("added you to the club!")
+
+            await channel.send(f"{ctx.author.mention} has joined this club!")
+        else:
+            await ctx.reply("this setting is misconfigured for this club")
+            return
+
     @commands.Cog.listener()
     async def on_guild_channel_delete(self, deleted_channel):
         async with self.bot.db.execute("SELECT name, text_channel_id, voice_channel_id, role_id FROM clubs "
