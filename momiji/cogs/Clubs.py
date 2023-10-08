@@ -143,11 +143,18 @@ class Clubs(commands.Cog):
         This command is used to add a user into a Club.
         """
 
-        async with self.bot.db.execute("SELECT role_id FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT TRUE FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
-            role_id_list = await cursor.fetchone()
-        if not (role_id_list or await permissions.channel_manage_guild(ctx)):
+            is_club_owner = await cursor.fetchone()
+        if not (is_club_owner or await permissions.channel_manage_guild(ctx)):
             await ctx.reply("this channel is not your club")
+            return
+
+        async with self.bot.db.execute("SELECT role_id FROM clubs WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            role_id_db = await cursor.fetchone()
+        if not role_id_db:
+            await ctx.reply(":skull:")
             return
 
         member = get_member_helpers.get_member_guaranteed(ctx, user_name)
@@ -159,7 +166,7 @@ class Clubs(commands.Cog):
         #     await ctx.reply("you can't add yourself to this channel, you are already in and this breaks the bot :(")
         #     return
 
-        role = ctx.guild.get_role(int(role_id_list[0]))
+        role = ctx.guild.get_role(int(role_id_db[0]))
         if not role:
             await ctx.reply("Looks like the role for this club no longer exists.")
             return
@@ -190,12 +197,18 @@ class Clubs(commands.Cog):
         This command is used to remove a user from a Club.
         """
 
-        async with self.bot.db.execute("SELECT role_id, owner_user_id FROM clubs "
-                                       "WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT TRUE FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
-            role_id_list = await cursor.fetchone()
-        if not (role_id_list or await permissions.channel_manage_guild(ctx)):
+            is_club_owner = await cursor.fetchone()
+        if not (is_club_owner or await permissions.channel_manage_guild(ctx)):
             await ctx.reply("this channel is not your club")
+            return
+
+        async with self.bot.db.execute("SELECT role_id, owner_user_id FROM clubs WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            club_details_db = await cursor.fetchone()
+        if not club_details_db:
+            await ctx.reply(":skull:")
             return
 
         member = get_member_helpers.get_member_guaranteed(ctx, user_name)
@@ -203,12 +216,12 @@ class Clubs(commands.Cog):
             await ctx.reply("No member found with what you specified. Try using a Discord account ID.")
             return
 
-        if member.id == int(role_id_list[1]):
+        if member.id == int(club_details_db[1]):
             await ctx.reply("club owner can not be removed from the club until the ownership is transferred, "
                             "otherwise this breaks the bot :(")
             return
 
-        role = ctx.guild.get_role(int(role_id_list[0]))
+        role = ctx.guild.get_role(int(club_details_db[0]))
         if not role:
             await ctx.reply("Looks like the role for this club no longer exists.")
             return
@@ -271,14 +284,21 @@ class Clubs(commands.Cog):
 
         """
 
-        async with self.bot.db.execute("SELECT role_id FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT TRUE FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
-            role_id_list = await cursor.fetchone()
-        if not (role_id_list or await permissions.channel_manage_guild(ctx)):
+            is_club_owner = await cursor.fetchone()
+        if not (is_club_owner or await permissions.channel_manage_guild(ctx)):
             await ctx.reply("this channel is not your club")
             return
 
-        role = ctx.guild.get_role(int(role_id_list[0]))
+        async with self.bot.db.execute("SELECT role_id FROM clubs WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            role_id_db = await cursor.fetchone()
+        if not role_id_db:
+            await ctx.reply(":skull:")
+            return
+
+        role = ctx.guild.get_role(int(role_id_db[0]))
         if not role:
             await ctx.reply("Looks like the role for this club no longer exists.")
             return
@@ -354,22 +374,28 @@ class Clubs(commands.Cog):
         Just rename the club
         """
 
-        async with self.bot.db.execute("SELECT role_id, voice_channel_id FROM clubs "
-                                       "WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT TRUE FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
-            club = await cursor.fetchone()
-        if not (club or await permissions.channel_manage_guild(ctx)):
+            is_club_owner = await cursor.fetchone()
+        if not (is_club_owner or await permissions.channel_manage_guild(ctx)):
             await ctx.reply("this channel is not your club")
+            return
+
+        async with self.bot.db.execute("SELECT role_id, voice_channel_id FROM clubs WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            club_details_db = await cursor.fetchone()
+        if not club_details_db:
+            await ctx.reply(":skull:")
             return
 
         new_name = new_name.strip()
 
         await ctx.channel.edit(reason=None, name=new_name.replace(" ", "_").lower())
 
-        voice_channel = self.bot.get_channel(int(club[1]))
+        voice_channel = self.bot.get_channel(int(club_details_db[1]))
         await voice_channel.edit(reason=None, name=new_name)
 
-        role = ctx.guild.get_role(int(club[0]))
+        role = ctx.guild.get_role(int(club_details_db[0]))
         await role.edit(name=new_name)
 
         await self.bot.db.execute("UPDATE clubs SET name = ? WHERE text_channel_id = ?",
@@ -386,10 +412,10 @@ class Clubs(commands.Cog):
         Transfer the Club ownership to another Discord account.
         user_id can only be that discord account's id
         """
-        async with self.bot.db.execute("SELECT role_id FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT TRUE FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
-            role_id_list = await cursor.fetchone()
-        if not (role_id_list or await permissions.channel_manage_guild(ctx)):
+            is_club_owner = await cursor.fetchone()
+        if not (is_club_owner or await permissions.channel_manage_guild(ctx)):
             await ctx.reply("this channel is not your club")
             return
 
@@ -576,12 +602,18 @@ class Clubs(commands.Cog):
         - public - public read and write
         """
 
-        async with self.bot.db.execute("SELECT role_id, voice_channel_id FROM clubs "
-                                       "WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT TRUE FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
-            club = await cursor.fetchone()
-        if not (club or await permissions.channel_manage_guild(ctx)):
+            is_club_owner = await cursor.fetchone()
+        if not (is_club_owner or await permissions.channel_manage_guild(ctx)):
             await ctx.reply("this channel is not your club")
+            return
+
+        async with self.bot.db.execute("SELECT voice_channel_id FROM clubs WHERE text_channel_id = ?",
+                                       [int(ctx.channel.id)]) as cursor:
+            club_details_db = await cursor.fetchone()
+        if not club_details_db:
+            await ctx.reply(":skull:")
             return
 
         if privacy_str.strip() == "private":
@@ -640,7 +672,7 @@ class Clubs(commands.Cog):
             overwrites=text_channel_overwrites,
         )
 
-        voice_channel = self.bot.get_channel(int(club[1]))
+        voice_channel = self.bot.get_channel(int(club_details_db[0]))
         if not voice_channel:
             await ctx.reply("error, voice channel not found, skipping")
         else:
@@ -665,11 +697,10 @@ class Clubs(commands.Cog):
         - automatic - anyone can join automatically with the command
         """
 
-        async with self.bot.db.execute("SELECT role_id, voice_channel_id FROM clubs "
-                                       "WHERE owner_user_id = ? AND text_channel_id = ?",
+        async with self.bot.db.execute("SELECT TRUE FROM clubs WHERE owner_user_id = ? AND text_channel_id = ?",
                                        [int(ctx.author.id), int(ctx.channel.id)]) as cursor:
-            club = await cursor.fetchone()
-        if not (club or await permissions.channel_manage_guild(ctx)):
+            is_club_owner = await cursor.fetchone()
+        if not (is_club_owner or await permissions.channel_manage_guild(ctx)):
             await ctx.reply("this channel is not your club")
             return
 
