@@ -619,66 +619,56 @@ class Clubs(commands.Cog):
 
         if privacy_str.strip() == "private":
             privacy_int = 0
-            text_channel_overwrites = {
-                ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=False,
-                    send_messages=False
-                ),
-            }
-            voice_channel_overwrites = {
-                ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=False,
-                    send_messages=False,
-                    connect=False,
-                    speak=False
-                ),
-            }
+            text_channel_overwrite = discord.PermissionOverwrite(
+                view_channel=False,
+                send_messages=False
+            )
+            voice_channel_overwrite = discord.PermissionOverwrite(
+                view_channel=False,
+                send_messages=False,
+                connect=False,
+                speak=False
+            )
         elif privacy_str.strip() == "public-readonly":
             privacy_int = 1
-            text_channel_overwrites = {
-                ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=None,
-                    send_messages=False
-                ),
-            }
-            voice_channel_overwrites = {
-                ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=None,
-                    send_messages=False,
-                    connect=False,
-                    speak=False
-                ),
-            }
+            text_channel_overwrite = discord.PermissionOverwrite(
+                view_channel=None,
+                send_messages=False
+            )
+            voice_channel_overwrite = discord.PermissionOverwrite(
+                view_channel=None,
+                send_messages=False,
+                connect=False,
+                speak=False
+            )
         elif privacy_str.strip() == "public":
             privacy_int = 2
-            text_channel_overwrites = {
-                ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=None,
-                    send_messages=True
-                ),
-            }
-            voice_channel_overwrites = {
-                ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=None,
-                    send_messages=True,
-                    connect=True,
-                    speak=True
-                ),
-            }
+            text_channel_overwrite = discord.PermissionOverwrite(
+                view_channel=None,
+                send_messages=True
+            )
+            voice_channel_overwrite = discord.PermissionOverwrite(
+                view_channel=None,
+                send_messages=True,
+                connect=True,
+                speak=True
+            )
         else:
             await ctx.reply("pick one: private, public-readonly, public")
             return
 
-        await ctx.channel.edit(
-            overwrites=text_channel_overwrites,
+        await ctx.channel.set_permissions(
+            ctx.guild.default_role,
+            overwrite=text_channel_overwrite,
         )
 
         voice_channel = self.bot.get_channel(int(club_details_db[0]))
         if not voice_channel:
             await ctx.reply("error, voice channel not found, skipping")
         else:
-            await voice_channel.edit(
-                overwrites=voice_channel_overwrites,
+            await voice_channel.set_permissions(
+                ctx.guild.default_role,
+                overwrite=voice_channel_overwrite,
             )
 
         await self.bot.db.execute("UPDATE clubs SET public = ? WHERE text_channel_id = ?",
