@@ -637,13 +637,13 @@ class Clubs(commands.Cog):
             privacy_int = 1
             text_channel_overwrites = {
                 ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=True,
+                    view_channel=None,
                     send_messages=False
                 ),
             }
             voice_channel_overwrites = {
                 ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=True,
+                    view_channel=None,
                     send_messages=False,
                     connect=False,
                     speak=False
@@ -653,13 +653,13 @@ class Clubs(commands.Cog):
             privacy_int = 2
             text_channel_overwrites = {
                 ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=True,
+                    view_channel=None,
                     send_messages=True
                 ),
             }
             voice_channel_overwrites = {
                 ctx.guild.default_role: discord.PermissionOverwrite(
-                    view_channel=True,
+                    view_channel=None,
                     send_messages=True,
                     connect=True,
                     speak=True
