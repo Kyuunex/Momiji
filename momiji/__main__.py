@@ -22,7 +22,6 @@ initial_extensions = [
     "momiji.cogs.BotManagement",
     "momiji.cogs.ChannelExporting",
     "momiji.cogs.Clubs",
-    "momiji.cogs.COVID19",
     "momiji.cogs.CRPair",
     "momiji.cogs.DMManagement",
     "momiji.cogs.Fun",
