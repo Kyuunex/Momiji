@@ -206,6 +206,24 @@ class BotManagement(commands.Cog):
 
         await ctx.send(":ok_hand:")
 
+    @commands.command(name="set_db_dump_channel", brief="Approve the current channel for dumping the database")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    @commands.guild_only()
+    async def set_db_dump_channel(self, ctx):
+        """
+        Approve the channel this is called in for DB dumps.
+        Useful to back up the database in case something happens
+        """
+
+        await self.bot.db.execute("DELETE FROM channels WHERE setting = ? AND guild_id = ? AND channel_id = ?",
+                                  ["db_dump", int(ctx.guild.id), int(ctx.channel.id)])
+        await self.bot.db.execute("INSERT INTO channels VALUES (?, ?, ?)",
+                                  ["db_dump", int(ctx.guild.id), int(ctx.channel.id)])
+        await self.bot.db.commit()
+
+        await ctx.send("This channel is now approved for DB dumps.")
+
     @commands.command(name="db_dump", brief="Perform a database dump")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
@@ -222,7 +240,8 @@ class BotManagement(commands.Cog):
             db_dump_channel = await cursor.fetchone()
 
         if not db_dump_channel:
-            await ctx.send("This channel is not approved for dumping the database.")
+            await ctx.send("This channel is not approved for dumping the database. "
+                           "This check exists to prevent accidental leaks. Use the ;set_db_dump_channel command first.")
             return
 
         await ctx.send(file=discord.File(database_file))
