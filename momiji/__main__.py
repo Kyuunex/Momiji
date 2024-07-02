@@ -72,7 +72,7 @@ class Momiji(commands.Bot):
         self.description = f"Momiji {self.app_version}"
         self.database_file = database_file
         self.db = None
-        self.shadow_guild = None
+        self.representing_guild = None
 
     async def setup_hook(self):
         self.db = await aiosqlite.connect(self.database_file)
@@ -125,6 +125,15 @@ class Momiji(commands.Bot):
         print(self.user.name)
         print(self.user.id)
         print("------")
+
+        async with self.db.execute("SELECT guild_id FROM guilds WHERE setting = ?",
+                                   ["representing_guild"]) as cursor:
+            representing_guild_db = await cursor.fetchone()
+
+        if representing_guild_db:
+            self.representing_guild = self.get_guild(int(representing_guild_db[0]))
+            if self.representing_guild:
+                print(f"Acting on behalf of {self.representing_guild.name}")
 
 
 client = Momiji(command_prefix=command_prefix, intents=intents)

@@ -18,16 +18,16 @@ class DMManagement(commands.Cog):
         Send a direct message to a server member as a bot.
         """
 
-        if self.bot.shadow_guild:
-            guild = self.bot.shadow_guild
+        if self.bot.representing_guild:
+            guild = self.bot.representing_guild
             await ctx.send(f"using a guild {guild.name}")
         else:
             guild = ctx.guild
-        
+
         if not guild:
-            guild = self.bot.shadow_guild
+            guild = self.bot.representing_guild
             if not guild:
-                await ctx.send("command not typed in a guild and no shadow guild set")
+                await ctx.send("command not typed in a guild and no representing guild set")
                 return
 
         member = get_member_helpers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
@@ -50,16 +50,16 @@ class DMManagement(commands.Cog):
         Retrieve messages from a DM channel with a server member
         """
 
-        if self.bot.shadow_guild:
-            guild = self.bot.shadow_guild
+        if self.bot.representing_guild:
+            guild = self.bot.representing_guild
             await ctx.send(f"using a guild {guild.name}")
         else:
             guild = ctx.guild
 
         if not guild:
-            guild = self.bot.shadow_guild
+            guild = self.bot.representing_guild
             if not guild:
-                await ctx.send("command not typed in a guild and no shadow guild set")
+                await ctx.send("command not typed in a guild and no representing guild set")
                 return
 
         member = get_member_helpers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
@@ -91,16 +91,16 @@ class DMManagement(commands.Cog):
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def clear_member_dm(self, ctx, user_id, amount=20):
-        if self.bot.shadow_guild:
-            guild = self.bot.shadow_guild
+        if self.bot.representing_guild:
+            guild = self.bot.representing_guild
             await ctx.send(f"using a guild {guild.name}")
         else:
             guild = ctx.guild
 
         if not guild:
-            guild = self.bot.shadow_guild
+            guild = self.bot.representing_guild
             if not guild:
-                await ctx.send("command not typed in a guild and no shadow guild set")
+                await ctx.send("command not typed in a guild and no representing guild set")
                 return
 
         member = get_member_helpers.get_member_guaranteed_custom_guild(ctx, guild, user_id)
@@ -124,30 +124,6 @@ class DMManagement(commands.Cog):
                 await message.delete()
 
         await ctx.send("don")
-
-    @commands.command(name="set_shadow_guild", brief="Do some commands as a specific guild")
-    @commands.check(permissions.is_owner)
-    @commands.check(permissions.is_not_ignored)
-    async def set_shadow_guild(self, ctx, guild_id):
-        """
-        Some commands require a guild to work, so they normally can't be used inside a DM.
-        This command will allow a user to use guild only commands inside a DM by specifying a guild beforehand
-        and not having to specify what guild to act as in every command.
-        """
-
-        if not guild_id.isdigit():
-            await ctx.send("guild ID must be all numbers")
-            return
-
-        guild = self.bot.get_guild(int(guild_id))
-
-        if not guild:
-            await ctx.send("no guild found with that ID")
-            return
-
-        self.bot.shadow_guild = guild
-
-        await ctx.send(f"all guild related commands typed right now in DMs will be intended for {guild.name}")
 
     @commands.command(name="set_dm_mirror_channel", brief="Mirror DMs to this channel")
     @commands.check(permissions.is_owner)

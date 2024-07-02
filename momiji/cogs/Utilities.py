@@ -18,16 +18,16 @@ class Utilities(commands.Cog):
         Ban a member
         """
 
-        if self.bot.shadow_guild:
-            guild = self.bot.shadow_guild
+        if self.bot.representing_guild:
+            guild = self.bot.representing_guild
             await ctx.send(f"using a guild {guild.name}")
         else:
             guild = ctx.guild
 
         if not guild:
-            guild = self.bot.shadow_guild
+            guild = self.bot.representing_guild
             if not guild:
-                await ctx.send("command not typed in a guild and no shadow guild set")
+                await ctx.send("command not typed in a guild and no representing guild set")
                 return
 
         user = discord.Object(int(user_id))

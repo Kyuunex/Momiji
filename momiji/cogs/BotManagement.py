@@ -274,6 +274,33 @@ class BotManagement(commands.Cog):
         embed = discord.Embed(title="About this bot", color=0xe95e62)
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
+    @commands.command(name="set_representing_server", brief="Act on behalf of a specific server")
+    @commands.check(permissions.is_admin)
+    @commands.check(permissions.is_not_ignored)
+    async def set_representing_server(self, ctx, guild_id):
+        """
+        Some commands require a server to work, so they normally can't be used inside a DM.
+        This command will set a server to act on behalf of.
+        """
+
+        if not guild_id.isdigit():
+            await ctx.send("guild ID must be all numbers")
+            return
+
+        guild = self.bot.get_guild(int(guild_id))
+
+        if not guild:
+            await ctx.send("no guild found with that ID")
+            return
+
+        self.bot.representing_guild = guild
+
+        await self.bot.db.execute("DELETE FROM guilds WHERE setting = ?", ["representing_guild"])
+        await self.bot.db.execute("INSERT INTO guilds VALUES (?, ?)", ["representing_guild", guild.id])
+        await self.bot.db.commit()
+
+        await ctx.send(f"I will now be representing {guild.name} in direct messages.")
+
     def measure_time(self, start_time, end_time):
         duration = int(end_time - start_time)
         return self.uptime_text(duration)
