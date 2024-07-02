@@ -28,7 +28,7 @@ initial_extensions = [
     "momiji.cogs.Gatekeeper",
     "momiji.cogs.Img",
     "momiji.cogs.InspiroBot",
-    "momiji.cogs.LegacyWaifu",
+    # "momiji.cogs.LegacyWaifu",
     "momiji.cogs.LobbyPingRole",
     "momiji.cogs.MessageStats",
     "momiji.cogs.Misc",
