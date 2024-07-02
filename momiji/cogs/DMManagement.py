@@ -81,6 +81,9 @@ class DMManagement(commands.Cog):
         buffer = ""
         async for message in dm_channel.history(limit=int(amount)):
             buffer += f"{message.author.name}: {message.content}\n"
+            if message.attachments:
+                for attachment in message.attachments:
+                    buffer += f"attachment: {attachment.url}\n"
 
         embed = discord.Embed(color=0xffffff)
         embed.set_author(name=f"messages between me and {member.name}")
