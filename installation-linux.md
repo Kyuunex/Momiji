@@ -4,6 +4,7 @@ NOTE: This is not recommended for production use. Instead, try [docker method](i
 ### Requirements:
 + `git`
 + `python3` (version 3.10 minimum)
++ `python3-venv`
 
 ### Intents
 [Visit this page](https://discord.com/developers/applications/), locate your bot and enable 
@@ -23,27 +24,21 @@ supply them via environment variables. if you do both, env vars will be used
 | token.txt  | MOMIJI_TOKEN  | [create a new app, make a bot acc](https://discord.com/developers/applications/) |
 
 ### Installation for production use
-Head over to the Releases section, pick the latest release, 
-and in its description you will see an installation command. 
-Open the Terminal, paste that in and press enter.
-
-To install the latest unstable version, type the following in the Terminal instead 
-```bash
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade
-```
-
-To run the bot, type `python3 -m momiji` in the command line
-
-### All these amount to the following
-
 ```sh
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade
 mkdir -p $HOME/.local/share/Momiji
-# wget -O $HOME/.local/share/Momiji/maindb.sqlite3 REPLACE_THIS_WITH_DIRECT_FILE_LINK # optional database backup restore
+python3 -m venv $HOME/.local/share/Momiji/venv
+source $HOME/.local/share/Momiji/venv/bin/activate
+python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade  # You can replace this with a release if you want
+```
+Repeat the commands 3 and 4 for upgrading.
+
+### Bot Configuration
+```sh
+# wget -O $HOME/.local/share/Momiji/maindb.sqlite3 REPLACE_THIS_WITH_DIRECT_FILE_LINK  # optional database backup restore
 echo "your_bot_token_goes_here" | tee $HOME/.local/share/Momiji/token.txt
 ```
 
-### Installing the bot as a systemd service
+### Configuring the bot as a systemd service
 The purpose of this is to make the bot start automatically on boot, useful for example after a power outage.  
 
 Create the following file: `/lib/systemd/system/momiji.service`  
@@ -59,7 +54,7 @@ Restart=always
 RestartSec=5
 User=pi
 Type=simple
-ExecStart=/usr/bin/python3 -m momiji
+ExecStart=/home/pi/.local/share/Momiji/venv/bin/python3 -m momiji
 
 [Install]
 WantedBy=multi-user.target
