@@ -293,6 +293,10 @@ class BotManagement(commands.Cog):
         embed = discord.Embed(title="About this bot", color=0xe95e62)
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
+    @commands.command(name="ping", brief="Ping the bot")
+    async def ping(self, ctx):
+        await ctx.reply("pong!")
+
     @commands.command(name="set_representing_server", brief="Act on behalf of a specific server")
     @commands.check(permissions.is_admin)
     @commands.check(permissions.is_not_ignored)
