@@ -149,6 +149,22 @@ class DMManagement(commands.Cog):
 
         await ctx.send(f"all guild related commands typed right now in DMs will be intended for {guild.name}")
 
+    @commands.command(name="set_dm_mirror_channel", brief="Mirror DMs to this channel")
+    @commands.check(permissions.is_owner)
+    @commands.check(permissions.is_not_ignored)
+    async def set_dm_mirror_channel(self, ctx):
+        """
+        Set this channel as a destination to DMs the bot receives
+        """
+
+        await self.bot.db.execute("DELETE FROM channels WHERE setting = ? AND guild_id = ? AND channel_id = ?",
+                                  ["dm_monitor", int(ctx.guild.id), int(ctx.channel.id)])
+        await self.bot.db.execute("INSERT INTO channels VALUES (?, ?, ?)",
+                                  ["dm_monitor", int(ctx.guild.id), int(ctx.channel.id)])
+        await self.bot.db.commit()
+
+        await ctx.send("I will mirror all DMs to this channel")
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.guild:
