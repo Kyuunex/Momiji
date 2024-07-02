@@ -87,7 +87,7 @@ class DMManagement(commands.Cog):
 
         await send_large_message.send_large_embed(ctx.channel, embed, buffer)
 
-    @commands.command(name="clear_member_dm", brief="")
+    @commands.command(name="clear_member_dm", brief="Delete messages this bot has sent in DMs")
     @commands.check(permissions.is_owner)
     @commands.check(permissions.is_not_ignored)
     async def clear_member_dm(self, ctx, user_id, amount=20):
