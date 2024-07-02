@@ -159,8 +159,21 @@ class DMManagement(commands.Cog):
             dm_monitor_channels = await cursor.fetchall()
         for dm_monitor_channel in dm_monitor_channels:
             channel = self.bot.get_channel(int(dm_monitor_channel[0]))
-            await channel.send(content=f"{str(message.channel.id)} : {message.channel.recipient}",
-                               embed=await DMEmbeds.post_message(message))
+
+            description = f"DM channel ID: {str(message.channel.id)}. "
+            if message.channel.recipient:
+                description += f"Recipient: {message.channel.recipient.name}"
+
+            forwarded_attachments = []
+            if message.attachments:
+                for attachment in message.attachments:
+                    forwarded_attachments.append(await attachment.to_file())
+
+            await channel.send(
+                content=description,
+                embed=await DMEmbeds.post_message(message),
+                files=forwarded_attachments
+            )
 
 
 async def setup(bot):

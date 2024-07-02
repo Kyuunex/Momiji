@@ -14,11 +14,6 @@ async def post_message(message):
         description=description,
         color=0xFFFFFF
     )
-    if message.attachments:
-        attachment = message.attachments[0]
-        embed.set_image(
-            url=attachment.url
-        )
     embed.set_author(
         name=str(message.author),
         icon_url=message.author.display_avatar.url
