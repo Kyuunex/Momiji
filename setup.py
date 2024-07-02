@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 from momiji.manifest import VERSION
 
