@@ -123,6 +123,11 @@ class VoiceRoles(commands.Cog):
             if role_id_list:
                 for role_id in role_id_list:
                     role = member.guild.get_role(int(role_id[0]))
+                    if not role:
+                        print(f"Can't find role with id {role_id[0]}, deleting")
+                        await self.bot.db.execute("DELETE FROM voice_roles WHERE role_id = ?", [int(role_id[0])])
+                        await self.bot.db.commit()
+                        return
                     await member.add_roles(role)
             return
 
@@ -133,6 +138,11 @@ class VoiceRoles(commands.Cog):
             if role_id_list:
                 for role_id in role_id_list:
                     role = member.guild.get_role(int(role_id[0]))
+                    if not role:
+                        print(f"Can't find role with id {role_id[0]}, deleting")
+                        await self.bot.db.execute("DELETE FROM voice_roles WHERE role_id = ?", [int(role_id[0])])
+                        await self.bot.db.commit()
+                        return
                     await member.remove_roles(role)
             return
 
@@ -149,10 +159,20 @@ class VoiceRoles(commands.Cog):
             if before_role_id_list:
                 for before_role_id in before_role_id_list:
                     role = member.guild.get_role(int(before_role_id[0]))
+                    if not role:
+                        print(f"Can't find role with id {before_role_id[0]}, deleting")
+                        await self.bot.db.execute("DELETE FROM voice_roles WHERE role_id = ?", [int(before_role_id[0])])
+                        await self.bot.db.commit()
+                        return
                     await member.remove_roles(role)
             if after_role_id_list:
                 for after_role_id in after_role_id_list:
                     role_after = member.guild.get_role(int(after_role_id[0]))
+                    if not role_after:
+                        print(f"Can't find role with id {after_role_id[0]}, deleting")
+                        await self.bot.db.execute("DELETE FROM voice_roles WHERE role_id = ?", [int(after_role_id[0])])
+                        await self.bot.db.commit()
+                        return
                     await member.add_roles(role_after)
             return
 
