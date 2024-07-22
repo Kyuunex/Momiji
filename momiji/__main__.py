@@ -118,7 +118,7 @@ class Momiji(commands.Bot):
         # await super().close()
 
         # for now let's just quit() since the thing above does not work :c
-        quit()
+        # quit()
 
     async def on_ready(self):
         print("Logged in as")
