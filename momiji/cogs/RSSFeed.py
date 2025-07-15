@@ -15,6 +15,9 @@ from momiji.reusables import send_large_message
 class RSSFeed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.REFRESH_INTERVAL = 3600
+        self.INACTIVE_INTERVAL = 3600
+        self.ERROR_INTERVAL = 1600
         self.bot.background_tasks.append(
             self.bot.loop.create_task(self.rssfeed_background_loop())
         )
@@ -163,7 +166,7 @@ class RSSFeed(commands.Cog):
                 rssfeed_entries = await cursor.fetchall()
             if not rssfeed_entries:
                 # RSS tracklist is empty
-                await asyncio.sleep(1600)
+                await asyncio.sleep(self.INACTIVE_INTERVAL)
                 continue
 
             for rssfeed_entry in rssfeed_entries:
@@ -184,7 +187,7 @@ class RSSFeed(commands.Cog):
                     url_raw_contents = await self.fetch(url)
                 except aiohttp_exceptions.ClientConnectorError:
                     print("ClientConnectorError in rss feed loop. sleeping for 1600s")
-                    await asyncio.sleep(1600)
+                    await asyncio.sleep(self.ERROR_INTERVAL)
                     continue
 
                 url_parsed_contents = feedparser.parse(url_raw_contents)
@@ -245,7 +248,7 @@ class RSSFeed(commands.Cog):
 
             print(time.strftime("%Y/%m/%d %H:%M:%S %Z"))
             print("finished rss check")
-            await asyncio.sleep(1200)
+            await asyncio.sleep(self.REFRESH_INTERVAL)
 
 
 async def setup(bot):
