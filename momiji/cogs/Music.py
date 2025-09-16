@@ -1,24 +1,10 @@
 import asyncio
 import os
-
 import discord
-try:
-    import yt_dlp as youtube_dl
-except ModuleNotFoundError:
-    print("yt-dlp not installed, falling back on youtube-dl")
-    try:
-        import youtube_dl
-    except ModuleNotFoundError:
-        print("youtube-dl is not installed either. installing one of these is required. yt-dlp is recommended.")
-        raise SystemExit
-
+import yt_dlp
 from momiji.modules import permissions
 from momiji.modules.storage_management import BOT_CACHE_DIR
-
 from discord.ext import commands
-
-# Suppress noise about console usage from errors
-youtube_dl.utils.bug_reports_message = lambda: ""
 
 
 ytdl_format_options = {
@@ -39,7 +25,7 @@ ffmpeg_options = {
     "options": "-vn"
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 
 async def is_dj(ctx):
