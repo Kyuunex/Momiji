@@ -16,7 +16,7 @@ class Img(commands.Cog):
     @commands.check(permissions.is_not_ignored)
     async def art(self, ctx):
         """
-        Upload a random picture from ~/.config/Momiji/art/ folder
+        Upload a random picture from ~/.local/share/Momiji/art/ folder
         """
         if not await cooldown.check(str(ctx.author.id), "last_art_time", 40):
             if not await permissions.is_admin(ctx):
@@ -46,7 +46,7 @@ class Img(commands.Cog):
                 await ctx.send("i tried 10 times to find an image to post for you something went wrong...")
                 return
 
-        await ctx.send(file=discord.File(BOT_ART_DIRECTORY + "/" + random_picture))
+        await ctx.send(file=discord.File(os.path.join(BOT_ART_DIRECTORY, random_picture)))
 
     @commands.command(name="neko", brief="Post a random neko")
     @commands.check(permissions.is_not_ignored)

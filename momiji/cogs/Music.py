@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 import discord
 try:
@@ -22,7 +23,7 @@ youtube_dl.utils.bug_reports_message = lambda: ""
 
 ytdl_format_options = {
     "format": "bestaudio/best",
-    "outtmpl": BOT_CACHE_DIR + "/%(extractor)s-%(id)s-%(title)s.%(ext)s",
+    "outtmpl": os.path.join(BOT_CACHE_DIR, "%(extractor)s-%(id)s-%(title)s.%(ext)s"),
     "restrictfilenames": True,
     "noplaylist": True,
     "nocheckcertificate": True,
