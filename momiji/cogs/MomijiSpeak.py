@@ -204,6 +204,12 @@ class MomijiSpeak(commands.Cog):
     async def main(self, message):
         await self.store_message(message)
 
+        async with self.bot.db.execute("SELECT channel_id FROM mmj_ignored_channels WHERE channel_id = ?",
+                                       [message.channel.id]) as cursor:
+            is_current_channel_ignored = await cursor.fetchall()
+        if is_current_channel_ignored:
+            return
+
         if await permissions.is_ignored(message):
             return
 

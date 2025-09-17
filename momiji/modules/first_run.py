@@ -336,6 +336,13 @@ async def ensure_tables(db):
     )
     """)
     await db.execute("""
+    CREATE TABLE IF NOT EXISTS "mmj_ignored_channels" (
+        "guild_id"    INTEGER NOT NULL, 
+        "channel_id"    INTEGER NOT NULL UNIQUE
+    )
+    """)
+
+    await db.execute("""
     CREATE TABLE IF NOT EXISTS "user_timezones" (
         "user_id"    INTEGER NOT NULL UNIQUE, 
         "offset"    INTEGER NOT NULL
