@@ -40,7 +40,7 @@ echo "your_bot_token_goes_here" | tee $HOME/.local/share/Momiji/token.txt
 ### Configuring the bot as a systemd service
 The purpose of this is to make the bot start automatically on boot, useful for example after a power outage.  
 
-Create the following file: `/lib/systemd/system/momiji.service`  
+Create the following file: `/etc/systemd/system/momiji.service`  
 Inside it, put the following:
 ```ini
 [Unit]
