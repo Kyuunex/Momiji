@@ -53,7 +53,7 @@ Restart=always
 RestartSec=10
 User=user
 Type=simple
-ExecStart=/home/user/.local/share/Momiji/.venv/bin/python3 -m momiji
+ExecStart=/home/user/.local/share/Momiji/.venv/bin/python3 -u -m momiji
 
 [Install]
 WantedBy=multi-user.target
