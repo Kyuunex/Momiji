@@ -1,9 +1,9 @@
-VERSION = "2.2.6"
+VERSION = "2026.10.15"
 
 CONTRIBUTORS = [
     {
-        "name": "Kyuunex",
-        "url": "https://github.com/Kyuunex",
+        "name": "qnx",
+        "url": "https://github.com/qnx",
         "role": "BDFL"
     },
     {

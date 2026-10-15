@@ -27,7 +27,7 @@ supply them via environment variables. if you do both, env vars will be used
 mkdir -p $HOME/.local/share/Momiji
 python3 -m venv $HOME/.local/share/Momiji/.venv
 source $HOME/.local/share/Momiji/.venv/bin/activate
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade  # You can replace this with a release if you want
+python3 -m pip install git+https://github.com/qnxt/Momiji.git@master --upgrade  # You can replace this with a release if you want
 ```
 Repeat the commands 3 and 4 for upgrading.
 

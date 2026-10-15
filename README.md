@@ -1,7 +1,7 @@
 # Momiji
 The only Discord bot you'll ever need. Built using discord.py and uses sqlite3 database.
 
-Momiji is a fake AI Discord bot that actually learns from the messages it can see 
+Momiji is a fake AI Discord bot (not an LLM) that actually learns from the messages it can see 
 responds you with the knowledge it obtained from that channel, when it is triggered. 
 Basically, if a channel has a personality, Momiji would be it. 
 How cancerous Momiji is in a given channel really depends on the messages sent in that channel.

@@ -9,7 +9,7 @@
 - MESSAGE CONTENT INTENT
 
 ### Where is the bot's data folder
-`C:\Users\username\AppData\Local\Kyuunex\Momiji`  
+`C:\Users\username\AppData\Local\qnx\Momiji`  
 If you are restoring a database backup, it goes into this folder.
 
 ### API keys and tokens
@@ -27,7 +27,7 @@ Open the Terminal (PowerShell or CMD), paste that in and press enter.
 
 To install the latest unstable version, type the following in the Terminal instead 
 ```bash
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade
+python3 -m pip install git+https://github.com/qnxt/Momiji.git@master --upgrade
 ```
 
 To run the bot, type `python3 -m momiji` in the Terminal
@@ -46,7 +46,7 @@ pause
 
 ## Installation for debugging and development
 ```bash
-git clone https://github.com/Kyuunex/Momiji.git -b master
+git clone https://github.com/qnxt/Momiji.git -b master
 cd Momiji
 ```
 To run for debugging purposes, type `run_momiji.py`  

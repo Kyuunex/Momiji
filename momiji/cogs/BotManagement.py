@@ -63,7 +63,6 @@ class BotManagement(commands.Cog):
         """
         This command prints out a list of users
         who have been explicitly blacklisted from using this bot by the bot owner.
-        If this is the only command you see, you are blacklisted from using the bot.
         """
 
         async with self.bot.db.execute("SELECT user_id, reason FROM ignored_users") as cursor:
@@ -197,7 +196,7 @@ class BotManagement(commands.Cog):
     async def set_activity(self, ctx, *, string):
         """
         Set "Playing" activity.
-        
+
         string: Playing what goes here.
         """
 
@@ -235,7 +234,7 @@ class BotManagement(commands.Cog):
         This will fail if the database file size is more than 8 MB.
         """
 
-        async with self.bot.db.execute("SELECT channel_id FROM channels WHERE setting = ? and channel_id = ?",
+        async with self.bot.db.execute("SELECT channel_id FROM channels WHERE setting = ? AND channel_id = ?",
                                        ["db_dump", int(ctx.channel.id)]) as cursor:
             db_dump_channel = await cursor.fetchone()
 

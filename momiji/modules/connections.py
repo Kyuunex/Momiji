@@ -10,5 +10,5 @@ else:
             bot_token = token_file.read().strip()
     except FileNotFoundError as e:
         print("i need a bot token. either set MOMIJI_TOKEN environment variable")
-        print("or put it in:", token_file_full_path)
+        print("or put it in: ", token_file_full_path)
         raise SystemExit

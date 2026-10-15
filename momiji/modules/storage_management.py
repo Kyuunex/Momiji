@@ -2,7 +2,7 @@ from appdirs import AppDirs
 from pathlib import Path
 import os
 
-dirs = AppDirs("Momiji", "Kyuunex")
+dirs = AppDirs("Momiji", "qnx")
 
 if os.environ.get('MOMIJI_DATA_DIR'):
     BOT_DATA_DIR = os.environ.get('MOMIJI_DATA_DIR')

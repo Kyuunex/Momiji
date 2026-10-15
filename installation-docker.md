@@ -26,7 +26,7 @@ You need to either supply them via environment variables.
 These instructions are newly written and not thoroughly tested, but what you should be doing looks something like this: 
 
 ```bash
-git clone https://github.com/Kyuunex/Momiji.git -b master # replace master with version from Releases tab
+git clone https://github.com/qnxt/Momiji.git -b master # replace master with version from Releases tab
 cd Momiji
 docker build -t momiji .
 docker run -e MOMIJI_TOKEN=your_bot_token_goes_here momiji # first run only
@@ -37,7 +37,7 @@ docker start container_name # subsequent runs
 ### Updating from inside the container
 If you shell into the container, this is how you update the version, you typically shouldn't use docker like this.
 ```sh
-python3 -m pip install git+https://github.com/Kyuunex/Momiji.git@master --upgrade
+python3 -m pip install git+https://github.com/qnxt/Momiji.git@master --upgrade
 # wget -O $HOME/.local/share/Momiji/maindb.sqlite3 REPLACE_THIS_WITH_DIRECT_FILE_LINK # optional database backup restore
 ```
 replace `master` with version from Releases tab
